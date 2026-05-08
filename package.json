@@ -1,0 +1,31 @@
+{
+	"name": "tp-individual-panificadora",
+	"version": "1.0.0",
+	"description": "Aplicación web desarrollada con Node.js y Express la Panificadora Industrial La Espiga de Oro.",
+	"homepage": "https://github.com/fazcue/ifts-29-backend-tp-panificadora#readme",
+	"bugs": {
+		"url": "https://github.com/fazcue/ifts-29-backend-tp-panificadora/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/fazcue/ifts-29-backend-tp-panificadora.git"
+	},
+	"license": "ISC",
+	"author": "Facundo Azcue",
+	"type": "module",
+	"main": "src/app.js",
+	"directories": {
+		"doc": "docs"
+	},
+	"scripts": {
+		"start": "node src/app.js",
+		"dev": "nodemon src/app.js"
+	},
+	"dependencies": {
+		"express": "^5.2.1",
+		"pug": "^3.0.4"
+	},
+	"devDependencies": {
+		"nodemon": "^3.1.14"
+	}
+}

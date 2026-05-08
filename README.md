@@ -60,7 +60,6 @@ El proyecto aplica el patrón **MVC (Modelo - Vista - Controlador)**:
 ifts-29-backend-tp-panificadora/
 ├── src/
 │   ├── models/
-│   ├── services/
 │   ├── controllers/
 │   ├── routes/
 │   ├── middleware/
