@@ -36,21 +36,23 @@ Este sistema busca resolver esa problemática mediante:
 - **Framework:** Express.js
 - **Motor de plantillas:** Pug
 - **Persistencia:** JSON (archivos `.json` en `/data`)
-- **Arquitectura:** MVC (Modelo - Vista - Controlador) con separación modular y POO
+- **Arquitectura:** MVC (Modelo - Vista - Controlador) con capa de servicios, separación modular y POO
 - **Testing:** Thunder Client
 
 
 ## Arquitectura
 
-El proyecto aplica el patrón **MVC (Modelo - Vista - Controlador)**:
+El proyecto aplica el patrón **MVC (Modelo - Vista - Controlador)** incorporando una capa de **servicios** para centralizar la lógica reutilizable:
  
 | Capa | Carpeta | Responsabilidad |
 |---|---|---|
 | **Modelo** | `/models` | Clases con POO que representan las entidades del sistema |
 | **Vista** | `/views` | Plantillas Pug que renderizan la información |
-| **Controlador** | `/controllers` | Recibe las requests y ejecuta la lógica de negocio |
+| **Controlador** | `/controllers` | Recibe las requests, coordina la respuesta HTTP y delega operaciones al service |
+| **Servicio** | `/services` | Centraliza la lógica de negocio y acceso a datos reutilizable entre API y vistas |
 | **Rutas** | `/routes` | Define los endpoints y los conecta con los controladores |
-| **Middleware** | `/middleware` | Funciones intermedias: validación de campos, logging |
+| **Middleware** | `/middlewares` | Funciones intermedias: validación de campos y control previo a los controladores |
+| **Lib** | `/lib` | Utilidades compartidas, como lectura y escritura de archivos JSON |
 
 
 
@@ -59,10 +61,12 @@ El proyecto aplica el patrón **MVC (Modelo - Vista - Controlador)**:
 ```
 ifts-29-backend-tp-panificadora/
 ├── src/
-│   ├── models/
 │   ├── controllers/
+│   ├── lib/
+│   ├── middlewares/
+│   ├── models/
 │   ├── routes/
-│   ├── middleware/
+│   ├── services/
 │   ├── views/
 │   └── app.js
 ├── data/
