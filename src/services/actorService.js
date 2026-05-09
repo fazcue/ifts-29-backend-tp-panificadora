@@ -17,16 +17,16 @@ const obtenerTipos = async () => {
     return await leerData(TIPOS)
 }
 
-const crearActor = async (nombre, tipo) => {
+const crearActor = async (nombre, email, tipo) => {
     const actores = await obtenerActores()
-    const nuevo = new Actor(nombre.trim(), tipo.trim())
+    const nuevo = new Actor(nombre.trim(), email.trim().toLowerCase(), tipo.trim())
 
     await guardarData(COLECCION, [...actores, nuevo])
 
     return nuevo
 }
 
-const actualizarActor = async (id, nombre, tipo, activo) => {
+const actualizarActor = async (id, nombre, email, tipo, activo) => {
     const actores = await obtenerActores()
     const actor = actores.find(actor => actor.id === +id)
 
@@ -35,6 +35,7 @@ const actualizarActor = async (id, nombre, tipo, activo) => {
     }
 
     actor.nombre = nombre.trim()
+    actor.email = email.trim().toLowerCase()
     actor.tipo = tipo.trim()
     actor.activo = activo ?? actor.activo
 

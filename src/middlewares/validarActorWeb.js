@@ -2,7 +2,7 @@ import { leerData } from "../lib/fs.js"
 
 async function validarActorWeb(req, res, next) {
     try {
-        const { nombre, tipo } = req.body
+        const { nombre, email, tipo } = req.body
         const { id } = req.params
 
         const tipos = await leerData("actor_tipo")
@@ -18,12 +18,20 @@ async function validarActorWeb(req, res, next) {
         }
 
         const datosFormulario = id
-            ? { actor: { ...actor, nombre, tipo }, tipos }
-            : { actor: { nombre, tipo }, tipos }
+            ? { actor: { ...actor, nombre, email, tipo }, tipos }
+            : { actor: { nombre, email, tipo }, tipos }
 
         // validar campos vacíos
-        if (!nombre?.trim() || !tipo?.trim()) {
+        if (!nombre?.trim() || !email?.trim() || !tipo?.trim()) {
             return res.status(400).render(vistaActual, { error: 'Datos faltantes', ...datosFormulario })
+        }
+
+        // validar email
+        const emailNormalizado = email.trim().toLowerCase()
+        const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailNormalizado)
+
+        if (!emailValido) {
+            return res.status(400).render(vistaActual, { error: 'Email inválido', ...datosFormulario })
         }
 
         // validar tipo
@@ -38,6 +46,15 @@ async function validarActorWeb(req, res, next) {
 
         if (existeActor) {
             return res.status(409).render(vistaActual, { error: `Ya existe un actor con el nombre ${nombre}`, ...datosFormulario })
+        }
+
+        // validar email duplicado
+        const existeEmail = actores.some(actor => {
+            return actor.id !== +id && actor.email?.trim().toLowerCase() === emailNormalizado
+        })
+
+        if (existeEmail) {
+            return res.status(409).render(vistaActual, { error: `Ya existe un actor con el email ${email}`, ...datosFormulario })
         }
 
         next()
