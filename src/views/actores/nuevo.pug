@@ -14,6 +14,9 @@ block content
             label(for='nombre') Nombre
             input#nombre(type='text' name='nombre' value=actor && actor.nombre required)
         div.form-field
+            label(for='email') Email
+            input#email(type='email' name='email' value=actor && actor.email required)
+        div.form-field
             label(for='tipo') Tipo
             select#tipo(name='tipo' required)
                 option(value='') Seleccionar...

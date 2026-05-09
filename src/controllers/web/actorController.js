@@ -24,9 +24,9 @@ const formularioNuevoActorWeb = async (req, res) => {
 
 const crearActorWeb = async (req, res) => {
     try {
-        const { nombre, tipo } = req.body
+        const { nombre, email, tipo } = req.body
         
-        await actorService.crearActor(nombre, tipo)
+        await actorService.crearActor(nombre, email, tipo)
 
         res.redirect('/actores')
     } catch (error) {
@@ -57,10 +57,10 @@ const formularioEditarActorWeb = async (req, res) => {
 const actualizarActorWeb = async (req, res) => {
     try {
         const id = req.params.id
-        const { nombre, tipo, activo } = req.body
+        const { nombre, email, tipo, activo } = req.body
 
         
-        const actor = await actorService.actualizarActor(id, nombre, tipo, activo)
+        const actor = await actorService.actualizarActor(id, nombre, email, tipo, activo)
 
         if (!actor) {
             return res.status(404).render('error', { mensaje: 'Actor no encontrado' })
