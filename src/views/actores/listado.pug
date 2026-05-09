@@ -1,0 +1,32 @@
+extends ../layout
+
+block content
+    div.page-heading
+        div
+            p.eyebrow Gestion interna
+            h2 Actores
+        a.btn(href='/actores/nuevo') Nuevo actor
+
+    if actores.length > 0
+        ul.actor-list
+            each actor in actores
+                li.actor-item
+                    div.actor-info
+                        h3= actor.nombre
+                        p= actor.tipo
+
+                    if actor.activo
+                        span.badge.badge-on Si
+                    else
+                        span.badge.badge-off No
+
+                    div.actions
+                        a.btn.btn-sm.btn-secondary(href=`/actores/editar/${actor.id}`) Editar
+                        form.inline(action=`/actores/activar-desactivar/${actor.id}` method='POST')
+                            if actor.activo
+                                button.btn.btn-sm(type='submit') Desactivar
+                            else
+                                button.btn.btn-sm(type='submit') Activar
+
+    else
+        p.empty-state Sin actores registrados
