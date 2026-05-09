@@ -2,14 +2,13 @@ import { readFile, writeFile } from 'fs/promises'
 
 const BASE_PATH = 'data'
 
-const readData = async (collection) => {
-    const data = await readFile(`${BASE_PATH}/${collection}.json`)
-
+const leerData = async (coleccion) => {
+    const data = await readFile(`${BASE_PATH}/${coleccion}.json`)
     return JSON.parse(data)
 }
 
-const writeData = async (collection, data) => {
-    await writeFile(`${BASE_PATH}/${collection}.json`, JSON.stringify(data, null, 4))
+const guardarData = async (coleccion, data) => {
+    await writeFile(`${BASE_PATH}/${coleccion}.json`, JSON.stringify(data, null, 4))
 }
 
-export { readData, writeData }
+export { leerData, guardarData }

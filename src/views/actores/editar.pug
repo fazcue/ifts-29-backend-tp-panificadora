@@ -1,0 +1,23 @@
+extends ../layout
+
+block content
+    div.page-heading
+        div
+            p.eyebrow Actores
+            h2 Editar actor
+
+    if error
+        p.alert= error
+
+    form.form-panel(action=`/actores/editar/${actor.id}` method='POST')
+        div.form-field
+            label(for='nombre') Nombre
+            input#nombre(type='text' name='nombre' value=actor.nombre required)
+        div.form-field
+            label(for='tipo') Tipo
+            select#tipo(name='tipo' required)
+                each tipo in tipos
+                    option(value=tipo selected=actor.tipo===tipo)= tipo
+        div.form-actions
+            button.btn(type='submit') Guardar
+            a.btn.btn-secondary(href='/actores') Cancelar
