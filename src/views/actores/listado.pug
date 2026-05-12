@@ -3,7 +3,7 @@ extends ../layout
 block content
     div.page-heading
         div
-            p.eyebrow Gestion interna
+            p.eyebrow Gestion
             h2 Actores
         a.btn(href='/actores/nuevo') Nuevo actor
 
@@ -18,9 +18,9 @@ block content
                             p= actor.email
 
                     if actor.activo
-                        span.badge.badge-on Si
+                        span.badge.badge-on activo
                     else
-                        span.badge.badge-off No
+                        span.badge.badge-off no activo
 
                     div.actions
                         a.btn.btn-sm.btn-secondary(href=`/actores/editar/${actor.id}`) Editar

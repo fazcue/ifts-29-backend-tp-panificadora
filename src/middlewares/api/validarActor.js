@@ -1,4 +1,4 @@
-import { leerData } from "../lib/fs.js"
+import { leerData } from "../../lib/fs.js"
 
 async function validarActor(req, res, next) {
     try {

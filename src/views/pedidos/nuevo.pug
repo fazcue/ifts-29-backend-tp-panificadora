@@ -1,0 +1,24 @@
+extends ../layout
+
+block content
+    div.page-heading
+        div
+            p.eyebrow Pedidos
+            h2 Nuevo pedido
+
+    if error
+        p.alert= error
+
+    form.form-panel(action='/pedidos/nuevo' method='POST')
+        div.form-field
+            label(for='fecha_entrega_esperada') Fecha de entrega esperada
+            input#fecha_entrega_esperada(type='date' name='fecha_entrega_esperada' value=pedido && pedido.fecha_entrega_esperada required)
+        div.form-field
+            label(for='id_actor') Actor
+            select#id_actor(name='id_actor' required)
+                option(value='') Seleccionar...
+                each actor in actores
+                    option(value=actor.id selected=pedido && pedido.id_actor===actor.id)= `${actor.nombre} - ${actor.tipo}`
+        div.form-actions
+            button.btn(type='submit') Guardar
+            a.btn.btn-secondary(href='/pedidos') Cancelar

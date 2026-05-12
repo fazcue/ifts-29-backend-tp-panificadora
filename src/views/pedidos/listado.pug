@@ -1,0 +1,29 @@
+extends ../layout
+
+block content
+    div.page-heading
+        div
+            p.eyebrow Gestion
+            h2 Pedidos
+        a.btn(href='/pedidos/nuevo') Nuevo pedido
+
+    if pedidos.length > 0
+        ul.actor-list
+            each pedido in pedidos
+                li.actor-item
+                    div.actor-info
+                        h3= `Pedido #${pedido.id}`
+                        p= pedido.actor ? `${pedido.actor.nombre} - ${pedido.actor.tipo}` : 'Actor no encontrado'
+                        p= `Entrega esperada: ${pedido.fecha_entrega_esperada}`
+                        if pedido.fecha_entrega_real
+                            p= `Entrega real: ${pedido.fecha_entrega_real}`
+
+                    span.badge(class=pedido.estado === 'ENTREGADO' ? 'badge-on' : 'badge-off')= pedido.estado
+
+                    div.actions
+                        a.btn.btn-sm.btn-secondary(href=`/pedidos/editar/${pedido.id}`) Editar
+                        form.inline(action=`/pedidos/eliminar/${pedido.id}` method='POST')
+                            button.btn.btn-sm(type='submit') Eliminar
+
+    else
+        p.empty-state Sin pedidos registrados

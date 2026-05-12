@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { activarDesactivarActorWeb, actualizarActorWeb, crearActorWeb, formularioEditarActorWeb, formularioNuevoActorWeb, listarActoresWeb } from '../../controllers/web/actorController.js'
-import validarActorWeb from '../../middlewares/validarActorWeb.js'
+import validarActorWeb from '../../middlewares/web/validarActorWeb.js'
 
 const router = Router()
 
