@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { listarActores, listarActor, crearActor, actualizarActor, eliminarActor } from '../../controllers/api/actorController.js'
-import validarActor from '../../middlewares/validarActor.js'
+import validarActor from '../../middlewares/api/validarActor.js'
 
 const router = Router()
 

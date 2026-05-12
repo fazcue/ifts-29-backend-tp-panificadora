@@ -4,8 +4,10 @@ import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 // Rutas API
 import actoresRouter from './routes/api/actoresRoutes.js'
+import pedidosRouter from './routes/api/pedidosRoutes.js'
 // Rutas Web
 import actoresRouterWeb from './routes/web/actoresRoutes.js'
+import pedidosRouterWeb from './routes/web/pedidosRoutes.js'
 
 dotenv.config()
 
@@ -24,9 +26,11 @@ app.set("views", join(__dirname, "views"))
 
 // Rutas web
 app.use('/actores', actoresRouterWeb)
+app.use('/pedidos', pedidosRouterWeb)
 
 // Rutas API
 app.use('/api/actores', actoresRouter)
+app.use('/api/pedidos', pedidosRouter)
 
 // Inicio
 app.get('/', (req, res) => res.render('portada'))
