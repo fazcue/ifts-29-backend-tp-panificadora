@@ -42,18 +42,22 @@ Este sistema busca resolver esa problemática mediante:
 
 ## Arquitectura
 
-El proyecto aplica el patrón **MVC (Modelo - Vista - Controlador)** incorporando una capa de **servicios** para centralizar la lógica reutilizable:
+El proyecto aplica una arquitectura **MVC (Modelo - Vista - Controlador)** con separación modular por responsabilidad. Además de modelos, vistas y controladores, se incorporan capas de **rutas**, **middlewares**, **servicios** y **validators** para mantener la lógica reutilizable y evitar duplicación entre la API JSON y la interfaz web.
  
 | Capa | Carpeta | Responsabilidad |
 |---|---|---|
-| **Modelo** | `/models` | Clases con POO que representan las entidades del sistema |
-| **Vista** | `/views` | Plantillas Pug que renderizan la información |
-| **Controlador** | `/controllers` | Recibe las requests, coordina la respuesta HTTP y delega operaciones al service |
-| **Servicio** | `/services` | Centraliza la lógica de negocio y acceso a datos reutilizable entre API y vistas |
-| **Rutas** | `/routes` | Define los endpoints y los conecta con los controladores |
-| **Middleware** | `/middlewares` | Funciones intermedias: validación de campos y control previo a los controladores |
-| **Lib** | `/lib` | Utilidades compartidas, como lectura y escritura de archivos JSON |
-
+| **Modelos** | `/src/models` | Clases que representan entidades del sistema, como `Actor` y `Pedido` |
+| **Vistas** | `/src/views` | Plantillas Pug usadas por la interfaz web |
+| **Controladores API** | `/src/controllers/api` | Reciben requests HTTP y responden JSON con códigos adecuados |
+| **Controladores Web** | `/src/controllers/web` | Reciben requests desde formularios y renderizan vistas o redirecciones |
+| **Servicios** | `/src/services` | Centralizan acceso a datos y lógica reutilizable entre API y Web |
+| **Rutas API** | `/src/routes/api` | Definen endpoints REST, por ejemplo `/api/actores` y `/api/pedidos` |
+| **Rutas Web** | `/src/routes/web` | Definen pantallas y formularios, por ejemplo `/actores` y `/pedidos` |
+| **Middlewares API** | `/src/middlewares/api` | Validan datos de entrada y responden errores en formato JSON |
+| **Middlewares Web** | `/src/middlewares/web` | Validan formularios y vuelven a renderizar la vista con mensajes de error |
+| **Validators** | `/src/validators` | Reglas reutilizables de validación y helpers de respuesta |
+| **Lib** | `/src/lib` | Utilidades compartidas, como lectura/escritura JSON y validación de fechas |
+| **Persistencia** | `/data` | Archivos JSON usados como almacenamiento temporal |
 
 
 ## Estructura del proyecto
@@ -62,14 +66,27 @@ El proyecto aplica el patrón **MVC (Modelo - Vista - Controlador)** incorporand
 ifts-29-backend-tp-panificadora/
 ├── src/
 │   ├── controllers/
+│   │   ├── api/
+│   │   └── web/
 │   ├── lib/
 │   ├── middlewares/
+│   │   ├── api/
+│   │   └── web/
 │   ├── models/
 │   ├── routes/
+│   │   ├── api/
+│   │   └── web/
 │   ├── services/
+│   ├── validators/
 │   ├── views/
+│   │   ├── actores/
+│   │   └── pedidos/
 │   └── app.js
 ├── data/
+│   ├── actores.json
+│   ├── actor_tipo.json
+│   ├── pedidos.json
+│   └── pedido_estado.json
 ├── docs/
 │   └── der.png
 ├── package.json
