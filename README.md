@@ -60,6 +60,20 @@ El proyecto aplica una arquitectura **MVC (Modelo - Vista - Controlador)** con s
 | **Persistencia** | `/data` | Archivos JSON usados como almacenamiento temporal |
 
 
+## Asincronía y ECMAScript
+
+El proyecto utiliza JavaScript moderno con configuración `"type": "module"` en `package.json`, por lo que los módulos se organizan mediante `import` y `export`.
+
+También se aplican recursos de ECMAScript moderno en distintas capas del proyecto:
+
+- `const` para declarar referencias que no se reasignan.
+- Arrow functions para servicios, controladores, middlewares y helpers.
+- Destructuring para tomar datos de `req.body` y `req.params`.
+- Spread operator para construir objetos y actualizar datos sin duplicar estructura.
+- `Promise.all` para resolver en paralelo lecturas independientes de archivos JSON.
+- Template literals para mensajes y títulos dinámicos.
+
+
 ## Estructura del proyecto
 
 ```
