@@ -5,7 +5,7 @@ const COLECCION = "pedidos"
 const ESTADOS = "pedido_estado"
 
 const obtenerPedidos = async () => {
-    return await leerData(COLECCION)
+    return leerData(COLECCION)
 }
 
 const buscarPedidoPorId = async (id) => {
@@ -14,12 +14,14 @@ const buscarPedidoPorId = async (id) => {
 }
 
 const obtenerEstados = async () => {
-    return await leerData(ESTADOS)
+    return leerData(ESTADOS)
 }
 
 const obtenerPedidosConActores = async () => {
-    const pedidos = await obtenerPedidos()
-    const actores = await leerData("actores")
+    const [pedidos, actores] = await Promise.all([
+        obtenerPedidos(),
+        leerData("actores")
+    ])
 
     return pedidos.map(pedido => {
         const actor = actores.find(actor => actor.id === pedido.id_actor)
