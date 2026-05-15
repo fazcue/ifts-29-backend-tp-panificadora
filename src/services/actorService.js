@@ -5,7 +5,7 @@ const COLECCION = 'actores'
 const TIPOS = "actor_tipo"
 
 const obtenerActores = async () => {
-    return await leerData(COLECCION)
+    return leerData(COLECCION)
 }
 
 const buscarActorPorId = async (id) => {
@@ -13,8 +13,13 @@ const buscarActorPorId = async (id) => {
     return actores.find(actor => actor.id === +id)
 }
 
+const obtenerActoresActivos = async () => {
+    const actores = await obtenerActores()
+    return actores.filter(actor => actor.activo)
+}
+
 const obtenerTipos = async () => {
-    return await leerData(TIPOS)
+    return leerData(TIPOS)
 }
 
 const crearActor = async (nombre, email, tipo) => {
@@ -76,6 +81,7 @@ const eliminarActor = async (id) => {
 export default {
     obtenerActores,
     buscarActorPorId,
+    obtenerActoresActivos,
     obtenerTipos,
     crearActor,
     actualizarActor,

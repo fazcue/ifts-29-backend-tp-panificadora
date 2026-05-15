@@ -1,12 +1,15 @@
-import { leerData } from "../../lib/fs.js"
+import actorService from "../../services/actorService.js"
 
-async function validarActor(req, res, next) {
+const validarActor = async (req, res, next) => {
     try {
         const { nombre, email, tipo, activo } = req.body
         const { id } = req.params
 
-        const tipos = await leerData("actor_tipo")
-        const actores = await leerData("actores")
+        // data
+        const [tipos, actores] = await Promise.all([
+            actorService.obtenerTipos(),
+            actorService.obtenerActores()
+        ])
 
         // validar ID
         if (id && !actores.some(actor => actor.id === +id)) {

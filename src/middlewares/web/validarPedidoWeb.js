@@ -8,11 +8,11 @@ const VISTA_CREAR_PEDIDO = 'pedidos/nuevo'
 const VISTA_ACTUALIZAR_PEDIDO = 'pedidos/editar'
 
 // datos de formulario al crear nuevo pedido
-async function datosFormularioCrear(fecha_entrega_esperada, id_actor) {
-    const actores = await actorService.obtenerActores()
-    const estados = await pedidoService.obtenerEstados()
-
-    const actoresActivos = actores.filter(actor => actor.activo)
+const datosFormularioCrear = async (fecha_entrega_esperada, id_actor) => {
+    const [actoresActivos, estados] = await Promise.all([
+        actorService.obtenerActoresActivos(),
+        pedidoService.obtenerEstados()
+    ])
 
     return {
         pedido: {
@@ -25,12 +25,12 @@ async function datosFormularioCrear(fecha_entrega_esperada, id_actor) {
 }
 
 // datos de formulario al actualizar nuevo pedido
-async function datosFormularioActualizar(id, fecha_entrega_esperada, fecha_entrega_real, estado, id_actor) {
-    const actores = await actorService.obtenerActores()
-    const estados = await pedidoService.obtenerEstados()
-
-    const actoresActivos = actores.filter(actor => actor.activo)
-    const pedidoActual = id ? await pedidoService.buscarPedidoPorId(+id) : null
+const datosFormularioActualizar = async (id, fecha_entrega_esperada, fecha_entrega_real, estado, id_actor) => {
+    const [actoresActivos, estados, pedidoActual] = await Promise.all([
+        actorService.obtenerActoresActivos(),
+        pedidoService.obtenerEstados(),
+        pedidoService.buscarPedidoPorId(+id)
+    ])
 
     return {
         pedido: {
@@ -54,7 +54,7 @@ async function datosFormularioActualizar(id, fecha_entrega_esperada, fecha_entre
         El actor debe existir.
         El actor debe estar activo.
 */
-async function validarCrearPedidoWeb(req, res, next) {
+const validarCrearPedidoWeb = async (req, res, next) => {
     try {
         const { fecha_entrega_esperada, id_actor } = req.body
 
@@ -85,7 +85,7 @@ async function validarCrearPedidoWeb(req, res, next) {
     }
 }
 
-async function validarActualizarPedidoWeb(req, res, next) {
+const validarActualizarPedidoWeb = async (req, res, next) => {
     try {
         const { fecha_entrega_esperada, fecha_entrega_real, estado, id_actor } = req.body
         const { id } = req.params
