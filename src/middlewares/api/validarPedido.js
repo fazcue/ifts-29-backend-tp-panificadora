@@ -10,7 +10,7 @@ import pedidoValidator from "../../validators/pedido.validator.js"
         El actor debe existir.
         El actor debe estar activo.
 */
-async function validarCrearPedido(req, res, next) {
+const validarCrearPedido = async (req, res, next) => {
     try {
         const { fecha_entrega_esperada, id_actor } = req.body
 
@@ -47,7 +47,7 @@ async function validarCrearPedido(req, res, next) {
     fecha_entrega_real es opcional, pero si se envía debe tener formato AAAA-MM-DD.
     estado debe ser uno de: PENDIENTE / EN_PRODUCCION / DESPACHADO / ENTREGADO
 */
-async function validarActualizarPedido(req, res, next) {
+const validarActualizarPedido = async (req, res, next) => {
     try {
         const { fecha_entrega_esperada, fecha_entrega_real, estado, id_actor } = req.body
         const { id } = req.params
