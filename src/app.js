@@ -1,5 +1,6 @@
 import express from 'express'
 import dotenv from 'dotenv'
+import conectarDB from './config/db.js'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 // Rutas API
@@ -38,6 +39,9 @@ app.get('/', (req, res) => res.render('portada'))
 // 404
 app.use('/api', (req, res) => res.status(404).json({ error: 'Recurso no encontrado' }))
 app.use((req, res) => res.status(404).render('error', { mensaje: 'Página no encontrada' }))
+
+// MongoDB
+await conectarDB()
 
 // Servidor
 app.listen(PUERTO, () => {
