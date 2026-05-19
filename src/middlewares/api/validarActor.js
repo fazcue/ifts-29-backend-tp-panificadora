@@ -12,7 +12,7 @@ const validarActor = async (req, res, next) => {
         ])
 
         // validar ID
-        if (id && !actores.some(actor => actor.id === +id)) {
+        if (id && !actores.some(actor => actor.id === id)) {
             return res.status(404).json({ error: 'Actor no encontrado' })
         }
 
@@ -38,7 +38,7 @@ const validarActor = async (req, res, next) => {
 
         // validar nombre duplicado
         const existeActor = actores.some(actor => {
-            return actor.id !== +id && actor.nombre.trim().toLowerCase() === nombre.trim().toLowerCase()
+            return actor.id !== id && actor.nombre.trim().toLowerCase() === nombre.trim().toLowerCase()
         })
 
         if (existeActor) {
@@ -47,7 +47,7 @@ const validarActor = async (req, res, next) => {
 
         // validar email duplicado
         const existeEmail = actores.some(actor => {
-            return actor.id !== +id && actor.email?.trim().toLowerCase() === emailNormalizado
+            return actor.id !== id && actor.email?.trim().toLowerCase() === emailNormalizado
         })
 
         if (existeEmail) {

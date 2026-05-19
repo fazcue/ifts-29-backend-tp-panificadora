@@ -6,23 +6,32 @@ const validarActorWeb = async (req, res, next) => {
         const { id } = req.params
 
         // data
-        const [tipos, actores] = await Promise.all([
+        const [tipos, actores, actor] = await Promise.all([
             actorService.obtenerTipos(),
-            actorService.obtenerActores()
+            actorService.obtenerActores(),
+            id ? actorService.buscarActorPorId(id) : null
         ])
 
         const vistaActual = id ? 'actores/editar' : 'actores/nuevo'
-
-        const actor = id ? actores.find(actor => actor.id === +id) : null
-
+        
         // validar ID
         if (id && !actor) {
             return res.status(404).render('error', { mensaje: 'Actor no encontrado' })
         }
 
-        const datosFormulario = id
-            ? { actor: { ...actor, nombre, email, tipo }, tipos }
-            : { actor: { nombre, email, tipo }, tipos }
+        let datosFormulario = {
+            actor: {
+                nombre,
+                email,
+                tipo
+            },
+            tipos
+        }
+
+        if (id) {
+            datosFormulario.actor.id = actor.id
+            datosFormulario.actor.activo = actor.activo
+        }
 
         // validar campos vacíos
         if (!nombre?.trim() || !email?.trim() || !tipo?.trim()) {
@@ -44,7 +53,7 @@ const validarActorWeb = async (req, res, next) => {
 
         // validar nombre duplicado
         const existeActor = actores.some(actor => {
-            return actor.id !== +id && actor.nombre.trim().toLowerCase() === nombre.trim().toLowerCase()
+            return actor.id !== id && actor.nombre.trim().toLowerCase() === nombre.trim().toLowerCase()
         })
 
         if (existeActor) {
@@ -53,7 +62,7 @@ const validarActorWeb = async (req, res, next) => {
 
         // validar email duplicado
         const existeEmail = actores.some(actor => {
-            return actor.id !== +id && actor.email?.trim().toLowerCase() === emailNormalizado
+            return actor.id !== id && actor.email?.trim().toLowerCase() === emailNormalizado
         })
 
         if (existeEmail) {
