@@ -44,11 +44,11 @@ const formularioEditarPedidoWeb = async (req, res) => {
             return res.status(404).render("error", { mensaje: "Pedido no encontrado" })
         }
 
-        const actores = await actorService.obtenerActores()
-        const estados = await pedidoService.obtenerEstados()
+        const actores = await actorService.obtenerActoresActivos()
+        const estados = pedidoService.obtenerEstados()
         const titulo = `Editar pedido #${pedido.id}`
 
-        res.render("pedidos/editar", { pedido, actores: actores.filter(actor => actor.activo), estados, titulo })
+        res.render("pedidos/editar", { pedido, actores, estados, titulo })
     } catch (error) {
         res.status(500).send("Error al cargar formulario editar pedido")
     }
