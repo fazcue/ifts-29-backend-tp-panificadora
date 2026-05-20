@@ -25,7 +25,7 @@ const validarFechaEntregaEsperada = (fecha) => {
     return responseValidator.exito(fechaLimpia)
 }
 
-const validarActor = async (id) => {
+const validarActor = async (id, validarActivo = true) => {
     // dato faltante
     if (id === undefined || id === null || id === "") {
         return responseValidator.errorValidacion("El actor es obligatorio")
@@ -39,7 +39,7 @@ const validarActor = async (id) => {
     }
 
     // inactivo
-    if (!actor.activo) {
+    if (validarActivo && !actor.activo) {
         return responseValidator.errorValidacion("El actor debe estar activo para realizar pedidos")
     }
 
