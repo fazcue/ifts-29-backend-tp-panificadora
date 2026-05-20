@@ -31,7 +31,7 @@ const validarActor = async (id) => {
         return responseValidator.errorValidacion("El actor es obligatorio")
     }
 
-    const actor = await actorService.buscarActorPorId(Number(id))
+    const actor = await actorService.buscarActorPorId(id)
 
     // inexistente
     if (!actor) {
@@ -74,7 +74,7 @@ const validarFechaEntregaReal = (fecha) => {
 }
 
 const validarPedido = async (id) => {
-    const pedido = await pedidoService.buscarPedidoPorId(Number(id))
+    const pedido = await pedidoService.buscarPedidoPorId(id)
 
     // inexistente
     if (!pedido) {
