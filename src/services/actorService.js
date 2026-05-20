@@ -1,81 +1,82 @@
-import { leerData, guardarData } from "../lib/fs.js"
 import Actor from "../models/Actor.js"
+import mongoose from "mongoose"
 
-const COLECCION = 'actores'
-const TIPOS = "actor_tipo"
+const TIPOS = ['PLANTA', 'SUCURSAL', 'FRANQUICIA']
+
+const esIdValido = (id) => mongoose.isValidObjectId(id)
 
 const obtenerActores = async () => {
-    return leerData(COLECCION)
+    return await Actor.find()
 }
 
 const buscarActorPorId = async (id) => {
-    const actores = await obtenerActores()
-    return actores.find(actor => actor.id === +id)
+    if (!esIdValido(id)) {
+        return null
+    }
+
+    return await Actor.findById(id)
 }
 
 const obtenerActoresActivos = async () => {
-    const actores = await obtenerActores()
-    return actores.filter(actor => actor.activo)
+    return await Actor.find({ activo: true })
 }
 
 const obtenerTipos = async () => {
-    return leerData(TIPOS)
+    return TIPOS
 }
 
 const crearActor = async (nombre, email, tipo) => {
-    const actores = await obtenerActores()
-    const nuevo = new Actor(nombre.trim(), email.trim().toLowerCase(), tipo.trim())
-
-    await guardarData(COLECCION, [...actores, nuevo])
+    const nuevo = new Actor({
+        nombre: nombre.trim(),
+        email: email.trim().toLowerCase(),
+        tipo: tipo.trim()
+    })
+    await nuevo.save()
 
     return nuevo
 }
 
 const actualizarActor = async (id, nombre, email, tipo, activo) => {
-    const actores = await obtenerActores()
-    const actor = actores.find(actor => actor.id === +id)
-
-    if (!actor) {
+    if (!esIdValido(id)) {
         return null
     }
 
-    actor.nombre = nombre.trim()
-    actor.email = email.trim().toLowerCase()
-    actor.tipo = tipo.trim()
-    actor.activo = activo ?? actor.activo
+    const datosActualizados = {
+        nombre: nombre?.trim(),
+        email: email?.trim().toLowerCase(),
+        tipo: tipo?.trim()
+    }
 
-    await guardarData(COLECCION, actores)
+    if (activo !== undefined) {
+        datosActualizados.activo = activo
+    }
 
-    return actor
+    return await Actor.findByIdAndUpdate(
+        id,
+        datosActualizados,
+        { returnDocument: 'after', runValidators: true }
+    )
 }
 
 const cambiarEstadoActor = async (id) => {
-    const actores = await obtenerActores()
-    const actor = actores.find(actor => actor.id === +id)
+    const actor = await buscarActorPorId(id)
 
     if (!actor) {
         return null
     }
 
     actor.activo = !actor.activo
-
-    await guardarData(COLECCION, actores)
+    await actor.save()
 
     return actor
 }
 
 const eliminarActor = async (id) => {
-    const actor = await buscarActorPorId(id)
-    
-    if (!actor) {
+    if (!esIdValido(id)) {
         return null
     }
-    
-    const actores = await obtenerActores()
-    const filtrado = actores.filter(actor => actor.id !== +id)
-    await guardarData(COLECCION, filtrado)
 
-    return actor
+    return await Actor.findByIdAndDelete(id)
 }
 
 export default {

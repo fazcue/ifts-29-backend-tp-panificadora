@@ -25,7 +25,7 @@ block content
             label(for='id_actor') Actor
             select#id_actor(name='id_actor' required)
                 each actor in actores
-                    option(value=actor.id selected=pedido.id_actor===actor.id)= `${actor.nombre} - ${actor.tipo}`
+                    option(value=actor.id selected=pedido.actor.toString()===actor.id)= `${actor.nombre} - ${actor.tipo}`
         div.form-actions
             button.btn(type='submit') Guardar
             a.btn.btn-secondary(href='/pedidos') Cancelar

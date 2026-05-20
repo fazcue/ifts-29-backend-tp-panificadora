@@ -14,10 +14,10 @@ const listarPedidosWeb = async (req, res) => {
 
 const formularioNuevoPedidoWeb = async (req, res) => {
     try {
-        const actores = await actorService.obtenerActores()
+        const actores = await actorService.obtenerActoresActivos()
         const titulo = "Alta de nuevo pedido"
 
-        res.render("pedidos/nuevo", { actores: actores.filter(actor => actor.activo), titulo })
+        res.render("pedidos/nuevo", { actores, titulo })
     } catch (error) {
         res.status(500).send("Error al cargar formulario nuevo pedido")
     }
@@ -44,11 +44,23 @@ const formularioEditarPedidoWeb = async (req, res) => {
             return res.status(404).render("error", { mensaje: "Pedido no encontrado" })
         }
 
-        const actores = await actorService.obtenerActores()
-        const estados = await pedidoService.obtenerEstados()
+        // actores activos + actual (aunque este inactivo)
+        const [ actoresActivos, actorActual ] = await Promise.all([
+            actorService.obtenerActoresActivos(),
+            actorService.buscarActorPorId(pedido.actor)
+        ])
+
+        let actores = actoresActivos
+
+        if (actorActual && !actorActual.activo) {
+            actores = [...actores, actorActual]
+        }
+
+        // estados + titulo
+        const estados = pedidoService.obtenerEstados()
         const titulo = `Editar pedido #${pedido.id}`
 
-        res.render("pedidos/editar", { pedido, actores: actores.filter(actor => actor.activo), estados, titulo })
+        res.render("pedidos/editar", { pedido, actores, estados, titulo })
     } catch (error) {
         res.status(500).send("Error al cargar formulario editar pedido")
     }

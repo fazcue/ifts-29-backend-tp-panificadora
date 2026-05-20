@@ -9,18 +9,14 @@ const VISTA_ACTUALIZAR_PEDIDO = 'pedidos/editar'
 
 // datos de formulario al crear nuevo pedido
 const datosFormularioCrear = async (fecha_entrega_esperada, id_actor) => {
-    const [actoresActivos, estados] = await Promise.all([
-        actorService.obtenerActoresActivos(),
-        pedidoService.obtenerEstados()
-    ])
+    const actoresActivos = await actorService.obtenerActoresActivos()
 
     return {
         pedido: {
             fecha_entrega_esperada,
-            id_actor: +id_actor
+            actor: id_actor
         },
-        actores: actoresActivos,
-        estados
+        actores: actoresActivos
     }
 }
 
@@ -29,7 +25,7 @@ const datosFormularioActualizar = async (id, fecha_entrega_esperada, fecha_entre
     const [actoresActivos, estados, pedidoActual] = await Promise.all([
         actorService.obtenerActoresActivos(),
         pedidoService.obtenerEstados(),
-        pedidoService.buscarPedidoPorId(+id)
+        pedidoService.buscarPedidoPorId(id)
     ])
 
     return {
@@ -38,7 +34,7 @@ const datosFormularioActualizar = async (id, fecha_entrega_esperada, fecha_entre
             fecha_entrega_esperada,
             fecha_entrega_real,
             estado,
-            id_actor: +id_actor
+            actor: id_actor
         },
         actores: actoresActivos,
         estados
@@ -115,7 +111,8 @@ const validarActualizarPedidoWeb = async (req, res, next) => {
         }
 
         // actor
-        const resultadoActor = await pedidoValidator.validarActor(id_actor)
+        const validarActivo = resultadoPedido.valor.actor?.toString() !== id_actor
+        const resultadoActor = await pedidoValidator.validarActor(id_actor, validarActivo)
 
         if (!resultadoActor.ok) {
             return responseValidator.respuestaErrorWeb(res, VISTA_ACTUALIZAR_PEDIDO, resultadoActor, datosFormulario)

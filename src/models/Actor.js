@@ -1,11 +1,37 @@
-class Actor {
-    constructor(nombre, email, tipo) {
-        this.id = Date.now()
-        this.nombre = nombre
-        this.email = email
-        this.tipo = tipo
-        this.activo = false
-    }
-}
+import mongoose from 'mongoose'
 
-export default Actor
+const actorSchema = new mongoose.Schema(
+	{
+		nombre: {
+			type: String,
+			required: [true, 'El nombre es obligatorio'],
+            trim: true,
+            unique: true
+		},
+		email: {
+			type: String,
+			required: [true, 'El email es obligatorio'],
+            trim: true,
+            lowercase: true,
+            unique: true,
+            match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Email inválido'],
+		},
+		tipo: {
+			type: String,
+			enum: ['PLANTA', 'SUCURSAL', 'FRANQUICIA'],
+			required: [true, 'El tipo es obligatorio'],
+            trim: true,
+            uppercase: true,
+		},
+		activo: {
+			type: Boolean,
+			required: false,
+			default: false,
+		},
+	},
+	{
+		timestamps: true,
+	},
+)
+
+export default mongoose.model('Actor', actorSchema)
