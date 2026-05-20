@@ -47,13 +47,13 @@ El proyecto aplica una arquitectura **MVC (Modelo - Vista - Controlador)** con s
  
 | Capa | Carpeta | Responsabilidad |
 |---|---|---|
-| **Modelos** | `/src/models` | Schemas y modelos Mongoose, como `Actor` y `Pedido` |
+| **Modelos** | `/src/models` | Schemas y modelos Mongoose, como `Actor`, `Pedido` y `Producto` |
 | **Vistas** | `/src/views` | Plantillas Pug usadas por la interfaz web |
 | **Controladores API** | `/src/controllers/api` | Reciben requests HTTP y responden JSON con códigos adecuados |
 | **Controladores Web** | `/src/controllers/web` | Reciben requests desde formularios y renderizan vistas o redirecciones |
 | **Servicios** | `/src/services` | Centralizan acceso a datos y lógica reutilizable entre API y Web |
-| **Rutas API** | `/src/routes/api` | Definen endpoints REST, por ejemplo `/api/actores` y `/api/pedidos` |
-| **Rutas Web** | `/src/routes/web` | Definen pantallas y formularios, por ejemplo `/actores` y `/pedidos` |
+| **Rutas API** | `/src/routes/api` | Definen endpoints REST, por ejemplo `/api/actores`, `/api/pedidos` y `/api/productos` |
+| **Rutas Web** | `/src/routes/web` | Definen pantallas y formularios, por ejemplo `/actores`, `/pedidos` y `/productos` |
 | **Middlewares API** | `/src/middlewares/api` | Validan datos de entrada y responden errores en formato JSON |
 | **Middlewares Web** | `/src/middlewares/web` | Validan formularios y vuelven a renderizar la vista con mensajes de error |
 | **Validators** | `/src/validators` | Reglas reutilizables de validación y helpers de respuesta |
@@ -69,7 +69,7 @@ El proyecto fue migrado desde archivos JSON locales a **MongoDB** usando **Mongo
 Cambios principales de la migración:
 
 - Se eliminaron los archivos `.json` de `/data` como fuente de persistencia.
-- Los modelos `Actor` y `Pedido` ahora son schemas de Mongoose.
+- Los modelos `Actor`, `Pedido` y `Producto` ahora son schemas de Mongoose.
 - Los ids pasaron a ser `_id` de MongoDB, manejados como `ObjectId`.
 - `Pedido` referencia a `Actor` mediante el campo `actor`.
 - Los servicios usan operaciones de MongoDB como `find`, `findById`, `findByIdAndUpdate`, `findByIdAndDelete` y `populate`.
@@ -111,7 +111,8 @@ ifts-29-backend-tp-panificadora/
 │   ├── validators/
 │   ├── views/
 │   │   ├── actores/
-│   │   └── pedidos/
+│   │   ├── pedidos/
+│   │   └── productos/
 │   └── app.js
 ├── docs/
 │   └── der.png
