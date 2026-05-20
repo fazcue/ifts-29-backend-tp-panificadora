@@ -6,9 +6,11 @@ import { fileURLToPath } from 'url'
 // Rutas API
 import actoresRouter from './routes/api/actoresRoutes.js'
 import pedidosRouter from './routes/api/pedidosRoutes.js'
+import productosRouter from './routes/api/productosRoutes.js'
 // Rutas Web
 import actoresRouterWeb from './routes/web/actoresRoutes.js'
 import pedidosRouterWeb from './routes/web/pedidosRoutes.js'
+import productosRouterWeb from './routes/web/productosRoutes.js'
 
 dotenv.config()
 
@@ -28,10 +30,12 @@ app.set("views", join(__dirname, "views"))
 // Rutas web
 app.use('/actores', actoresRouterWeb)
 app.use('/pedidos', pedidosRouterWeb)
+app.use('/productos', productosRouterWeb)
 
 // Rutas API
 app.use('/api/actores', actoresRouter)
 app.use('/api/pedidos', pedidosRouter)
+app.use('/api/productos', productosRouter)
 
 // Inicio
 app.get('/', (req, res) => res.render('portada'))

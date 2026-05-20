@@ -1,0 +1,34 @@
+extends ../layout
+
+block content
+    div.page-heading
+        div
+            p.eyebrow Gestion
+            h2 Productos
+        a.btn(href='/productos/nuevo') Nuevo producto
+
+    if productos.length > 0
+        ul.actor-list
+            each producto in productos
+                li.actor-item
+                    div.actor-info
+                        h3= producto.nombre
+                        p= `Precio: $${producto.precio}`
+
+                    if producto.activo
+                        span.badge.badge-on activo
+                    else
+                        span.badge.badge-off no activo
+
+                    div.actions
+                        a.btn.btn-sm.btn-secondary(href=`/productos/editar/${producto.id}`) Editar
+                        form.inline(action=`/productos/activar-desactivar/${producto.id}` method='POST')
+                            if producto.activo
+                                button.btn.btn-sm(type='submit') Desactivar
+                            else
+                                button.btn.btn-sm(type='submit') Activar
+                        form.inline(action=`/productos/eliminar/${producto.id}` method='POST')
+                            button.btn.btn-sm(type='submit') Eliminar
+
+    else
+        p.empty-state Sin productos registrados
