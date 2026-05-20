@@ -12,7 +12,7 @@ La Espiga de Oro S.R.L. es una fábrica de panificados con **cinco sucursales pr
 Este sistema busca resolver esa problemática mediante:
 
 - Un **portal de pedidos estructurado** para franquiciados y sucursales.
-- **Gestión de estados** del pedido: `pendiente → en produccion → despachado → entregado`.
+- **Gestión de estados** del pedido: `PENDIENTE → EN_PRODUCCION → DESPACHADO → ENTREGADO`.
 - **Consolidación de demanda** para planificar la producción y compra de insumos.
 - **Detección de retrasos** en la entrega.
 - **Seguimiento de royalties** para franquiciados.
@@ -20,13 +20,12 @@ Este sistema busca resolver esa problemática mediante:
 
 ## Diagrama de Entidad-Relación (DER)
 
-<!-- Reemplazar con la imagen del DER una vez exportada -->
 ![DER](./docs/der.png)
 
 | Enum | Valores |
 |------|---------|
 | `ACTOR.tipo` | `PLANTA`, `SUCURSAL`, `FRANQUICIA` |
-| `PEDIDO.estado` | `PENDIENTE`, `EN PRODUCCION`, `DESPACHADO`, `ENTREGADO` |
+| `PEDIDO.estado` | `PENDIENTE`, `EN_PRODUCCION`, `DESPACHADO`, `ENTREGADO` |
 | `INSUMO.unidad` | `GRAMOS`, `MILILITROS`, `UNIDADES` |
 | `ROYALTY.estado_cobro` | `PENDIENTE`, `COBRADO` |
 
@@ -35,7 +34,9 @@ Este sistema busca resolver esa problemática mediante:
 - **Runtime:** Node.js
 - **Framework:** Express.js
 - **Motor de plantillas:** Pug
-- **Persistencia:** JSON (archivos `.json` en `/data`)
+- **Base de datos:** MongoDB
+- **ODM:** Mongoose
+- **Variables de entorno:** dotenv
 - **Arquitectura:** MVC (Modelo - Vista - Controlador) con capa de servicios, separación modular y POO
 - **Testing:** Thunder Client
 
@@ -46,7 +47,7 @@ El proyecto aplica una arquitectura **MVC (Modelo - Vista - Controlador)** con s
  
 | Capa | Carpeta | Responsabilidad |
 |---|---|---|
-| **Modelos** | `/src/models` | Clases que representan entidades del sistema, como `Actor` y `Pedido` |
+| **Modelos** | `/src/models` | Schemas y modelos Mongoose, como `Actor` y `Pedido` |
 | **Vistas** | `/src/views` | Plantillas Pug usadas por la interfaz web |
 | **Controladores API** | `/src/controllers/api` | Reciben requests HTTP y responden JSON con códigos adecuados |
 | **Controladores Web** | `/src/controllers/web` | Reciben requests desde formularios y renderizan vistas o redirecciones |
@@ -56,8 +57,23 @@ El proyecto aplica una arquitectura **MVC (Modelo - Vista - Controlador)** con s
 | **Middlewares API** | `/src/middlewares/api` | Validan datos de entrada y responden errores en formato JSON |
 | **Middlewares Web** | `/src/middlewares/web` | Validan formularios y vuelven a renderizar la vista con mensajes de error |
 | **Validators** | `/src/validators` | Reglas reutilizables de validación y helpers de respuesta |
-| **Lib** | `/src/lib` | Utilidades compartidas, como lectura/escritura JSON y validación de fechas |
-| **Persistencia** | `/data` | Archivos JSON usados como almacenamiento temporal |
+| **Config** | `/src/config` | Configuración de infraestructura, como la conexión a MongoDB |
+| **Lib** | `/src/lib` | Utilidades compartidas, como helpers de fechas |
+| **Persistencia** | MongoDB | Colecciones administradas mediante modelos Mongoose |
+
+
+## Persistencia con MongoDB
+
+El proyecto fue migrado desde archivos JSON locales a **MongoDB** usando **Mongoose** como ODM. La conexión se inicializa al arrancar la aplicación desde `src/config/db.js`, tomando la URI desde la variable de entorno `MONGO_URI`.
+
+Cambios principales de la migración:
+
+- Se eliminaron los archivos `.json` de `/data` como fuente de persistencia.
+- Los modelos `Actor` y `Pedido` ahora son schemas de Mongoose.
+- Los ids pasaron a ser `_id` de MongoDB, manejados como `ObjectId`.
+- `Pedido` referencia a `Actor` mediante el campo `actor`.
+- Los servicios usan operaciones de MongoDB como `find`, `findById`, `findByIdAndUpdate`, `findByIdAndDelete` y `populate`.
+- Se validan ids con `mongoose.isValidObjectId` antes de consultar la base.
 
 
 ## Asincronía y ECMAScript
@@ -70,7 +86,7 @@ También se aplican recursos de ECMAScript moderno en distintas capas del proyec
 - Arrow functions para servicios, controladores, middlewares y helpers.
 - Destructuring para tomar datos de `req.body` y `req.params`.
 - Spread operator para construir objetos y actualizar datos sin duplicar estructura.
-- `Promise.all` para resolver en paralelo lecturas independientes de archivos JSON.
+- `Promise.all` para resolver en paralelo consultas independientes.
 - Template literals para mensajes y títulos dinámicos.
 
 
@@ -79,6 +95,7 @@ También se aplican recursos de ECMAScript moderno en distintas capas del proyec
 ```
 ifts-29-backend-tp-panificadora/
 ├── src/
+│   ├── config/
 │   ├── controllers/
 │   │   ├── api/
 │   │   └── web/
@@ -96,11 +113,6 @@ ifts-29-backend-tp-panificadora/
 │   │   ├── actores/
 │   │   └── pedidos/
 │   └── app.js
-├── data/
-│   ├── actores.json
-│   ├── actor_tipo.json
-│   ├── pedidos.json
-│   └── pedido_estado.json
 ├── docs/
 │   └── der.png
 ├── package.json
@@ -112,8 +124,9 @@ ifts-29-backend-tp-panificadora/
 
 ### Requisitos previos
 
-- Node.js v18 o superior
+- Node.js v20.19 o superior
 - npm
+- MongoDB local o una instancia remota, por ejemplo MongoDB Atlas
 
 ### Pasos
 
@@ -127,11 +140,30 @@ cd ifts-29-backend-tp-panificadora
 # Instalar dependencias
 npm install
 
+# Crear y configurar el archivo .env con MONGO_URI
+
 # Iniciar el servidor
 npm start
 ```
 
 El servidor corre por defecto en `http://localhost:3000`.
+
+### Variables de entorno
+
+Crear un archivo `.env` en la raíz del proyecto con las siguientes variables:
+
+```env
+MONGO_URI=mongodb://127.0.0.1:27017/panificadora
+PUERTO=3000
+```
+
+`PUERTO` es opcional. Si no se define, la aplicación usa `3000`.
+
+### Modo desarrollo
+
+```bash
+npm run dev
+```
 
 
 ## Integrantes
