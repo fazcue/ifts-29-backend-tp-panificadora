@@ -1,77 +1,66 @@
-import { leerData, guardarData } from "../lib/fs.js"
 import Pedido from "../models/Pedido.js"
+import mongoose from "mongoose"
 
-const COLECCION = "pedidos"
-const ESTADOS = "pedido_estado"
+const esIdValido = (id) => mongoose.isValidObjectId(id)
+
+const ESTADOS = [ "PENDIENTE", "EN_PRODUCCION", "DESPACHADO", "ENTREGADO" ]
 
 const obtenerPedidos = async () => {
-    return leerData(COLECCION)
+    return await Pedido.find()
 }
 
 const buscarPedidoPorId = async (id) => {
-    const pedidos = await obtenerPedidos()
-    return pedidos.find(pedido => pedido.id === +id)
+    if (!esIdValido(id)) {
+        return null
+    }
+
+    return await Pedido.findById(id)
 }
 
-const obtenerEstados = async () => {
-    return leerData(ESTADOS)
+const obtenerEstados = () => {
+    return ESTADOS
 }
 
 const obtenerPedidosConActores = async () => {
-    const [pedidos, actores] = await Promise.all([
-        obtenerPedidos(),
-        leerData("actores")
-    ])
-
-    return pedidos.map(pedido => {
-        const actor = actores.find(actor => actor.id === pedido.id_actor)
-
-        return {
-            ...pedido,
-            actor: actor || null
-        }
-    })
+    return await Pedido.find().populate('actor')
 }
 
 const crearPedido = async (fechaEntregaEsperada, idActor) => {
-    const pedidos = await obtenerPedidos()
-    const nuevo = new Pedido(fechaEntregaEsperada, idActor)
+    const nuevo = new Pedido({
+        fecha_entrega_esperada: fechaEntregaEsperada,
+        actor: idActor
+    })
 
-    await guardarData(COLECCION, [...pedidos, nuevo])
+    await nuevo.save()
 
     return nuevo
 }
 
 const actualizarPedido = async (id, fechaEntregaEsperada, fechaEntregaReal, estado, idActor) => {
-    const pedidos = await obtenerPedidos()
-    const pedido = pedidos.find(pedido => pedido.id === +id)
-
-    if (!pedido) {
+    if (!esIdValido(id)) {
         return null
     }
 
-    pedido.fecha_entrega_esperada = fechaEntregaEsperada
-    pedido.fecha_entrega_real = fechaEntregaReal?.trim() || null
-    pedido.estado = estado.trim()
-    pedido.id_actor = +idActor
+    const datosActualizados = {
+        fecha_entrega_esperada: fechaEntregaEsperada,
+        fecha_entrega_real: fechaEntregaReal?.trim() || null,
+        estado: estado?.trim(),
+        actor: idActor
+    }
 
-    await guardarData(COLECCION, pedidos)
-
-    return pedido
+    return await Pedido.findByIdAndUpdate(
+        id,
+        datosActualizados,
+        { returnDocument: 'after', runValidators: true }
+    )
 }
 
 const eliminarPedido = async (id) => {
-    const pedido = await buscarPedidoPorId(id)
-
-    if (!pedido) {
+    if (!esIdValido(id)) {
         return null
     }
 
-    const pedidos = await obtenerPedidos()
-    const filtrado = pedidos.filter(pedido => pedido.id !== +id)
-    await guardarData(COLECCION, filtrado)
-
-    return pedido
+    return await Pedido.findByIdAndDelete(id)
 }
 
 export default {
