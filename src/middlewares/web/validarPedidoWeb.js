@@ -111,7 +111,8 @@ const validarActualizarPedidoWeb = async (req, res, next) => {
         }
 
         // actor
-        const resultadoActor = await pedidoValidator.validarActor(id_actor)
+        const validarActivo = resultadoPedido.valor.actor?.toString() !== id_actor
+        const resultadoActor = await pedidoValidator.validarActor(id_actor, validarActivo)
 
         if (!resultadoActor.ok) {
             return responseValidator.respuestaErrorWeb(res, VISTA_ACTUALIZAR_PEDIDO, resultadoActor, datosFormulario)
