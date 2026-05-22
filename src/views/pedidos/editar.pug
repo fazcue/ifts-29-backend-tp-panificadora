@@ -1,31 +1,37 @@
 extends ../layout
+include ../mixins/cabecera
+include ../mixins/reporteError
 
 block content
-    div.page-heading
-        div
-            p.eyebrow Pedidos
-            h2 Editar pedido
+    //- Cabecera
+    +cabecera('Editar pedido')
 
-    if error
-        p.alert= error
+    //- Reporte de error
+    +reporteError(error)
 
-    form.form-panel(action=`/pedidos/editar/${pedido.id}` method='POST')
-        div.form-field
+    //- Formulario de edición
+    form.panel(action=`/pedidos/editar/${pedido.id}` method='POST')
+        
+        div.field
             label(for='fecha_entrega_esperada') Fecha de entrega esperada
             input#fecha_entrega_esperada(type='date' name='fecha_entrega_esperada' value=pedido.fecha_entrega_esperada required)
-        div.form-field
+        
+        div.field
             label(for='fecha_entrega_real') Fecha de entrega real
             input#fecha_entrega_real(type='date' name='fecha_entrega_real' value=pedido.fecha_entrega_real)
-        div.form-field
+        
+        div.field
             label(for='estado') Estado
             select#estado(name='estado' required)
                 each estado in estados
                     option(value=estado selected=pedido.estado===estado)= estado
-        div.form-field
+        
+        div.field
             label(for='id_actor') Actor
             select#id_actor(name='id_actor' required)
                 each actor in actores
-                    option(value=actor.id selected=pedido.actor.toString()===actor.id)= `${actor.nombre} - ${actor.tipo}`
-        div.form-actions
+                    option(value=actor.id selected=pedido.actor && String(pedido.actor)===String(actor.id))= `${actor.nombre} - ${actor.tipo}`
+        
+        div.actions
             button.btn(type='submit') Guardar
             a.btn.btn-secondary(href='/pedidos') Cancelar

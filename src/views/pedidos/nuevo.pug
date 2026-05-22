@@ -1,24 +1,28 @@
 extends ../layout
+include ../mixins/cabecera
+include ../mixins/reporteError
 
 block content
-    div.page-heading
-        div
-            p.eyebrow Pedidos
-            h2 Nuevo pedido
+    //- Cabecera
+    +cabecera('Nuevo pedido')
 
-    if error
-        p.alert= error
+    //- Reporte de error
+    +reporteError(error)
 
-    form.form-panel(action='/pedidos/nuevo' method='POST')
-        div.form-field
+    //- Formulario de alta
+    form.panel(action='/pedidos/nuevo' method='POST')
+        
+        div.field
             label(for='fecha_entrega_esperada') Fecha de entrega esperada
             input#fecha_entrega_esperada(type='date' name='fecha_entrega_esperada' value=pedido && pedido.fecha_entrega_esperada required)
-        div.form-field
+        
+        div.field
             label(for='id_actor') Actor
             select#id_actor(name='id_actor' required)
                 option(value='') Seleccionar...
                 each actor in actores
-                    option(value=actor.id selected=pedido && pedido.actor===actor.id)= `${actor.nombre} - ${actor.tipo}`
-        div.form-actions
+                    option(value=actor.id selected=pedido && String(pedido.actor)===String(actor.id))= `${actor.nombre} - ${actor.tipo}`
+        
+        div.actions
             button.btn(type='submit') Guardar
             a.btn.btn-secondary(href='/pedidos') Cancelar

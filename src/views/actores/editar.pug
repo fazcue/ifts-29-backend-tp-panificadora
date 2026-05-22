@@ -1,26 +1,31 @@
 extends ../layout
+include ../mixins/cabecera
+include ../mixins/reporteError
 
 block content
-    div.page-heading
-        div
-            p.eyebrow Actores
-            h2 Editar actor
+    //- Cabecera
+    +cabecera('Editar actor')
 
-    if error
-        p.alert= error
+    //- Reporte de error
+    +reporteError(error)
 
-    form.form-panel(action=`/actores/editar/${actor.id}` method='POST')
-        div.form-field
+    //- Formulario de edición
+    form.panel(action=`/actores/editar/${actor.id}` method='POST')
+
+        div.field
             label(for='nombre') Nombre
             input#nombre(type='text' name='nombre' value=actor.nombre required)
-        div.form-field
+        
+        div.field
             label(for='email') Email
             input#email(type='email' name='email' value=actor.email required)
-        div.form-field
+        
+        div.field
             label(for='tipo') Tipo
             select#tipo(name='tipo' required)
                 each tipo in tipos
                     option(value=tipo selected=actor.tipo===tipo)= tipo
-        div.form-actions
+        
+        div.actions
             button.btn(type='submit') Guardar
             a.btn.btn-secondary(href='/actores') Cancelar
