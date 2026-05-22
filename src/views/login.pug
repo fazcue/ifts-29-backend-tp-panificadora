@@ -1,0 +1,24 @@
+extends layout
+include ./mixins/cabecera
+include ./mixins/reporteError
+
+//- nav vacío
+block nav
+
+block content
+    //- Cabecera
+    +cabecera('Bienvenido')
+    p Por favor, logueate para ingresar al sistema
+
+    //- Reporte de error
+    +reporteError(error)
+
+    //- Formulario de login
+    form.panel(action='/' method='POST')
+
+        div.field
+            label(for='email') Email
+            input#email(type='email' name='email' required)
+        
+        div.actions
+            button.btn(type='submit') Ingresar

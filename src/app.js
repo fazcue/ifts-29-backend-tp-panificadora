@@ -8,6 +8,7 @@ import actoresRouter from './routes/api/actoresRoutes.js'
 import pedidosRouter from './routes/api/pedidosRoutes.js'
 import productosRouter from './routes/api/productosRoutes.js'
 // Rutas Web
+import loginRouterWeb from './routes/web/loginRoutes.js'
 import actoresRouterWeb from './routes/web/actoresRoutes.js'
 import pedidosRouterWeb from './routes/web/pedidosRoutes.js'
 import productosRouterWeb from './routes/web/productosRoutes.js'
@@ -28,6 +29,7 @@ app.set("view engine", "pug")
 app.set("views", join(__dirname, "views"))
 
 // Rutas web
+app.use('/', loginRouterWeb)
 app.use('/actores', actoresRouterWeb)
 app.use('/pedidos', pedidosRouterWeb)
 app.use('/productos', productosRouterWeb)
@@ -36,9 +38,6 @@ app.use('/productos', productosRouterWeb)
 app.use('/api/actores', actoresRouter)
 app.use('/api/pedidos', pedidosRouter)
 app.use('/api/productos', productosRouter)
-
-// Inicio
-app.get('/', (req, res) => res.render('portada'))
 
 // 404
 app.use('/api', (req, res) => res.status(404).json({ error: 'Recurso no encontrado' }))
