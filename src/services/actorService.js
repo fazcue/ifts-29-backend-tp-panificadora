@@ -17,6 +17,11 @@ const buscarActorPorId = async (id) => {
     return await Actor.findById(id)
 }
 
+const buscarActorPorEmail = async (email) => {
+    const emailNormalizado = email?.trim().toLowerCase()
+    return await Actor.findOne({ email: emailNormalizado })
+}
+
 const obtenerActoresActivos = async () => {
     return await Actor.find({ activo: true })
 }
@@ -82,6 +87,7 @@ const eliminarActor = async (id) => {
 export default {
     obtenerActores,
     buscarActorPorId,
+    buscarActorPorEmail,
     obtenerActoresActivos,
     obtenerTipos,
     crearActor,
