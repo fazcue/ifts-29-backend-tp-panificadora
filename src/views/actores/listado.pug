@@ -13,9 +13,8 @@ block content
                 li.item
                     div.info
                         h3= actor.nombre
-                        p= actor.tipo
-                        if actor.email
-                            p= actor.email
+                        p= `Tipo: ${actor.tipo}`
+                        p= `Email: ${actor.email}`
 
                     if actor.activo
                         span.badge.badge-on ACTIVO
