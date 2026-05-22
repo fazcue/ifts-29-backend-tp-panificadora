@@ -113,6 +113,8 @@ ifts-29-backend-tp-panificadora/
 │   │   ├── actores/
 │   │   ├── pedidos/
 │   │   └── productos/
+│   │   └── common/
+│   │   └── mixins/
 │   └── app.js
 ├── docs/
 │   └── der.png
