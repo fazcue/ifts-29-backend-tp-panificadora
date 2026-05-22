@@ -159,6 +159,7 @@ main .head {
     align-items: flex-end;
     justify-content: space-between;
     gap: var(--space-lg);
+    min-height: 40px;
     margin: var(--space-lg) 0;
 }
 
