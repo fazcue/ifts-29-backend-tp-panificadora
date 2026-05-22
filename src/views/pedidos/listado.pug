@@ -1,19 +1,19 @@
 extends ../layout
+include ../mixins/cabecera
 
 block content
-    div.page-heading
-        div
-            p.eyebrow Gestion
-            h2 Pedidos
-        a.btn(href='/pedidos/nuevo') Nuevo pedido
+    //- Cabecera con enlace
+    +cabecera('Pedidos')
+        a.btn(href='/pedidos/nuevo') Agregar
 
+    //- Listado pedidos
     if pedidos.length > 0
-        ul.actor-list
+        ul.list
             each pedido in pedidos
-                li.actor-item
-                    div.actor-info
+                li.item
+                    div.info
                         h3= `Pedido #${pedido.id}`
-                        p= pedido.actor ? `${pedido.actor.nombre} - ${pedido.actor.tipo}` : 'Actor no encontrado'
+                        p=  `Actor: ${pedido.actor.nombre} - ${pedido.actor.tipo}`
                         p= `Entrega esperada: ${pedido.fecha_entrega_esperada}`
                         if pedido.fecha_entrega_real
                             p= `Entrega real: ${pedido.fecha_entrega_real}`
@@ -21,9 +21,8 @@ block content
                     span.badge(class=pedido.estado === 'ENTREGADO' ? 'badge-on' : 'badge-off')= pedido.estado
 
                     div.actions
-                        a.btn.btn-sm.btn-secondary(href=`/pedidos/editar/${pedido.id}`) Editar
-                        form.inline(action=`/pedidos/eliminar/${pedido.id}` method='POST')
-                            button.btn.btn-sm(type='submit') Eliminar
-
+                        a.btn.btn-secondary(href=`/pedidos/editar/${pedido.id}`) Editar
+                        form(action=`/pedidos/eliminar/${pedido.id}` method='POST')
+                            button.btn(type='submit') Eliminar
     else
-        p.empty-state Sin pedidos registrados
+        p.empty Sin pedidos registrados

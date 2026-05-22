@@ -1,21 +1,25 @@
 extends ../layout
+include ../mixins/cabecera
+include ../mixins/reporteError
 
 block content
-    div.page-heading
-        div
-            p.eyebrow Productos
-            h2 Editar producto
+    //- Cabecera
+    +cabecera('Editar producto')
 
-    if error
-        p.alert= error
+    //- Reporte de error
+    +reporteError(error)
 
-    form.form-panel(action=`/productos/editar/${producto.id}` method='POST')
-        div.form-field
+    //- Formulario de edición
+    form.panel(action=`/productos/editar/${producto.id}` method='POST')
+        
+        div.field
             label(for='nombre') Nombre
             input#nombre(type='text' name='nombre' value=producto.nombre required)
-        div.form-field
+        
+        div.field
             label(for='precio') Precio
             input#precio(type='number' name='precio' min='0.01' step='0.01' value=producto.precio required)
-        div.form-actions
+        
+        div.actions
             button.btn(type='submit') Guardar
             a.btn.btn-secondary(href='/productos') Cancelar
