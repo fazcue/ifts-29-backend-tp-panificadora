@@ -1,34 +1,33 @@
 extends ../layout
+include ../mixins/cabecera
 
 block content
-    div.page-heading
-        div
-            p.eyebrow Gestion
-            h2 Productos
-        a.btn(href='/productos/nuevo') Nuevo producto
+    //- Cabecera con enlace
+    +cabecera('Productos')
+        a.btn(href='/productos/nuevo') Agregar
 
+    //- Listado productos
     if productos.length > 0
-        ul.actor-list
+        ul.list
             each producto in productos
-                li.actor-item
-                    div.actor-info
+                li.item
+                    div.info
                         h3= producto.nombre
                         p= `Precio: $${producto.precio}`
 
                     if producto.activo
-                        span.badge.badge-on activo
+                        span.badge.badge-on ACTIVO
                     else
-                        span.badge.badge-off no activo
+                        span.badge.badge-off NO ACTIVO
 
                     div.actions
-                        a.btn.btn-sm.btn-secondary(href=`/productos/editar/${producto.id}`) Editar
-                        form.inline(action=`/productos/activar-desactivar/${producto.id}` method='POST')
+                        a.btn.btn-secondary(href=`/productos/editar/${producto.id}`) Editar
+                        form(action=`/productos/activar-desactivar/${producto.id}` method='POST')
                             if producto.activo
-                                button.btn.btn-sm(type='submit') Desactivar
+                                button.btn(type='submit') Desactivar
                             else
-                                button.btn.btn-sm(type='submit') Activar
-                        form.inline(action=`/productos/eliminar/${producto.id}` method='POST')
-                            button.btn.btn-sm(type='submit') Eliminar
-
+                                button.btn(type='submit') Activar
+                        form(action=`/productos/eliminar/${producto.id}` method='POST')
+                            button.btn(type='submit') Eliminar
     else
-        p.empty-state Sin productos registrados
+        p.empty Sin productos registrados
