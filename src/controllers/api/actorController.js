@@ -55,9 +55,7 @@ const actualizarActor = async (req, res) => {
     }
 }
 
-
 const eliminarActor = async (req, res) => {
-    // TODO: implementar verificación si hay pedidos activos o no antes de eliminar
     try {
         const id = req.params.id
 
@@ -69,7 +67,7 @@ const eliminarActor = async (req, res) => {
         
         res.status(200).json(actor)
     } catch (error) {
-        res.status(500).json({ error: 'Error al eliminar actor' })
+        res.status(error.estado || 500).json({ error: error.message || "Error al eliminar actor" })
     }
 }
 

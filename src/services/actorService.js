@@ -1,9 +1,8 @@
 import Actor from "../models/Actor.js"
-import mongoose from "mongoose"
+import Pedido from "../models/Pedido.js"
+import { esIdValido } from "../lib/utils.js"
 
 const TIPOS = ['PLANTA', 'SUCURSAL', 'FRANQUICIA']
-
-const esIdValido = (id) => mongoose.isValidObjectId(id)
 
 const obtenerActores = async () => {
     return await Actor.find()
@@ -79,6 +78,21 @@ const cambiarEstadoActor = async (id) => {
 const eliminarActor = async (id) => {
     if (!esIdValido(id)) {
         return null
+    }
+
+    const actor = await Actor.findById(id)
+
+    if (!actor) {
+        return null
+    }
+
+    const usadoEnPedido = await Pedido.exists({ actor: id })
+
+    if (usadoEnPedido) {
+        const error = new Error("No se puede eliminar un actor asociado a pedidos")
+        error.estado = 409
+        
+        throw error
     }
 
     return await Actor.findByIdAndDelete(id)
