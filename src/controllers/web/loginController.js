@@ -11,10 +11,8 @@ const ingresar = async (req, res, next) => {
 
 		res.redirect('/portada')
 	} catch (error) {
-		res.status(500).send('Error al ingresar')
+        res.status(500).render("error", { mensaje: "Error al ingresar" })
 	}
 }
-
-
 
 export { ingresar }
