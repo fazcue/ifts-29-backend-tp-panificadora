@@ -2,28 +2,55 @@ import responseValidator from "../../validators/response.validator.js"
 import pedidoService from "../../services/pedidoService.js"
 import actorService from "../../services/actorService.js"
 import pedidoValidator from "../../validators/pedido.validator.js"
+import productoService from "../../services/productoService.js"
 
 // vistas
 const VISTA_CREAR_PEDIDO = 'pedidos/nuevo'
 const VISTA_ACTUALIZAR_PEDIDO = 'pedidos/editar'
 
+const agregarCantidadesFormulario = (productosActivos, productosFormulario = []) => {
+    return productosActivos.map((producto) => {
+        const productoFormulario = productosFormulario.find((item) => String(item.id_producto) === String(producto.id))
+
+        return {
+            ...producto.toObject(),
+            id: producto.id,
+            cantidad_pedida: productoFormulario?.cantidad || ""
+        }
+    })
+}
+
+const productosExistentesPedido = (pedido) => {
+    return (pedido.productos || [])
+        .filter((detalle) => detalle.producto)
+        .map((detalle) => ({
+            id_producto: detalle.producto._id || detalle.producto,
+            precio_unitario: detalle.precio_unitario
+        }))
+}
+
 // datos de formulario al crear nuevo pedido
 const datosFormularioCrear = async (fecha_entrega_esperada, id_actor) => {
-    const actoresActivos = await actorService.obtenerActoresActivos()
+    const [ actoresActivos, productosActivos ] = await Promise.all([
+        actorService.obtenerActoresActivos(),
+        productoService.obtenerProductosActivos()
+    ])
 
     return {
         pedido: {
             fecha_entrega_esperada,
             actor: id_actor
         },
-        actores: actoresActivos
+        actores: actoresActivos,
+        productos: productosActivos
     }
 }
 
 // datos de formulario al actualizar nuevo pedido
-const datosFormularioActualizar = async (id, fecha_entrega_esperada, fecha_entrega_real, estado, id_actor) => {
-    const [actoresActivos, estados, pedidoActual] = await Promise.all([
+const datosFormularioActualizar = async (id, fecha_entrega_esperada, fecha_entrega_real, estado, id_actor, productos = []) => {
+    const [actoresActivos, productosActivos, estados, pedidoActual] = await Promise.all([
         actorService.obtenerActoresActivos(),
+        productoService.obtenerProductosActivos(),
         pedidoService.obtenerEstados(),
         pedidoService.buscarPedidoPorId(id)
     ])
@@ -37,7 +64,8 @@ const datosFormularioActualizar = async (id, fecha_entrega_esperada, fecha_entre
             actor: id_actor
         },
         actores: actoresActivos,
-        estados
+        estados,
+        productos: agregarCantidadesFormulario(productosActivos, productos)
     }
 }
 
@@ -52,7 +80,7 @@ const datosFormularioActualizar = async (id, fecha_entrega_esperada, fecha_entre
 */
 const validarCrearPedidoWeb = async (req, res, next) => {
     try {
-        const { fecha_entrega_esperada, id_actor } = req.body
+        const { fecha_entrega_esperada, id_actor, productos } = req.body
 
         // datos formulario (necesario para el render)
         const datosFormulario = await datosFormularioCrear(fecha_entrega_esperada, id_actor)
@@ -71,9 +99,17 @@ const validarCrearPedidoWeb = async (req, res, next) => {
             return responseValidator.respuestaErrorWeb(res, VISTA_CREAR_PEDIDO, resultadoActor, datosFormulario)
         }
 
+        // productos
+        const resultadoProductos = await pedidoValidator.validarProductos(productos)
+
+        if (!resultadoProductos.ok) {
+            return responseValidator.respuestaErrorWeb(res, VISTA_CREAR_PEDIDO, resultadoProductos, datosFormulario)
+        }
+
         // entrega de datos normalizados
         req.body.fecha_entrega_esperada = resultadoFechaEsperada.valor
         req.body.id_actor = resultadoActor.valor.id
+        req.body.productos = resultadoProductos.valor
 
         next()
     } catch (err) {
@@ -83,14 +119,14 @@ const validarCrearPedidoWeb = async (req, res, next) => {
 
 const validarActualizarPedidoWeb = async (req, res, next) => {
     try {
-        const { fecha_entrega_esperada, fecha_entrega_real, estado, id_actor } = req.body
+        const { fecha_entrega_esperada, fecha_entrega_real, estado, id_actor, productos } = req.body
         const { id } = req.params
 
         // datos formulario (necesario para el render)
-        const datosFormulario = await datosFormularioActualizar(id, fecha_entrega_esperada, fecha_entrega_real, estado, id_actor)
+        const datosFormulario = await datosFormularioActualizar(id, fecha_entrega_esperada, fecha_entrega_real, estado, id_actor, productos)
 
         // pedido
-        const resultadoPedido = await pedidoValidator.validarPedido(id)
+        const resultadoPedido = await pedidoValidator.validarPedido(id, true)
         
         if (!resultadoPedido.ok) {
             return responseValidator.respuestaErrorWeb(res, VISTA_ACTUALIZAR_PEDIDO, resultadoPedido, datosFormulario)
@@ -111,7 +147,8 @@ const validarActualizarPedidoWeb = async (req, res, next) => {
         }
 
         // actor
-        const validarActivo = resultadoPedido.valor.actor?.toString() !== id_actor
+        const idActorPedido = resultadoPedido.valor.actor?._id || resultadoPedido.valor.actor
+        const validarActivo = idActorPedido?.toString() !== id_actor
         const resultadoActor = await pedidoValidator.validarActor(id_actor, validarActivo)
 
         if (!resultadoActor.ok) {
@@ -125,11 +162,19 @@ const validarActualizarPedidoWeb = async (req, res, next) => {
             return responseValidator.respuestaErrorWeb(res, VISTA_ACTUALIZAR_PEDIDO, resultadoEstado, datosFormulario)
         }
 
+        // productos
+        const resultadoProductos = await pedidoValidator.validarProductos(productos, productosExistentesPedido(resultadoPedido.valor))
+
+        if (!resultadoProductos.ok) {
+            return responseValidator.respuestaErrorWeb(res, VISTA_ACTUALIZAR_PEDIDO, resultadoProductos, datosFormulario)
+        }
+
         // entrega de datos normalizados
         req.body.fecha_entrega_esperada = resultadoFechaEsperada.valor
         req.body.fecha_entrega_real = resultadoFechaReal.valor
         req.body.estado = resultadoEstado.valor
         req.body.id_actor = resultadoActor.valor.id
+        req.body.productos = resultadoProductos.valor
 
         next()
     } catch (error) {

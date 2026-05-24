@@ -33,4 +33,14 @@ const pedidoSchema = new mongoose.Schema(
 	},
 )
 
+// virtual: permite utilizar 'populate' para traer los productos (detallePedido)
+pedidoSchema.virtual('productos', {
+    ref: 'DetallePedido',
+    localField: '_id',
+    foreignField: 'pedido',
+})
+
+pedidoSchema.set('toJSON', { virtuals: true })
+pedidoSchema.set('toObject', { virtuals: true })
+
 export default mongoose.model('Pedido', pedidoSchema)

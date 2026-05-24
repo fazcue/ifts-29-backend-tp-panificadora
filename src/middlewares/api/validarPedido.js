@@ -1,18 +1,18 @@
 import responseValidator from "../../validators/response.validator.js"
 import pedidoValidator from "../../validators/pedido.validator.js"
 
-// pedido nuevo:
-/*
-    fecha_entrega_esperada es obligatoria.
-        Debe ser texto.
-        Debe tener formato AAAA-MM-DD.
-    id_actor es obligatorio.
-        El actor debe existir.
-        El actor debe estar activo.
-*/
+const productosExistentesPedido = (pedido) => {
+    return (pedido.productos || [])
+        .filter((detalle) => detalle.producto)
+        .map((detalle) => ({
+            id_producto: detalle.producto._id || detalle.producto,
+            precio_unitario: detalle.precio_unitario
+        }))
+}
+
 const validarCrearPedido = async (req, res, next) => {
     try {
-        const { fecha_entrega_esperada, id_actor } = req.body
+        const { fecha_entrega_esperada, id_actor, productos } = req.body
 
         // fecha entrega esperada
         const resultadoFechaEsperada = pedidoValidator.validarFechaEntregaEsperada(fecha_entrega_esperada)
@@ -28,9 +28,17 @@ const validarCrearPedido = async (req, res, next) => {
             return responseValidator.respuestaError(res, resultadoActor)
         }
 
+        // productos
+        const resultadoProductos = await pedidoValidator.validarProductos(productos)
+
+        if (!resultadoProductos.ok) {
+            return responseValidator.respuestaError(res, resultadoProductos)
+        }
+
         // entrega de datos normalizados
         req.body.fecha_entrega_esperada = resultadoFechaEsperada.valor
         req.body.id_actor = resultadoActor.valor.id
+        req.body.productos = resultadoProductos.valor
 
         next()
     } catch (err) {
@@ -38,22 +46,13 @@ const validarCrearPedido = async (req, res, next) => {
     }
 }
 
-// actualizar pedido:
-/*
-    El pedido debe existir.
-    fecha_entrega_esperada es obligatoria.
-    estado es obligatorio.
-    id_actor es obligatorio.
-    fecha_entrega_real es opcional, pero si se envía debe tener formato AAAA-MM-DD.
-    estado debe ser uno de: PENDIENTE / EN_PRODUCCION / DESPACHADO / ENTREGADO
-*/
 const validarActualizarPedido = async (req, res, next) => {
     try {
-        const { fecha_entrega_esperada, fecha_entrega_real, estado, id_actor } = req.body
+        const { fecha_entrega_esperada, fecha_entrega_real, estado, id_actor, productos } = req.body
         const { id } = req.params
 
         // pedido
-        const resultadoPedido = await pedidoValidator.validarPedido(id)
+        const resultadoPedido = await pedidoValidator.validarPedido(id, true)
 
         if (!resultadoPedido.ok) {
             return responseValidator.respuestaError(res, resultadoPedido)
@@ -87,11 +86,19 @@ const validarActualizarPedido = async (req, res, next) => {
             return responseValidator.respuestaError(res, resultadoEstado)
         }
 
+        // productos
+        const resultadoProductos = await pedidoValidator.validarProductos(productos, productosExistentesPedido(resultadoPedido.valor))
+
+        if (!resultadoProductos.ok) {
+            return responseValidator.respuestaError(res, resultadoProductos)
+        }
+
         // entrega de datos normalizados
         req.body.fecha_entrega_esperada = resultadoFechaEsperada.valor
         req.body.fecha_entrega_real = resultadoFechaReal.valor
         req.body.estado = resultadoEstado.valor
         req.body.id_actor = resultadoActor.valor.id
+        req.body.productos = resultadoProductos.valor
 
         next()
     } catch (err) {
