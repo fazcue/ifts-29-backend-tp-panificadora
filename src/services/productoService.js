@@ -1,7 +1,6 @@
-import mongoose from "mongoose"
 import Producto from "../models/Producto.js"
-
-const esIdValido = (id) => mongoose.isValidObjectId(id)
+import { esIdValido } from "../lib/utils.js"
+import DetallePedido from "../models/DetallePedido.js"
 
 const obtenerProductos = async () => {
     return await Producto.find()
@@ -68,6 +67,21 @@ const cambiarEstadoProducto = async (id) => {
 const eliminarProducto = async (id) => {
     if (!esIdValido(id)) {
         return null
+    }
+
+    const producto = await Producto.findById(id)
+
+    if (!producto) {
+        return null
+    }
+
+    const usadoEnPedido = await DetallePedido.exists({ producto: id })
+
+    if (usadoEnPedido) {
+        const error = new Error("No se puede eliminar un producto asociado a pedidos")
+        error.estado = 409
+
+        throw error
     }
 
     return await Producto.findByIdAndDelete(id)

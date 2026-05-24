@@ -1,6 +1,7 @@
 import { fechaValida } from "../lib/utils.js"
 import actorService from "../services/actorService.js"
 import pedidoService from "../services/pedidoService.js"
+import productoService from "../services/productoService.js"
 import responseValidator from "./response.validator.js"
 
 const validarFechaEntregaEsperada = (fecha) => {
@@ -73,8 +74,10 @@ const validarFechaEntregaReal = (fecha) => {
     return responseValidator.exito(fechaLimpia)
 }
 
-const validarPedido = async (id) => {
-    const pedido = await pedidoService.buscarPedidoPorId(id)
+const validarPedido = async (id, incluirDetalles = false) => {
+    const pedido = incluirDetalles
+        ? await pedidoService.buscarPedidoPorIdConDetalles(id)
+        : await pedidoService.buscarPedidoPorId(id)
 
     // inexistente
     if (!pedido) {
@@ -103,7 +106,7 @@ const validarEstado = async (estado) => {
         return responseValidator.errorValidacion("El estado es obligatorio")
     }
 
-    const estados = await pedidoService.obtenerEstados()
+    const estados = pedidoService.obtenerEstados()
 
     // inválido
     if (!estados.includes(estadoLimpio)) {
@@ -113,10 +116,93 @@ const validarEstado = async (estado) => {
     return responseValidator.exito(estadoLimpio)
 }
 
+const obtenerPrecioUnitario = (productosExistentes = [], idProducto, precioProducto) => {
+    const productoExistente = productosExistentes.find((item) => String(item.id_producto) === String(idProducto))
+
+    return productoExistente?.precio_unitario ?? precioProducto
+}
+
+const validarProductos = async (productos, productosExistentes = []) => {
+    // tipo inválido
+    if (!Array.isArray(productos)) {
+        return responseValidator.errorValidacion("Se debe añadir al menos un producto")
+    }
+
+    // normalizar: solo se procesan productos con cantidad indicada
+    const productosSeleccionados = productos.filter(producto => {
+        const cantidad = producto?.cantidad
+        const cantidadTexto = String(cantidad ?? "").trim()
+
+        return cantidadTexto !== "" && Number(cantidadTexto) !== 0
+    })
+
+    // Al menos un producto seleccionado
+    if (productosSeleccionados.length === 0) {
+        return responseValidator.errorValidacion("Se debe añadir al menos un producto")
+    }
+
+    // validación individual de productos
+    const idsProductos = new Set()
+    const productosNormalizados = []
+
+    for (const item of productosSeleccionados) {
+        const idProducto = item?.id_producto
+        const cantidad = Number(item?.cantidad)
+
+        // producto obligatorio
+        if (!idProducto) {
+            return responseValidator.errorValidacion("El id del producto es obligatorio")
+        }
+
+        // producto duplicado
+        if (idsProductos.has(idProducto)) {
+            return responseValidator.errorValidacion("No se puede repetir el mismo producto en un pedido")
+        }
+
+        idsProductos.add(idProducto)
+
+        // cantidad inválida
+        if (Number.isNaN(cantidad)) {
+            return responseValidator.errorValidacion("La cantidad debe ser numérica")
+        }
+
+        if (!Number.isInteger(cantidad)) {
+            return responseValidator.errorValidacion("La cantidad debe ser un numero entero")
+        }
+
+        if (cantidad <= 0) {
+            return responseValidator.errorValidacion("La cantidad debe ser mayor a cero")
+        }
+
+        const producto = await productoService.buscarProductoPorId(idProducto)
+
+        // producto inexistente
+        if (!producto) {
+            return responseValidator.errorValidacion(`Producto con id ${idProducto} inexistente`)
+        }
+
+        const productoExistente = productosExistentes.some((item) => String(item.id_producto) === String(producto.id))
+
+        // producto inactivo
+        if (!producto.activo && !productoExistente) {
+            return responseValidator.errorValidacion(`Producto "${producto.nombre}" inactivo`)
+        }
+
+        productosNormalizados.push({
+            id_producto: producto.id,
+            cantidad,
+            precio_unitario: obtenerPrecioUnitario(productosExistentes, producto.id, producto.precio),
+        })
+    }
+
+    return responseValidator.exito(productosNormalizados)
+}
+
 export default {
     validarFechaEntregaEsperada,
     validarActor,
     validarFechaEntregaReal,
     validarPedido,
-    validarEstado
+    validarEstado,
+    validarProductos
 }

@@ -7,7 +7,7 @@ const listarProductosWeb = async (req, res) => {
 
         res.render("productos/listado", { productos, titulo })
     } catch (error) {
-        res.status(500).send("Error al cargar listado de productos")
+        res.status(500).render("error", { mensaje: "Error al cargar listado de productos" })
     }
 }
 
@@ -17,7 +17,7 @@ const formularioNuevoProductoWeb = async (req, res) => {
 
         res.render("productos/nuevo", { titulo })
     } catch (error) {
-        res.status(500).send("Error al cargar formulario nuevo producto")
+        res.status(500).render("error", { mensaje: "Error al cargar formulario nuevo producto" })
     }
 }
 
@@ -29,7 +29,7 @@ const crearProductoWeb = async (req, res) => {
 
         res.redirect("/productos")
     } catch (error) {
-        res.status(500).send("Error al crear producto")
+        res.status(500).render("error", { mensaje: "Error al crear producto" })
     }
 }
 
@@ -46,7 +46,7 @@ const formularioEditarProductoWeb = async (req, res) => {
 
         res.render("productos/editar", { producto, titulo })
     } catch (error) {
-        res.status(500).send("Error al cargar formulario editar producto")
+        res.status(500).render("error", { mensaje: "Error al cargar formulario editar producto" })
     }
 }
 
@@ -63,7 +63,7 @@ const actualizarProductoWeb = async (req, res) => {
 
         res.redirect("/productos")
     } catch (error) {
-        res.status(500).send("Error al actualizar producto")
+        res.status(500).render("error", { mensaje: "Error al actualizar producto" })
     }
 }
 
@@ -79,7 +79,7 @@ const activarDesactivarProductoWeb = async (req, res) => {
 
         res.redirect("/productos")
     } catch (error) {
-        res.status(500).send("Error al cambiar estado")
+        res.status(500).render("error", { mensaje: "Error al cambiar estado" })
     }
 }
 
@@ -95,7 +95,8 @@ const eliminarProductoWeb = async (req, res) => {
 
         res.redirect("/productos")
     } catch (error) {
-        res.status(500).send("Error al eliminar producto")
+        const mensaje = error.message ?? "Error al eliminar producto"
+        res.status(500).render("error", { mensaje: mensaje })
     }
 }
 

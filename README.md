@@ -110,10 +110,10 @@ ifts-29-backend-tp-panificadora/
 │   ├── services/
 │   ├── validators/
 │   ├── views/
+│   │   ├── common/
 │   │   ├── actores/
 │   │   ├── pedidos/
-│   │   └── productos/
-│   │   └── common/
+│   │   ├── productos/
 │   │   └── mixins/
 │   └── app.js
 ├── docs/

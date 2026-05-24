@@ -1,12 +1,12 @@
 import Pedido from "../models/Pedido.js"
-import mongoose from "mongoose"
-
-const esIdValido = (id) => mongoose.isValidObjectId(id)
+import detallePedidoService from "./detallePedidoService.js"
+import productoService from "./productoService.js"
+import { esIdValido } from "../lib/utils.js"
 
 const ESTADOS = [ "PENDIENTE", "EN_PRODUCCION", "DESPACHADO", "ENTREGADO" ]
 
 const obtenerPedidos = async () => {
-    return await Pedido.find()
+    return await Pedido.find().populate(['actor', 'productos'])
 }
 
 const buscarPedidoPorId = async (id) => {
@@ -17,26 +17,86 @@ const buscarPedidoPorId = async (id) => {
     return await Pedido.findById(id)
 }
 
+const buscarPedidoPorIdConDetalles = async (id) => {
+    if (!esIdValido(id)) {
+        return null
+    }
+
+    return await Pedido.findById(id)
+        .populate("actor")
+        .populate({
+            path: "productos",
+            populate: {
+                path: "producto"
+            }
+        })
+}
+
+const productoParaFormulario = (producto, cantidad = "") => ({
+    id: producto.id,
+    nombre: producto.nombre,
+    precio: producto.precio,
+    cantidad_pedida: cantidad
+})
+
+const obtenerPedidoParaEditar = async (id) => {
+    const pedido = await buscarPedidoPorIdConDetalles(id)
+
+    if (!pedido) {
+        return null
+    }
+
+    const productosDelPedido = (pedido.productos || [])
+        .filter((detalle) => detalle.producto)
+        .map((detalle) => productoParaFormulario(detalle.producto, detalle.cantidad))
+
+    const idsProductosDelPedido = new Set(productosDelPedido.map((producto) => producto.id))
+    const productosActivos = await productoService.obtenerProductosActivos()
+    const productosActivosNoIncluidos = productosActivos
+        .filter((producto) => !idsProductosDelPedido.has(producto.id))
+        .map((producto) => productoParaFormulario(producto))
+
+    return {
+        pedido,
+        productos: [
+            ...productosDelPedido,
+            ...productosActivosNoIncluidos
+        ]
+    }
+}
+
 const obtenerEstados = () => {
     return ESTADOS
 }
 
-const obtenerPedidosConActores = async () => {
-    return await Pedido.find().populate('actor')
+const crearPedido = async (fechaEntregaEsperada, idActor, productos) => {
+    let nuevo = null
+
+    try {
+        // crear pedido
+        nuevo = new Pedido({
+            fecha_entrega_esperada: fechaEntregaEsperada,
+            actor: idActor
+        })
+
+        await nuevo.save()
+
+        // crear detalles
+        await detallePedidoService.crearDetallesPedido(nuevo.id, productos)
+
+        return nuevo
+    } catch (error) {
+        // si falla la creacion del pedido, elimimar datos huerfanos
+        if (nuevo?.id) {
+            await detallePedidoService.eliminarDetallesPorPedido(nuevo.id)
+            await Pedido.findByIdAndDelete(nuevo.id)
+        }
+
+        throw error
+    }
 }
 
-const crearPedido = async (fechaEntregaEsperada, idActor) => {
-    const nuevo = new Pedido({
-        fecha_entrega_esperada: fechaEntregaEsperada,
-        actor: idActor
-    })
-
-    await nuevo.save()
-
-    return nuevo
-}
-
-const actualizarPedido = async (id, fechaEntregaEsperada, fechaEntregaReal, estado, idActor) => {
+const actualizarPedido = async (id, fechaEntregaEsperada, fechaEntregaReal, estado, idActor, productos = null) => {
     if (!esIdValido(id)) {
         return null
     }
@@ -48,11 +108,22 @@ const actualizarPedido = async (id, fechaEntregaEsperada, fechaEntregaReal, esta
         actor: idActor
     }
 
-    return await Pedido.findByIdAndUpdate(
+    const pedido = await Pedido.findByIdAndUpdate(
         id,
         datosActualizados,
         { returnDocument: 'after', runValidators: true }
     )
+
+    if (!pedido) {
+        return null
+    }
+
+    if (productos) {
+        await detallePedidoService.eliminarDetallesPorPedido(id)
+        await detallePedidoService.crearDetallesPedido(id, productos)
+    }
+
+    return pedido
 }
 
 const eliminarPedido = async (id) => {
@@ -60,14 +131,26 @@ const eliminarPedido = async (id) => {
         return null
     }
 
-    return await Pedido.findByIdAndDelete(id)
+    // comprobar que exista
+    const pedido = await Pedido.findById(id)
+
+    if (!pedido) {
+        return null
+    }
+
+    // eliminar detalles / pedido
+    await detallePedidoService.eliminarDetallesPorPedido(id)
+    await Pedido.findByIdAndDelete(id)
+
+    return pedido
 }
 
 export default {
     obtenerPedidos,
     buscarPedidoPorId,
+    buscarPedidoPorIdConDetalles,
+    obtenerPedidoParaEditar,
     obtenerEstados,
-    obtenerPedidosConActores,
     crearPedido,
     actualizarPedido,
     eliminarPedido

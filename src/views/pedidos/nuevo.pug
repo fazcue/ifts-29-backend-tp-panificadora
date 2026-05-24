@@ -23,6 +23,33 @@ block content
                 each actor in actores
                     option(value=actor.id selected=pedido && String(pedido.actor)===String(actor.id))= `${actor.nombre} - ${actor.tipo}`
         
+        div.field
+            label Productos
+            if productos && productos.length > 0
+                ul.list
+                    each producto, index in productos
+                        li.item(data-producto-row)
+                            div.info
+                                h3= producto.nombre
+                                p= `Precio: $${producto.precio}`
+                            div.actions
+                                input(
+                                    type='hidden'
+                                    name=`productos[${index}][id_producto]`
+                                    value=producto.id
+                                )
+                                label(for=`producto_${producto.id}`) Cantidad
+                                input(
+                                    id=`producto_${producto.id}`
+                                    type='number'
+                                    name=`productos[${index}][cantidad]`
+                                    min='0'
+                                    step='1'
+                                    value=producto.cantidad_pedida || ''
+                                )
+            else 
+                p.empty Sin productos activos registrados
+        
         div.actions
             button.btn(type='submit') Guardar
             a.btn.btn-secondary(href='/pedidos') Cancelar

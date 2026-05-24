@@ -13,7 +13,7 @@ const listarPedidos = async (req, res) => {
 const listarPedido = async (req, res) => {
     try {
         const id = req.params.id
-        const pedido = await pedidoService.buscarPedidoPorId(id)
+        const pedido = await pedidoService.buscarPedidoPorIdConDetalles(id)
 
         if (!pedido) {
             return res.status(404).json({ error: "Pedido no encontrado" })
@@ -27,9 +27,9 @@ const listarPedido = async (req, res) => {
 
 const crearPedido = async (req, res) => {
     try {
-        const { fecha_entrega_esperada, id_actor } = req.body
+        const { fecha_entrega_esperada, id_actor, productos } = req.body
 
-        const nuevo = await pedidoService.crearPedido(fecha_entrega_esperada, id_actor)
+        const nuevo = await pedidoService.crearPedido(fecha_entrega_esperada, id_actor, productos)
 
         res.status(201).json(nuevo)
     } catch (error) {
@@ -40,9 +40,9 @@ const crearPedido = async (req, res) => {
 const actualizarPedido = async (req, res) => {
     try {
         const id = req.params.id
-        const { fecha_entrega_esperada, fecha_entrega_real, estado, id_actor } = req.body
+        const { fecha_entrega_esperada, fecha_entrega_real, estado, id_actor, productos } = req.body
 
-        const pedido = await pedidoService.actualizarPedido(id, fecha_entrega_esperada, fecha_entrega_real, estado, id_actor)
+        const pedido = await pedidoService.actualizarPedido(id, fecha_entrega_esperada, fecha_entrega_real, estado, id_actor, productos)
 
         if (!pedido) {
             return res.status(404).json({ error: "Pedido no encontrado" })
