@@ -1,6 +1,7 @@
 import express from 'express'
 import dotenv from 'dotenv'
 import conectarDB from './config/db.js'
+import { configurarSesion, inyectarDatosUsuario } from './config/session.js'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 // Rutas API
@@ -13,6 +14,8 @@ import actoresRouterWeb from './routes/web/actoresRoutes.js'
 import pedidosRouterWeb from './routes/web/pedidosRoutes.js'
 import productosRouterWeb from './routes/web/productosRoutes.js'
 
+import { protegerApi, protegerWeb } from './middlewares/auth.js'
+
 dotenv.config()
 
 const PUERTO = process.env.PUERTO || 3000
@@ -24,20 +27,24 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(express.static("public"))
 
+// Sesiones
+app.use(configurarSesion)
+app.use(inyectarDatosUsuario)
+
 // Motor plantillas Pug
 app.set("view engine", "pug")
 app.set("views", join(__dirname, "views"))
 
 // Rutas web
 app.use('/', loginRouterWeb)
-app.use('/actores', actoresRouterWeb)
-app.use('/pedidos', pedidosRouterWeb)
-app.use('/productos', productosRouterWeb)
+app.use('/actores', protegerWeb, actoresRouterWeb)
+app.use('/pedidos', protegerWeb, pedidosRouterWeb)
+app.use('/productos', protegerWeb, productosRouterWeb)
 
 // Rutas API
-app.use('/api/actores', actoresRouter)
-app.use('/api/pedidos', pedidosRouter)
-app.use('/api/productos', productosRouter)
+app.use('/api/actores', protegerApi, actoresRouter)
+app.use('/api/pedidos', protegerApi, pedidosRouter)
+app.use('/api/productos', protegerApi, productosRouter)
 
 // 404
 app.use('/api', (req, res) => res.status(404).json({ error: 'Recurso no encontrado' }))

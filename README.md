@@ -1,6 +1,6 @@
 # Panificadora Industrial "La Espiga de Oro S.R.L."
 
-Aplicación web desarrollada con Node.js y Express para la gestión de pedidos, producción, insumos y royalties de la Panificadora Industrial "La Espiga de Oro S.R.L.".
+Aplicación web desarrollada con Node.js y Express para la gestión de pedidos, producción, insumos y royalties de la Panificadora Industrial "La Espiga de Oro S.R.L.". Incluye autenticación web con sesiones persistidas en MongoDB.
 
 IFTS 29 - Backend
 
@@ -12,6 +12,7 @@ La Espiga de Oro S.R.L. es una fábrica de panificados con **cinco sucursales pr
 Este sistema busca resolver esa problemática mediante:
 
 - Un **portal de pedidos estructurado** para franquiciados y sucursales.
+- **Acceso autenticado** mediante email y contraseña para proteger la gestión interna.
 - **Gestión de estados** del pedido: `PENDIENTE → EN_PRODUCCION → DESPACHADO → ENTREGADO`.
 - **Consolidación de demanda** para planificar la producción y compra de insumos.
 - **Detección de retrasos** en la entrega.
@@ -36,6 +37,7 @@ Este sistema busca resolver esa problemática mediante:
 - **Motor de plantillas:** Pug
 - **Base de datos:** MongoDB
 - **ODM:** Mongoose
+- **Autenticación y sesiones:** express-session, connect-mongo y bcryptjs
 - **Variables de entorno:** dotenv
 - **Arquitectura:** MVC (Modelo - Vista - Controlador) con capa de servicios, separación modular y POO
 - **Testing:** Thunder Client
@@ -56,8 +58,9 @@ El proyecto aplica una arquitectura **MVC (Modelo - Vista - Controlador)** con s
 | **Rutas Web** | `/src/routes/web` | Definen pantallas y formularios, por ejemplo `/actores`, `/pedidos` y `/productos` |
 | **Middlewares API** | `/src/middlewares/api` | Validan datos de entrada y responden errores en formato JSON |
 | **Middlewares Web** | `/src/middlewares/web` | Validan formularios y vuelven a renderizar la vista con mensajes de error |
+| **Middleware de autenticación** | `/src/middlewares/auth.js` | Protege rutas web y API verificando la sesión activa |
 | **Validators** | `/src/validators` | Reglas reutilizables de validación y helpers de respuesta |
-| **Config** | `/src/config` | Configuración de infraestructura, como la conexión a MongoDB |
+| **Config** | `/src/config` | Configuración de infraestructura, como la conexión a MongoDB y las sesiones |
 | **Lib** | `/src/lib` | Utilidades compartidas, como helpers de fechas |
 | **Persistencia** | MongoDB | Colecciones administradas mediante modelos Mongoose |
 
@@ -74,6 +77,20 @@ Cambios principales de la migración:
 - `Pedido` referencia a `Actor` mediante el campo `actor`.
 - Los servicios usan operaciones de MongoDB como `find`, `findById`, `findByIdAndUpdate`, `findByIdAndDelete` y `populate`.
 - Se validan ids con `mongoose.isValidObjectId` antes de consultar la base.
+
+
+## Autenticación y sesiones
+
+La aplicación cuenta con login web en `/`, cierre de sesión en `/salir` y protección para las secciones internas.
+
+- Los actores inician sesión con `email` y `password`.
+- La contraseña del actor se valida con `bcryptjs`, por lo que debe estar almacenada como hash.
+- Solo pueden ingresar actores activos (`activo: true`).
+- Las sesiones se configuran con `express-session` y se almacenan en MongoDB mediante `connect-mongo`.
+- La cookie de sesión usa `httpOnly`, `sameSite: 'lax'`, `secure` en producción y una duración de 1 hora.
+- Las rutas web `/actores`, `/pedidos` y `/productos` requieren sesión activa.
+- Las rutas API `/api/actores`, `/api/pedidos` y `/api/productos` también requieren sesión activa; si no existe sesión, responden `401 No autorizado`.
+- Los datos del usuario autenticado se inyectan en las vistas mediante `res.locals.user`.
 
 
 ## Asincronía y ECMAScript
@@ -96,13 +113,16 @@ También se aplican recursos de ECMAScript moderno en distintas capas del proyec
 ifts-29-backend-tp-panificadora/
 ├── src/
 │   ├── config/
+│   │   ├── db.js
+│   │   └── session.js
 │   ├── controllers/
 │   │   ├── api/
 │   │   └── web/
 │   ├── lib/
 │   ├── middlewares/
 │   │   ├── api/
-│   │   └── web/
+│   │   ├── web/
+│   │   └── auth.js
 │   ├── models/
 │   ├── routes/
 │   │   ├── api/
@@ -143,7 +163,7 @@ cd ifts-29-backend-tp-panificadora
 # Instalar dependencias
 npm install
 
-# Crear y configurar el archivo .env con MONGO_URI
+# Crear y configurar el archivo .env con MONGO_URI y SESSION_SECRET
 
 # Iniciar el servidor
 npm start
@@ -158,9 +178,11 @@ Crear un archivo `.env` en la raíz del proyecto con las siguientes variables:
 ```env
 MONGO_URI=mongodb://127.0.0.1:27017/panificadora
 PUERTO=3000
+SESSION_SECRET=clave_secreta_para_firmar_sesiones
 ```
 
 `PUERTO` es opcional. Si no se define, la aplicación usa `3000`.
+`SESSION_SECRET` es necesario para firmar las cookies de sesión. En producción también puede definirse `NODE_ENV=production` para que la cookie se marque como segura.
 
 ### Modo desarrollo
 
