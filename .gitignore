@@ -23,3 +23,6 @@ Thumbs.db
 *.ntvs*
 *.njsproj
 *.sln
+
+# Docs
+docs/case
