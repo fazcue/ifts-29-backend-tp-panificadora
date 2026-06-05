@@ -1,10 +1,12 @@
 import { Router } from 'express'
-import { ingresar } from '../../controllers/web/loginController.js'
+import { formularioLogin, portada, ingresar, cerrarSesion } from '../../controllers/web/loginController.js'
+import { protegerWeb } from '../../middlewares/auth.js'
 
 const router = Router()
 
-router.get('/', (req, res) => res.render('login'))
+router.get('/', formularioLogin)
 router.post('/', ingresar)
-router.get('/portada', (req, res) => res.render('portada'))
+router.get('/portada', protegerWeb, portada)
+router.get('/salir', cerrarSesion)
 
 export default router

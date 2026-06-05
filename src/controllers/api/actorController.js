@@ -28,9 +28,9 @@ const listarActor = async (req, res) => {
 
 const crearActor = async (req, res) => {
     try {
-        const { nombre, email, tipo } = req.body
+        const { nombre, email, password, tipo } = req.body
         
-        const nuevo = await actorService.crearActor(nombre, email, tipo)
+        const nuevo = await actorService.crearActor(nombre, email, password, tipo)
 
         res.status(201).json(nuevo)
     } catch (error) {
@@ -41,9 +41,9 @@ const crearActor = async (req, res) => {
 const actualizarActor = async (req, res) => {
     try {
         const id = req.params.id
-        const { nombre, email, tipo, activo } = req.body
+        const { nombre, email, password, tipo, activo } = req.body
 
-        const actor = await actorService.actualizarActor(id, nombre, email, tipo, activo)
+        const actor = await actorService.actualizarActor(id, nombre, email, password, tipo, activo)
 
         if (!actor) {
             return res.status(404).json({ error: 'Actor no encontrado' })

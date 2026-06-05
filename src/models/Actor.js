@@ -28,10 +28,12 @@ const actorSchema = new mongoose.Schema(
 			required: false,
 			default: false,
 		},
+		password: {
+			type: String,
+			required: [true, 'La contraseña es obligatoria']
+		}
 	},
-	{
-		timestamps: true,
-	},
+	{ timestamps: true }
 )
 
 export default mongoose.model('Actor', actorSchema)

@@ -1,11 +1,11 @@
 import Actor from "../models/Actor.js"
 import Pedido from "../models/Pedido.js"
-import { esIdValido } from "../lib/utils.js"
+import { esIdValido, encriptarPassword } from "../lib/utils.js"
 
 const TIPOS = ['PLANTA', 'SUCURSAL', 'FRANQUICIA']
 
 const obtenerActores = async () => {
-    return await Actor.find()
+    return await Actor.find().select('-password')
 }
 
 const buscarActorPorId = async (id) => {
@@ -13,7 +13,7 @@ const buscarActorPorId = async (id) => {
         return null
     }
 
-    return await Actor.findById(id)
+    return await Actor.findById(id).select('-password')
 }
 
 const buscarActorPorEmail = async (email) => {
@@ -22,17 +22,18 @@ const buscarActorPorEmail = async (email) => {
 }
 
 const obtenerActoresActivos = async () => {
-    return await Actor.find({ activo: true })
+    return await Actor.find({ activo: true }).select('-password')
 }
 
 const obtenerTipos = async () => {
     return TIPOS
 }
 
-const crearActor = async (nombre, email, tipo) => {
+const crearActor = async (nombre, email, password, tipo) => {
     const nuevo = new Actor({
         nombre: nombre.trim(),
         email: email.trim().toLowerCase(),
+        password: encriptarPassword(password),
         tipo: tipo.trim()
     })
     await nuevo.save()
@@ -40,7 +41,7 @@ const crearActor = async (nombre, email, tipo) => {
     return nuevo
 }
 
-const actualizarActor = async (id, nombre, email, tipo, activo) => {
+const actualizarActor = async (id, nombre, email, password, tipo, activo) => {
     if (!esIdValido(id)) {
         return null
     }
@@ -51,6 +52,12 @@ const actualizarActor = async (id, nombre, email, tipo, activo) => {
         tipo: tipo?.trim()
     }
 
+    const passwordNormalizado = password?.trim()
+
+    if (passwordNormalizado) {
+        datosActualizados.password = encriptarPassword(passwordNormalizado)
+    }
+
     if (activo !== undefined) {
         datosActualizados.activo = activo
     }
@@ -59,7 +66,7 @@ const actualizarActor = async (id, nombre, email, tipo, activo) => {
         id,
         datosActualizados,
         { returnDocument: 'after', runValidators: true }
-    )
+    ).select('-password')
 }
 
 const cambiarEstadoActor = async (id) => {
@@ -80,7 +87,7 @@ const eliminarActor = async (id) => {
         return null
     }
 
-    const actor = await Actor.findById(id)
+    const actor = await Actor.findById(id).select('-password')
 
     if (!actor) {
         return null

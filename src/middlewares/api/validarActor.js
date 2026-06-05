@@ -2,7 +2,7 @@ import actorService from "../../services/actorService.js"
 
 const validarActor = async (req, res, next) => {
     try {
-        const { nombre, email, tipo, activo } = req.body
+        const { nombre, email, password, tipo, activo } = req.body
         const { id } = req.params
 
         // data
@@ -17,7 +17,7 @@ const validarActor = async (req, res, next) => {
         }
 
         // validar campos vacíos
-        if (!nombre?.trim() || !email?.trim() || !tipo?.trim()) {
+        if (!nombre?.trim() || !email?.trim() || !tipo?.trim() || (!id && !password?.trim())) {
             return res.status(400).json({ error: `Datos faltantes` })
         }
 
