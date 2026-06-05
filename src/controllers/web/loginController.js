@@ -26,7 +26,14 @@ const ingresar = async (req, res, next) => {
             tipo: actor.tipo
         }
 
-		res.redirect('/portada')
+        req.session.save((error) => {
+            if (error) {
+                console.error('Error al guardar sesión:', error)
+                return res.render('login', { error: 'Ocurrió un error interno en el servidor' })
+            }
+
+            res.redirect('/portada')
+        })
 	} catch (error) {
         console.error("Error al ingresar:", error)
         return res.render('login', { error: 'Ocurrió un error interno en el servidor' })

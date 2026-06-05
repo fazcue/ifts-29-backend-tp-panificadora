@@ -22,6 +22,9 @@ const PUERTO = process.env.PUERTO || 3000
 const app = express()
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
+// Soporte vercel
+app.set('trust proxy', 1)
+
 // Middlewares
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
