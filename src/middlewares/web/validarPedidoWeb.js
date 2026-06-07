@@ -3,6 +3,7 @@ import pedidoService from "../../services/pedidoService.js"
 import actorService from "../../services/actorService.js"
 import pedidoValidator from "../../validators/pedido.validator.js"
 import productoService from "../../services/productoService.js"
+import { esPlanta } from "../../lib/roles.js"
 
 // vistas
 const VISTA_CREAR_PEDIDO = 'pedidos/nuevo'
@@ -69,18 +70,10 @@ const datosFormularioActualizar = async (id, fecha_entrega_esperada, fecha_entre
     }
 }
 
-// pedido nuevo:
-/*
-    fecha_entrega_esperada es obligatoria.
-        Debe ser texto.
-        Debe tener formato AAAA-MM-DD.
-    id_actor es obligatorio.
-        El actor debe existir.
-        El actor debe estar activo.
-*/
 const validarCrearPedidoWeb = async (req, res, next) => {
     try {
-        const { fecha_entrega_esperada, id_actor, productos } = req.body
+        const { fecha_entrega_esperada, productos } = req.body
+        let id_actor = req.body.id_actor
 
         // datos formulario (necesario para el render)
         const datosFormulario = await datosFormularioCrear(fecha_entrega_esperada, id_actor)
@@ -90,6 +83,11 @@ const validarCrearPedidoWeb = async (req, res, next) => {
 
         if (!resultadoFechaEsperada.ok) {
             return responseValidator.respuestaErrorWeb(res, VISTA_CREAR_PEDIDO, resultadoFechaEsperada, datosFormulario)
+        }
+
+        // id actor (si no es PLANTA, debe ser igual a user.id)
+        if (!esPlanta(req.session.user)) {
+            id_actor = req.session.user.id
         }
 
         // actor
@@ -119,7 +117,7 @@ const validarCrearPedidoWeb = async (req, res, next) => {
 
 const validarActualizarPedidoWeb = async (req, res, next) => {
     try {
-        const { fecha_entrega_esperada, fecha_entrega_real, estado, id_actor, productos } = req.body
+        let { fecha_entrega_esperada, fecha_entrega_real, estado, id_actor, productos } = req.body
         const { id } = req.params
 
         // datos formulario (necesario para el render)
@@ -127,9 +125,16 @@ const validarActualizarPedidoWeb = async (req, res, next) => {
 
         // pedido
         const resultadoPedido = await pedidoValidator.validarPedido(id, true)
-        
+
         if (!resultadoPedido.ok) {
             return responseValidator.respuestaErrorWeb(res, VISTA_ACTUALIZAR_PEDIDO, resultadoPedido, datosFormulario)
+        }
+
+        // si no es planta, mantener valores de atributos no editables
+        if (!esPlanta(req.session.user)) {
+            estado = resultadoPedido.valor.estado
+            id_actor = resultadoPedido.valor.actor.id
+            fecha_entrega_real = resultadoPedido.valor.fecha_entrega_real
         }
 
         // fecha entrega esperada

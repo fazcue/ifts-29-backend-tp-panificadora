@@ -1,21 +1,47 @@
-import { Router } from "express"
+import { Router } from 'express'
 import {
-    actualizarPedidoWeb,
-    crearPedidoWeb,
-    eliminarPedidoWeb,
-    formularioEditarPedidoWeb,
-    formularioNuevoPedidoWeb,
-    listarPedidosWeb
-} from "../../controllers/web/pedidoController.js"
-import { validarCrearPedidoWeb, validarActualizarPedidoWeb } from "../../middlewares/web/validarPedidoWeb.js"
+	actualizarPedidoWeb,
+	crearPedidoWeb,
+	eliminarPedidoWeb,
+	formularioEditarPedidoWeb,
+	formularioNuevoPedidoWeb,
+	listarPedidosWeb,
+} from '../../controllers/web/pedidoController.js'
+import {
+	validarCrearPedidoWeb,
+	validarActualizarPedidoWeb,
+} from '../../middlewares/web/validarPedidoWeb.js'
+import { cargarPedido, tienePermisosWeb } from '../../middlewares/abac.js'
 
 const router = Router()
 
-router.get("/", listarPedidosWeb)
-router.get("/nuevo", formularioNuevoPedidoWeb)
-router.post("/nuevo", validarCrearPedidoWeb, crearPedidoWeb)
-router.get("/editar/:id", formularioEditarPedidoWeb)
-router.post("/editar/:id", validarActualizarPedidoWeb, actualizarPedidoWeb)
-router.post("/eliminar/:id", eliminarPedidoWeb)
+router.get('/', tienePermisosWeb('pedidos', 'ver'), listarPedidosWeb)
+router.get(
+	'/nuevo',
+	tienePermisosWeb('pedidos', 'crear'),
+	formularioNuevoPedidoWeb,
+)
+router.post(
+	'/nuevo',
+	tienePermisosWeb('pedidos', 'crear'),
+	validarCrearPedidoWeb,
+	crearPedidoWeb,
+)
+router.get(
+	'/editar/:id',
+	tienePermisosWeb('pedidos', 'editar', cargarPedido),
+	formularioEditarPedidoWeb,
+)
+router.post(
+	'/editar/:id',
+	tienePermisosWeb('pedidos', 'editar', cargarPedido),
+	validarActualizarPedidoWeb,
+	actualizarPedidoWeb,
+)
+router.post(
+	'/eliminar/:id',
+	tienePermisosWeb('pedidos', 'eliminar', cargarPedido),
+	eliminarPedidoWeb,
+)
 
 export default router

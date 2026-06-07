@@ -5,16 +5,16 @@ import { esIdValido } from "../lib/utils.js"
 
 const ESTADOS = [ "PENDIENTE", "EN_PRODUCCION", "DESPACHADO", "ENTREGADO" ]
 
-const obtenerPedidos = async () => {
-    return await Pedido.find().populate(['actor', 'productos'])
+const obtenerPedidos = async (filtro = {}) => {
+    return await Pedido.find(filtro).populate(['actor', 'productos'])
 }
 
-const buscarPedidoPorId = async (id) => {
+const buscarPedidoPorId = async (id, atributos = null) => {
     if (!esIdValido(id)) {
         return null
     }
 
-    return await Pedido.findById(id)
+    return await Pedido.findById(id).select(atributos)
 }
 
 const buscarPedidoPorIdConDetalles = async (id) => {

@@ -3,6 +3,8 @@ include ../mixins/cabecera
 include ../mixins/reporteError
 
 block content
+    - const esPlanta = user?.tipo === 'PLANTA'
+
     //- Cabecera
     +cabecera('Nuevo pedido')
 
@@ -16,12 +18,15 @@ block content
             label(for='fecha_entrega_esperada') Fecha de entrega esperada
             input#fecha_entrega_esperada(type='date' name='fecha_entrega_esperada' value=pedido && pedido.fecha_entrega_esperada required)
         
-        div.field
-            label(for='id_actor') Actor
-            select#id_actor(name='id_actor' required)
-                option(value='') Seleccionar...
-                each actor in actores
-                    option(value=actor.id selected=pedido && String(pedido.actor)===String(actor.id))= `${actor.nombre} - ${actor.tipo}`
+        if esPlanta
+            div.field
+                label(for='id_actor') Actor
+                select#id_actor(name='id_actor' required)
+                    option(value='') Seleccionar...
+                    each actor in actores
+                        option(value=actor.id selected=pedido && String(pedido.actor)===String(actor.id))= `${actor.nombre} - ${actor.tipo}`
+        else
+            input(type='hidden' name='id_actor' value=user.id)
         
         div.field
             label Productos

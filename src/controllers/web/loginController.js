@@ -14,16 +14,13 @@ const ingresar = async (req, res, next) => {
 			return res.render('login', { error: 'Email o contraseña incorrectos' })
 		}
 
-		if (!actor.activo) {
-            return res.render('login', { error: 'El actor se encuentra inactivo' })
-        }
-
 		// sesion
         req.session.user = {
             id: actor._id,
             nombre: actor.nombre,
             email: actor.email,
-            tipo: actor.tipo
+            tipo: actor.tipo,
+            activo: actor.activo
         }
 
         req.session.save((error) => {

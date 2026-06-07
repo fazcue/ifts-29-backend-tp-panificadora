@@ -29,7 +29,8 @@ block content
             select#tipo(name='tipo' required)
                 option(value='') Seleccionar...
                 each tipo in tipos
-                    option(value=tipo selected=actor && actor.tipo===tipo)= tipo
+                    if tipo !== 'PLANTA'
+                        option(value=tipo selected=actor && actor.tipo===tipo)= tipo
         
         div.actions
             button.btn(type='submit') Guardar

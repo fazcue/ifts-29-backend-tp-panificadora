@@ -67,7 +67,7 @@ const actualizarProductoWeb = async (req, res) => {
     }
 }
 
-const activarDesactivarProductoWeb = async (req, res) => {
+const cambiarEstadoProductoWeb = async (req, res) => {
     try {
         const id = req.params.id
 
@@ -96,7 +96,7 @@ const eliminarProductoWeb = async (req, res) => {
         res.redirect("/productos")
     } catch (error) {
         const mensaje = error.message ?? "Error al eliminar producto"
-        res.status(500).render("error", { mensaje: mensaje })
+        res.status(409).render("error", { mensaje })
     }
 }
 
@@ -106,6 +106,6 @@ export {
     crearProductoWeb,
     formularioEditarProductoWeb,
     actualizarProductoWeb,
-    activarDesactivarProductoWeb,
+    cambiarEstadoProductoWeb,
     eliminarProductoWeb,
 }

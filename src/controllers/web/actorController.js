@@ -1,91 +1,121 @@
 import actorService from '../../services/actorService.js'
 
 const listarActoresWeb = async (req, res) => {
-    try {
-        const actores = await actorService.obtenerActores()
-        const titulo = 'Listado de actores'
+	try {
+		const actores = await actorService.obtenerActores()
+		const titulo = 'Listado de actores'
 
-        res.render('actores/listado', { actores, titulo })
-    } catch (error) {
-        res.status(500).render("error", { mensaje: "Error al cargar listado de actores" })
-    }
+		res.render('actores/listado', { actores, titulo })
+	} catch (error) {
+		res.status(500).render('error', {
+			mensaje: 'Error al cargar listado de actores',
+		})
+	}
 }
 
-const formularioNuevoActorWeb = async (req, res) => {
-    try {
-        const tipos = await actorService.obtenerTipos()
-        const titulo = 'Alta de nuevo actor'
+const renderFormularioNuevoActorWeb = (req, res) => {
+	try {
+		const tipos = actorService.obtenerTipos()
+		const titulo = 'Alta de nuevo actor'
 
-        res.render('actores/nuevo', { tipos, titulo })
-    } catch (error) {
-        res.status(500).render("error", { mensaje: "Error al cargar formulario nuevo actor" })
-    }
+		res.render('actores/nuevo', { tipos, titulo })
+	} catch (error) {
+		res.status(500).render('error', {
+			mensaje: 'Error al cargar formulario nuevo actor',
+		})
+	}
 }
 
 const crearActorWeb = async (req, res) => {
-    try {
-        const { nombre, email, password, tipo } = req.body
-        
-        await actorService.crearActor(nombre, email, password, tipo)
+	try {
+		const { nombre, email, password, tipo } = req.body
 
-        res.redirect('/actores')
-    } catch (error) {
-        res.status(500).render("error", { mensaje: "Error al crear actor" })
-    }
+		await actorService.crearActor(nombre, email, password, tipo)
+
+		res.redirect('/actores')
+	} catch (error) {
+		const mensaje = error.message ?? 'Error al crear actor'
+		const estado = error.estado ?? 500
+		res.status(estado).render('error', { mensaje })
+	}
 }
 
-const formularioEditarActorWeb = async (req, res) => {
-    try {
-        const id = req.params.id
+const renderFormularioEditarActorWeb = async (req, res) => {
+	try {
+		const id = req.params.id
 
-        
-        const actor = await actorService.buscarActorPorId(id)
+		const actor = await actorService.buscarActorPorId(id)
 
-        if (!actor) {
-            return res.status(404).render('error', { mensaje: 'Actor no encontrado' })
-        }
+		if (!actor) {
+			return res
+				.status(404)
+				.render('error', { mensaje: 'Actor no encontrado' })
+		}
 
-        const tipos = await actorService.obtenerTipos()
-        const titulo = `Editar actor "${actor.nombre}"`
+		const tipos = actorService.obtenerTipos()
+		const titulo = `Editar actor "${actor.nombre}"`
 
-        res.render('actores/editar', { actor, tipos, titulo })
-    } catch (error) {
-        res.status(500).render("error", { mensaje: "Error al cargar formulario editar actor" })
-    }
+		res.render('actores/editar', { actor, tipos, titulo })
+	} catch (error) {
+		res.status(500).render('error', {
+			mensaje: 'Error al cargar formulario editar actor',
+		})
+	}
 }
 
 const actualizarActorWeb = async (req, res) => {
-    try {
-        const id = req.params.id
-        const { nombre, email, password, tipo, activo } = req.body
+	try {
+		const id = req.params.id
+		const { nombre, email, password, tipo, activo } = req.body
 
-        
-        const actor = await actorService.actualizarActor(id, nombre, email, password, tipo, activo)
+		const actor = await actorService.actualizarActor(
+			id,
+			nombre,
+			email,
+			password,
+			tipo,
+			activo,
+		)
 
-        if (!actor) {
-            return res.status(404).render('error', { mensaje: 'Actor no encontrado' })
-        }
-        
-        res.redirect('/actores')
-    } catch (error) {
-        res.status(500).render("error", { mensaje: "Error al actualizar actor" })
-    }
+		if (!actor) {
+			return res
+				.status(404)
+				.render('error', { mensaje: 'Actor no encontrado' })
+		}
+
+		res.redirect('/actores')
+	} catch (error) {
+		const mensaje = error.message ?? 'Error al actualizar actor'
+		const estado = error.estado ?? 500
+		res.status(estado).render('error', { mensaje })
+	}
 }
 
-const activarDesactivarActorWeb = async (req, res) => {
-    try {
-        const id = req.params.id
+const cambiarEstadoWeb = async (req, res) => {
+	try {
+		const id = req.params.id
 
-        const actor = await actorService.cambiarEstadoActor(id)
+		const actor = await actorService.cambiarEstadoActor(id)
 
-        if (!actor) {
-            return res.status(404).render('error', { mensaje: 'Actor no encontrado' })
-        }
-        
-        res.redirect('/actores')
-    } catch (error) {
-        res.status(500).render("error", { mensaje: "Error al cambiar estado" })
-    }
+		if (!actor) {
+			return res
+				.status(404)
+				.render('error', { mensaje: 'Actor no encontrado' })
+		}
+
+		res.redirect('/actores')
+	} catch (error) {
+		const mensaje = error.message ?? 'Error al eliminar producto'
+		const estado = error.estado ?? 500
+		res.status(estado).render('error', { mensaje })
+	}
 }
 
-export { listarActoresWeb, formularioNuevoActorWeb, crearActorWeb, formularioEditarActorWeb, actualizarActorWeb, activarDesactivarActorWeb }
+export {
+	listarActoresWeb,
+	renderFormularioNuevoActorWeb,
+	crearActorWeb,
+	renderFormularioEditarActorWeb,
+	actualizarActorWeb,
+	cambiarEstadoWeb,
+}

@@ -1,10 +1,14 @@
 import actorService from "../../services/actorService.js"
 import pedidoService from "../../services/pedidoService.js"
 import productoService from '../../services/productoService.js'
+import { esPlanta } from "../../lib/roles.js"
 
 const listarPedidosWeb = async (req, res) => {
     try {
-        const pedidos = await pedidoService.obtenerPedidos()
+        const actorLogueado = req.session.user
+        const filtro = esPlanta(actorLogueado) ? {} : { actor: actorLogueado.id }
+
+        const pedidos = await pedidoService.obtenerPedidos(filtro)
         const titulo = "Listado de pedidos"
 
         res.render("pedidos/listado", { pedidos, titulo })
@@ -61,8 +65,10 @@ const eliminarPedidoWeb = async (req, res) => {
 // formularios
 const formularioNuevoPedidoWeb = async (req, res) => {
     try {
+        const actorLogueado = req.session.user
+
         const [ actores, productos ] = await Promise.all([
-            actorService.obtenerActoresActivos(),
+            esPlanta(actorLogueado) ? actorService.obtenerActoresActivos() : actorService.buscarActorPorId(actorLogueado.id),
             productoService.obtenerProductosActivos()
         ])
 

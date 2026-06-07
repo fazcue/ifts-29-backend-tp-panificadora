@@ -1,3 +1,5 @@
 main.container
     div.content
+        if user
+            p Bienvenido, <strong>#{user.nombre}</strong> (#{user.activo ? "activo" : "inactivo"})
         block content

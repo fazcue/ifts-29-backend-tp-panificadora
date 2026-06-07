@@ -249,7 +249,7 @@ select:focus {
 /* Info */
 .info h3 {
     margin: 0;
-    font-size: var(--font-md);
+    font-size: var(--font-sm);
 }
 
 .info p {
