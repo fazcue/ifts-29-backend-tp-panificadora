@@ -1,15 +1,21 @@
 import actorService from "../../services/actorService.js"
 import pedidoService from "../../services/pedidoService.js"
 import productoService from '../../services/productoService.js'
+import { esPlanta } from "../../lib/tiposActor.js"
+import { responderErrorWeb } from "../../lib/errorResponses.js"
+import { obtenerEstadosPedido } from "../../lib/estadosPedido.js"
 
 const listarPedidosWeb = async (req, res) => {
     try {
-        const pedidos = await pedidoService.obtenerPedidos()
+        const actorLogueado = req.session.user
+        const filtro = esPlanta(actorLogueado) ? {} : { actor: actorLogueado.id }
+
+        const pedidos = await pedidoService.obtenerPedidos(filtro)
         const titulo = "Listado de pedidos"
 
         res.render("pedidos/listado", { pedidos, titulo })
     } catch (error) {
-        res.status(500).render("error", { mensaje: "Error al cargar listado de pedidos" })
+        responderErrorWeb(res, error, "Error al cargar listado de pedidos")
     }
 }
 
@@ -21,7 +27,7 @@ const crearPedidoWeb = async (req, res) => {
 
         res.redirect("/pedidos")
     } catch (error) {
-        res.status(500).render("error", { mensaje: "Error al crear pedido" })
+        responderErrorWeb(res, error, "Error al crear pedido")
     }
 }
 
@@ -38,7 +44,7 @@ const actualizarPedidoWeb = async (req, res) => {
 
         res.redirect("/pedidos")
     } catch (error) {
-        res.status(500).render("error", { mensaje: "Error al actualizar pedido" })
+        responderErrorWeb(res, error, "Error al actualizar pedido")
     }
 }
 
@@ -54,15 +60,17 @@ const eliminarPedidoWeb = async (req, res) => {
 
         res.redirect("/pedidos")
     } catch (error) {
-        res.status(500).render("error", { mensaje: "Error al eliminar pedido" })
+        responderErrorWeb(res, error, "Error al eliminar pedido")
     }
 }
 
 // formularios
 const formularioNuevoPedidoWeb = async (req, res) => {
     try {
+        const actorLogueado = req.session.user
+
         const [ actores, productos ] = await Promise.all([
-            actorService.obtenerActoresActivos(),
+            esPlanta(actorLogueado) ? actorService.obtenerActoresActivos() : actorService.buscarActorPorId(actorLogueado.id),
             productoService.obtenerProductosActivos()
         ])
 
@@ -70,7 +78,7 @@ const formularioNuevoPedidoWeb = async (req, res) => {
 
         res.render("pedidos/nuevo", { actores, productos, titulo })
     } catch (error) {
-        res.status(500).render("error", { mensaje: "Error al cargar formulario nuevo pedido" })
+        responderErrorWeb(res, error, "Error al cargar formulario nuevo pedido")
     }
 }
 
@@ -100,7 +108,7 @@ const formularioEditarPedidoWeb = async (req, res) => {
         }
 
         // estados + titulo
-        const estados = pedidoService.obtenerEstados()
+        const estados = obtenerEstadosPedido()
         const titulo = `Editar pedido #${pedido.id}`
         const pedidoFormulario = {
             ...pedido.toObject(),
@@ -110,7 +118,7 @@ const formularioEditarPedidoWeb = async (req, res) => {
 
         res.render("pedidos/editar", { pedido: pedidoFormulario, actores, estados, productos, titulo })
     } catch (error) {
-        res.status(500).render("error", { mensaje: "Error al cargar formulario editar pedido" })
+        responderErrorWeb(res, error, "Error al cargar formulario editar pedido")
     }
 }
 

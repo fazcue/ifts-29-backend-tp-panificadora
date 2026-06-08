@@ -24,12 +24,16 @@ block content
             label(for='password') Contraseña
             input#password(type='password' name='password')
 
-        div.field
-            label(for='tipo') Tipo
-            select#tipo(name='tipo' required)
-                each tipo in tipos
-                    option(value=tipo selected=actor.tipo===tipo)= tipo
-        
+        if actor.tipo !== 'PLANTA'
+            div.field
+                label(for='tipo') Tipo
+                select#tipo(name='tipo' required)
+                    each tipo in tipos
+                        if tipo !== 'PLANTA'
+                            option(value=tipo selected=actor.tipo===tipo)= tipo
+        else
+            input(type='hidden' name='tipo' value=actor.tipo)
+
         div.actions
             button.btn(type='submit') Guardar
             a.btn.btn-secondary(href='/actores') Cancelar

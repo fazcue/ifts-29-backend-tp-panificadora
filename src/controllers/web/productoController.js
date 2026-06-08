@@ -1,4 +1,5 @@
 import productoService from "../../services/productoService.js"
+import { responderErrorWeb } from "../../lib/errorResponses.js"
 
 const listarProductosWeb = async (req, res) => {
     try {
@@ -7,7 +8,7 @@ const listarProductosWeb = async (req, res) => {
 
         res.render("productos/listado", { productos, titulo })
     } catch (error) {
-        res.status(500).render("error", { mensaje: "Error al cargar listado de productos" })
+        responderErrorWeb(res, error, "Error al cargar listado de productos")
     }
 }
 
@@ -17,7 +18,7 @@ const formularioNuevoProductoWeb = async (req, res) => {
 
         res.render("productos/nuevo", { titulo })
     } catch (error) {
-        res.status(500).render("error", { mensaje: "Error al cargar formulario nuevo producto" })
+        responderErrorWeb(res, error, "Error al cargar formulario nuevo producto")
     }
 }
 
@@ -29,7 +30,7 @@ const crearProductoWeb = async (req, res) => {
 
         res.redirect("/productos")
     } catch (error) {
-        res.status(500).render("error", { mensaje: "Error al crear producto" })
+        responderErrorWeb(res, error, "Error al crear producto")
     }
 }
 
@@ -46,7 +47,7 @@ const formularioEditarProductoWeb = async (req, res) => {
 
         res.render("productos/editar", { producto, titulo })
     } catch (error) {
-        res.status(500).render("error", { mensaje: "Error al cargar formulario editar producto" })
+        responderErrorWeb(res, error, "Error al cargar formulario editar producto")
     }
 }
 
@@ -63,11 +64,11 @@ const actualizarProductoWeb = async (req, res) => {
 
         res.redirect("/productos")
     } catch (error) {
-        res.status(500).render("error", { mensaje: "Error al actualizar producto" })
+        responderErrorWeb(res, error, "Error al actualizar producto")
     }
 }
 
-const activarDesactivarProductoWeb = async (req, res) => {
+const cambiarEstadoProductoWeb = async (req, res) => {
     try {
         const id = req.params.id
 
@@ -79,7 +80,7 @@ const activarDesactivarProductoWeb = async (req, res) => {
 
         res.redirect("/productos")
     } catch (error) {
-        res.status(500).render("error", { mensaje: "Error al cambiar estado" })
+        responderErrorWeb(res, error, "Error al cambiar estado")
     }
 }
 
@@ -95,8 +96,7 @@ const eliminarProductoWeb = async (req, res) => {
 
         res.redirect("/productos")
     } catch (error) {
-        const mensaje = error.message ?? "Error al eliminar producto"
-        res.status(500).render("error", { mensaje: mensaje })
+        responderErrorWeb(res, error, "Error al eliminar producto")
     }
 }
 
@@ -106,6 +106,6 @@ export {
     crearProductoWeb,
     formularioEditarProductoWeb,
     actualizarProductoWeb,
-    activarDesactivarProductoWeb,
+    cambiarEstadoProductoWeb,
     eliminarProductoWeb,
 }

@@ -4,7 +4,7 @@ include ../mixins/cabecera
 block content
     //- Cabecera con enlace
     +cabecera('Productos')
-        a.btn(href='/productos/nuevo') Agregar
+        a.btn(href='/productos/nuevo') Nuevo
 
     //- Listado productos
     if productos.length > 0
@@ -22,7 +22,7 @@ block content
 
                     div.actions
                         a.btn.btn-secondary(href=`/productos/editar/${producto.id}`) Editar
-                        form(action=`/productos/activar-desactivar/${producto.id}` method='POST')
+                        form(action=`/productos/cambiar-estado/${producto.id}` method='POST')
                             if producto.activo
                                 button.btn(type='submit') Desactivar
                             else

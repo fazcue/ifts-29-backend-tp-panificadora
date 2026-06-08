@@ -1,12 +1,16 @@
 import pedidoService from "../../services/pedidoService.js"
+import { esPlanta } from "../../lib/tiposActor.js"
+import { responderErrorApi } from "../../lib/errorResponses.js"
 
 const listarPedidos = async (req, res) => {
     try {
-        const pedidos = await pedidoService.obtenerPedidos()
+        const actorLogueado = req.session.user
+        const filtro = esPlanta(actorLogueado) ? {} : { actor: actorLogueado.id }
+        const pedidos = await pedidoService.obtenerPedidos(filtro)
 
         res.status(200).json(pedidos)
     } catch (error) {
-        res.status(500).json({ error: "Error al listar pedidos" })
+        responderErrorApi(res, error, "Error al listar pedidos")
     }
 }
 
@@ -21,7 +25,7 @@ const listarPedido = async (req, res) => {
 
         res.status(200).json(pedido)
     } catch (error) {
-        res.status(500).json({ error: "Error al listar pedido" })
+        responderErrorApi(res, error, "Error al listar pedido")
     }
 }
 
@@ -33,7 +37,7 @@ const crearPedido = async (req, res) => {
 
         res.status(201).json(nuevo)
     } catch (error) {
-        res.status(500).json({ error: "Error al crear pedido" })
+        responderErrorApi(res, error, "Error al crear pedido")
     }
 }
 
@@ -50,7 +54,7 @@ const actualizarPedido = async (req, res) => {
 
         res.status(200).json(pedido)
     } catch (error) {
-        res.status(500).json({ error: "Error al actualizar pedido" })
+        responderErrorApi(res, error, "Error al actualizar pedido")
     }
 }
 
@@ -66,7 +70,7 @@ const eliminarPedido = async (req, res) => {
 
         res.status(200).json(pedido)
     } catch (error) {
-        res.status(500).json({ error: "Error al eliminar pedido" })
+        responderErrorApi(res, error, "Error al eliminar pedido")
     }
 }
 

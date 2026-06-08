@@ -1,9 +1,9 @@
 extends layout
 
 block content
-    p Bienvenido.
     p Selecciona la sección que desea administrar
     div.actions
-        a.btn(href='/actores') Actores
+        if user && user.tipo === 'PLANTA'
+            a.btn(href='/actores') Actores
+            a.btn(href='/productos') Productos
         a.btn(href='/pedidos') Pedidos
-        a.btn(href='/productos') Productos

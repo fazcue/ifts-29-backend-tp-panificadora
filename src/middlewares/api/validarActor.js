@@ -1,4 +1,5 @@
 import actorService from "../../services/actorService.js"
+import { obtenerTiposActor } from "../../lib/tiposActor.js"
 
 const validarActor = async (req, res, next) => {
     try {
@@ -7,7 +8,7 @@ const validarActor = async (req, res, next) => {
 
         // data
         const [tipos, actores] = await Promise.all([
-            actorService.obtenerTipos(),
+            obtenerTiposActor(),
             actorService.obtenerActores()
         ])
 

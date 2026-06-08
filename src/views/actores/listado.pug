@@ -4,8 +4,8 @@ include ../mixins/cabecera
 block content
     //- Cabecera con enlace
     +cabecera('Actores')
-        a.btn(href='/actores/nuevo') Agregar
-    
+        a.btn(href='/actores/nuevo') Nuevo
+
     //- Listado actores
     if actores.length > 0
         ul.list
@@ -23,10 +23,12 @@ block content
 
                     div.actions
                         a.btn.btn-secondary(href=`/actores/editar/${actor.id}`) Editar
-                        form(action=`/actores/activar-desactivar/${actor.id}` method='POST')
-                            if actor.activo
-                                button.btn(type='submit') Desactivar
-                            else
-                                button.btn(type='submit') Activar
-    else 
+
+                        if actor.tipo !== 'PLANTA'
+                            form(action=`/actores/cambiar-estado/${actor.id}` method='POST')
+                                if actor.activo
+                                    button.btn(type='submit') Desactivar
+                                else
+                                    button.btn(type='submit') Activar
+    else
         p.empty Sin actores registrados
