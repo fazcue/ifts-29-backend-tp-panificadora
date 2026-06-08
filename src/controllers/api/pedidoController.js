@@ -1,8 +1,11 @@
 import pedidoService from "../../services/pedidoService.js"
+import { esPlanta } from "../../lib/roles.js"
 
 const listarPedidos = async (req, res) => {
     try {
-        const pedidos = await pedidoService.obtenerPedidos()
+        const actorLogueado = req.session.user
+        const filtro = esPlanta(actorLogueado) ? {} : { actor: actorLogueado.id }
+        const pedidos = await pedidoService.obtenerPedidos(filtro)
 
         res.status(200).json(pedidos)
     } catch (error) {
