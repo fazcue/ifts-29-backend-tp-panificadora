@@ -1,7 +1,27 @@
 import actorService from '../../services/actorService.js'
 import bcryptjs from 'bcryptjs'
 
-const formularioLogin = (req, res) => res.render('login')
+const datosLogin = async (datos = {}) => {
+	const existePlanta = await actorService.existeActorPlanta()
+	const altaPlantaHabilitada = Boolean(process.env.CLAVE_ALTA_PLANTA?.trim())
+
+	return {
+		...datos,
+		mostrarAltaPlanta: !existePlanta && altaPlantaHabilitada,
+	}
+}
+
+const renderLogin = async (res, datos = {}) => {
+	try {
+		return res.render('login', await datosLogin(datos))
+	} catch (error) {
+		return res.render('login', datos)
+	}
+}
+
+const formularioLogin = async (req, res) => {
+	await renderLogin(res)
+}
 
 const portada = (req, res) => res.render('portada')
 
@@ -11,7 +31,7 @@ const ingresar = async (req, res, next) => {
 		const actor = await actorService.buscarActorPorEmail(email)
 
 		if (!actor || !actor.password || !bcryptjs.compareSync(password, actor.password)) {
-			return res.render('login', { error: 'Email o contraseña incorrectos' })
+			return await renderLogin(res, { error: 'Email o contraseña incorrectos' })
 		}
 
 		// sesion
@@ -23,17 +43,17 @@ const ingresar = async (req, res, next) => {
             activo: actor.activo
         }
 
-        req.session.save((error) => {
+        req.session.save(async (error) => {
             if (error) {
                 console.error('Error al guardar sesión:', error)
-                return res.render('login', { error: 'Ocurrió un error interno en el servidor' })
+                return await renderLogin(res, { error: 'Ocurrió un error interno en el servidor' })
             }
 
             res.redirect('/portada')
         })
 	} catch (error) {
         console.error("Error al ingresar:", error)
-        return res.render('login', { error: 'Ocurrió un error interno en el servidor' })
+        return await renderLogin(res, { error: 'Ocurrió un error interno en el servidor' })
 	}
 }
 

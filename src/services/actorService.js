@@ -24,6 +24,10 @@ const obtenerActoresActivos = async () => {
     return await Actor.find({ activo: true }).select('-password')
 }
 
+const existeActorPlanta = async () => {
+    return Boolean(await Actor.exists({ tipo: TIPOS_ACTOR.PLANTA }))
+}
+
 const validarUnicidadPlanta = async (idActual = null) => {
     const plantaExistente = await Actor.findOne({ tipo: TIPOS_ACTOR.PLANTA }).select('_id')
 
@@ -46,7 +50,8 @@ const crearActor = async (nombre, email, password, tipo) => {
         nombre: nombre.trim(),
         email: email.trim().toLowerCase(),
         password: encriptarPassword(password),
-        tipo: tipoNormalizado
+        tipo: tipoNormalizado,
+        activo: tipoNormalizado === TIPOS_ACTOR.PLANTA
     })
 
     await nuevo.save()
@@ -151,6 +156,7 @@ export default {
     buscarActorPorId,
     buscarActorPorEmail,
     obtenerActoresActivos,
+    existeActorPlanta,
     crearActor,
     actualizarActor,
     cambiarEstadoActor,

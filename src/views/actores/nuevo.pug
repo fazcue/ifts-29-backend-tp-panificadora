@@ -4,13 +4,13 @@ include ../mixins/reporteError
 
 block content
     //- Cabecera
-    +cabecera('Nuevo actor')
+    +cabecera(titulo || 'Nuevo actor')
 
     //- Reporte de error
     +reporteError(error)
 
     //- Formulario de alta
-    form.panel(action='/actores/nuevo' method='POST')
+    form.panel(action=formAction || '/actores/nuevo' method='POST')
 
         div.field
             label(for='nombre') Nombre
@@ -26,12 +26,21 @@ block content
 
         div.field
             label(for='tipo') Tipo
-            select#tipo(name='tipo' required)
-                option(value='') Seleccionar...
-                each tipo in tipos
-                    if tipo !== 'PLANTA'
-                        option(value=tipo selected=actor && actor.tipo===tipo)= tipo
+            if modoAltaPlanta
+                input(type='hidden' name='tipo' value='PLANTA')
+                input#tipo(type='text' value='PLANTA' disabled)
+            else
+                select#tipo(name='tipo' required)
+                    option(value='') Seleccionar...
+                    each tipo in tipos
+                        if tipo !== 'PLANTA'
+                            option(value=tipo selected=actor && actor.tipo===tipo)= tipo
+
+        if modoAltaPlanta
+            div.field
+                label(for='clave_alta_planta') Clave de alta
+                input#clave_alta_planta(type='password' name='clave_alta_planta' value=claveAltaPlanta required)
         
         div.actions
             button.btn(type='submit') Guardar
-            a.btn.btn-secondary(href='/actores') Cancelar
+            a.btn.btn-secondary(href=cancelarHref || '/actores') Cancelar

@@ -5,7 +5,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 const configurarSesion = session({
-	secret: process.env.SESSION_SECRET,
+	secret: process.env.SESION_SECRETO,
 	resave: false,
 	saveUninitialized: false,
 	store: MongoStore.create({
