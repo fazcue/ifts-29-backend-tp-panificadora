@@ -3,7 +3,8 @@ import pedidoService from "../../services/pedidoService.js"
 import actorService from "../../services/actorService.js"
 import pedidoValidator from "../../validators/pedido.validator.js"
 import productoService from "../../services/productoService.js"
-import { esPlanta } from "../../lib/roles.js"
+import { esPlanta } from "../../lib/tiposActor.js"
+import { obtenerEstadosPedido } from "../../lib/estadosPedido.js"
 
 // vistas
 const VISTA_CREAR_PEDIDO = 'pedidos/nuevo'
@@ -52,7 +53,7 @@ const datosFormularioActualizar = async (id, fecha_entrega_esperada, fecha_entre
     const [actoresActivos, productosActivos, estados, pedidoActual] = await Promise.all([
         actorService.obtenerActoresActivos(),
         productoService.obtenerProductosActivos(),
-        pedidoService.obtenerEstados(),
+        obtenerEstadosPedido(),
         pedidoService.buscarPedidoPorId(id)
     ])
 

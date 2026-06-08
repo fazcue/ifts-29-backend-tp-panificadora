@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { ROLES } from '../lib/roles.js'
+import { TIPOS_ACTOR } from '../lib/tiposActor.js'
 
 const actorSchema = new mongoose.Schema(
 	{
@@ -19,7 +19,7 @@ const actorSchema = new mongoose.Schema(
 		},
 		tipo: {
 			type: String,
-			enum: Object.values(ROLES),
+			enum: Object.values(TIPOS_ACTOR),
 			required: [true, 'El tipo es obligatorio'],
             trim: true,
             uppercase: true,
@@ -38,6 +38,6 @@ const actorSchema = new mongoose.Schema(
 )
 
 actorSchema.set('toObject', { virtuals: true })
-actorSchema.index( { tipo: 1 }, { unique: true, partialFilterExpression: { tipo: ROLES.PLANTA } })
+actorSchema.index( { tipo: 1 }, { unique: true, partialFilterExpression: { tipo: TIPOS_ACTOR.PLANTA } })
 
 export default mongoose.model('Actor', actorSchema)

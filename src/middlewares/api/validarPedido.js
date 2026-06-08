@@ -1,6 +1,6 @@
 import responseValidator from "../../validators/response.validator.js"
 import pedidoValidator from "../../validators/pedido.validator.js"
-import { esPlanta } from "../../lib/roles.js"
+import { esPlanta } from "../../lib/tiposActor.js"
 
 const productosExistentesPedido = (pedido) => {
     return (pedido.productos || [])

@@ -1,4 +1,5 @@
 import productoService from "../../services/productoService.js"
+import { responderErrorApi } from "../../lib/errorResponses.js"
 
 const listarProductos = async (req, res) => {
     try {
@@ -6,7 +7,7 @@ const listarProductos = async (req, res) => {
 
         res.status(200).json(productos)
     } catch (error) {
-        res.status(500).json({ error: "Error al listar productos" })
+        responderErrorApi(res, error, "Error al listar productos")
     }
 }
 
@@ -21,7 +22,7 @@ const listarProducto = async (req, res) => {
 
         res.status(200).json(producto)
     } catch (error) {
-        res.status(500).json({ error: "Error al listar producto" })
+        responderErrorApi(res, error, "Error al listar producto")
     }
 }
 
@@ -33,7 +34,7 @@ const crearProducto = async (req, res) => {
 
         res.status(201).json(nuevo)
     } catch (error) {
-        res.status(500).json({ error: "Error al crear producto" })
+        responderErrorApi(res, error, "Error al crear producto")
     }
 }
 
@@ -50,7 +51,7 @@ const actualizarProducto = async (req, res) => {
 
         res.status(200).json(producto)
     } catch (error) {
-        res.status(500).json({ error: "Error al actualizar producto" })
+        responderErrorApi(res, error, "Error al actualizar producto")
     }
 }
 
@@ -66,7 +67,7 @@ const eliminarProducto = async (req, res) => {
 
         res.status(200).json(producto)
     } catch (error) {
-        res.status(error.estado || 500).json({ error: error.message || "Error al eliminar producto" })
+        responderErrorApi(res, error, "Error al eliminar producto")
     }
 }
 

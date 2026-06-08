@@ -3,6 +3,7 @@ import actorService from "../services/actorService.js"
 import pedidoService from "../services/pedidoService.js"
 import productoService from "../services/productoService.js"
 import responseValidator from "./response.validator.js"
+import { obtenerEstadosPedido } from "../lib/estadosPedido.js"
 
 const validarFechaEntregaEsperada = (fecha) => {
     // tipo inválido
@@ -106,7 +107,7 @@ const validarEstado = async (estado) => {
         return responseValidator.errorValidacion("El estado es obligatorio")
     }
 
-    const estados = pedidoService.obtenerEstados()
+    const estados = obtenerEstadosPedido()
 
     // inválido
     if (!estados.includes(estadoLimpio)) {

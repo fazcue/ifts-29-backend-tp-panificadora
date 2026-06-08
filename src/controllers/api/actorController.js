@@ -1,4 +1,5 @@
 import actorService from '../../services/actorService.js'
+import { responderErrorApi } from '../../lib/errorResponses.js'
 
 const listarActores = async (req, res) => {
     try {
@@ -6,7 +7,7 @@ const listarActores = async (req, res) => {
 
         res.status(200).json(actores)
     } catch (error) {
-        res.status(500).json({ error: 'Error al listar actores' })
+        responderErrorApi(res, error, 'Error al listar actores')
     }
 }
 
@@ -22,7 +23,7 @@ const listarActor = async (req, res) => {
 
         res.status(200).json(actor)
     } catch (error) {
-        res.status(500).json({ error: 'Error al listar actor' })
+        responderErrorApi(res, error, 'Error al listar actor')
     }
 }
 
@@ -34,7 +35,7 @@ const crearActor = async (req, res) => {
 
         res.status(201).json(nuevo)
     } catch (error) {
-        res.status(500).json({ error: 'Error al crear actor' })
+        responderErrorApi(res, error, 'Error al crear actor')
     }
 }
 
@@ -51,7 +52,7 @@ const actualizarActor = async (req, res) => {
         
         res.status(200).json(actor)
     } catch (error) {
-        res.status(500).json({ error: 'Error al actualizar actor' })
+        responderErrorApi(res, error, 'Error al actualizar actor')
     }
 }
 
@@ -67,7 +68,7 @@ const eliminarActor = async (req, res) => {
         
         res.status(200).json(actor)
     } catch (error) {
-        res.status(error.estado || 500).json({ error: error.message || "Error al eliminar actor" })
+        responderErrorApi(res, error, "Error al eliminar actor")
     }
 }
 

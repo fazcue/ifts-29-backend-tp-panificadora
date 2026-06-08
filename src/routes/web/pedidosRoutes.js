@@ -11,7 +11,8 @@ import {
 	validarCrearPedidoWeb,
 	validarActualizarPedidoWeb,
 } from '../../middlewares/web/validarPedidoWeb.js'
-import { cargarPedido, tienePermisosWeb } from '../../middlewares/abac.js'
+import { tienePermisosWeb } from '../../middlewares/abac.js'
+import { cargarPedido } from '../../loaders/resourceLoaders.js'
 
 const router = Router()
 

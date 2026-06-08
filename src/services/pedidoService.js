@@ -3,8 +3,6 @@ import detallePedidoService from "./detallePedidoService.js"
 import productoService from "./productoService.js"
 import { esIdValido } from "../lib/utils.js"
 
-const ESTADOS = [ "PENDIENTE", "EN_PRODUCCION", "DESPACHADO", "ENTREGADO" ]
-
 const obtenerPedidos = async (filtro = {}) => {
     return await Pedido.find(filtro).populate(['actor', 'productos'])
 }
@@ -63,10 +61,6 @@ const obtenerPedidoParaEditar = async (id) => {
             ...productosActivosNoIncluidos
         ]
     }
-}
-
-const obtenerEstados = () => {
-    return ESTADOS
 }
 
 const crearPedido = async (fechaEntregaEsperada, idActor, productos) => {
@@ -150,7 +144,6 @@ export default {
     buscarPedidoPorId,
     buscarPedidoPorIdConDetalles,
     obtenerPedidoParaEditar,
-    obtenerEstados,
     crearPedido,
     actualizarPedido,
     eliminarPedido

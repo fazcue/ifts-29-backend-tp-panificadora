@@ -1,7 +1,8 @@
 import { Router } from "express"
 import { actualizarPedido, crearPedido, eliminarPedido, listarPedido, listarPedidos } from "../../controllers/api/pedidoController.js"
 import { validarCrearPedido, validarActualizarPedido } from "../../middlewares/api/validarPedido.js"
-import { cargarPedido, tienePermisosApi } from "../../middlewares/abac.js"
+import { tienePermisosApi } from "../../middlewares/abac.js"
+import { cargarPedido } from "../../loaders/resourceLoaders.js"
 
 const router = Router()
 

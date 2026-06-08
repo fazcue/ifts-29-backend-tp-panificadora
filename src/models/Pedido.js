@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import { ESTADOS_PEDIDO } from '../lib/estadosPedido.js'
 
 const pedidoSchema = new mongoose.Schema(
     {
@@ -18,9 +19,9 @@ const pedidoSchema = new mongoose.Schema(
 		},
 		estado: {
 			type: String,
-            enum: [ 'PENDIENTE', 'EN_PRODUCCION', 'DESPACHADO', 'ENTREGADO' ],
+            enum: Object.values(ESTADOS_PEDIDO),
 			required: false,
-			default: 'PENDIENTE',
+			default: ESTADOS_PEDIDO.PENDIENTE,
 		},
         actor: {
             type: mongoose.Schema.Types.ObjectId,

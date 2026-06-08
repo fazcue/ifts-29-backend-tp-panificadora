@@ -1,4 +1,6 @@
 import actorService from '../../services/actorService.js'
+import { responderErrorWeb } from '../../lib/errorResponses.js'
+import { obtenerTiposActor } from '../../lib/tiposActor.js'
 
 const listarActoresWeb = async (req, res) => {
 	try {
@@ -7,22 +9,18 @@ const listarActoresWeb = async (req, res) => {
 
 		res.render('actores/listado', { actores, titulo })
 	} catch (error) {
-		res.status(500).render('error', {
-			mensaje: 'Error al cargar listado de actores',
-		})
+		responderErrorWeb(res, error, 'Error al cargar listado de actores')
 	}
 }
 
 const renderFormularioNuevoActorWeb = (req, res) => {
 	try {
-		const tipos = actorService.obtenerTipos()
+		const tipos = obtenerTiposActor()
 		const titulo = 'Alta de nuevo actor'
 
 		res.render('actores/nuevo', { tipos, titulo })
 	} catch (error) {
-		res.status(500).render('error', {
-			mensaje: 'Error al cargar formulario nuevo actor',
-		})
+		responderErrorWeb(res, error, 'Error al cargar formulario nuevo actor')
 	}
 }
 
@@ -34,9 +32,7 @@ const crearActorWeb = async (req, res) => {
 
 		res.redirect('/actores')
 	} catch (error) {
-		const mensaje = error.message ?? 'Error al crear actor'
-		const estado = error.estado ?? 500
-		res.status(estado).render('error', { mensaje })
+		responderErrorWeb(res, error, 'Error al crear actor')
 	}
 }
 
@@ -52,14 +48,12 @@ const renderFormularioEditarActorWeb = async (req, res) => {
 				.render('error', { mensaje: 'Actor no encontrado' })
 		}
 
-		const tipos = actorService.obtenerTipos()
+		const tipos = obtenerTiposActor()
 		const titulo = `Editar actor "${actor.nombre}"`
 
 		res.render('actores/editar', { actor, tipos, titulo })
 	} catch (error) {
-		res.status(500).render('error', {
-			mensaje: 'Error al cargar formulario editar actor',
-		})
+		responderErrorWeb(res, error, 'Error al cargar formulario editar actor')
 	}
 }
 
@@ -85,9 +79,7 @@ const actualizarActorWeb = async (req, res) => {
 
 		res.redirect('/actores')
 	} catch (error) {
-		const mensaje = error.message ?? 'Error al actualizar actor'
-		const estado = error.estado ?? 500
-		res.status(estado).render('error', { mensaje })
+		responderErrorWeb(res, error, 'Error al actualizar actor')
 	}
 }
 
@@ -105,9 +97,7 @@ const cambiarEstadoWeb = async (req, res) => {
 
 		res.redirect('/actores')
 	} catch (error) {
-		const mensaje = error.message ?? 'Error al eliminar producto'
-		const estado = error.estado ?? 500
-		res.status(estado).render('error', { mensaje })
+		responderErrorWeb(res, error, 'Error al cambiar estado')
 	}
 }
 

@@ -1,6 +1,6 @@
 import Actor from "../models/Actor.js"
 import Pedido from "../models/Pedido.js"
-import { ROLES, esPlanta } from "../lib/roles.js"
+import { TIPOS_ACTOR, esPlanta } from "../lib/tiposActor.js"
 import { esIdValido, encriptarPassword } from "../lib/utils.js"
 
 const obtenerActores = async () => {
@@ -24,23 +24,29 @@ const obtenerActoresActivos = async () => {
     return await Actor.find({ activo: true }).select('-password')
 }
 
-const obtenerTipos = () => {
-    return Object.values(ROLES)
-}
+const validarUnicidadPlanta = async (idActual = null) => {
+    const plantaExistente = await Actor.findOne({ tipo: TIPOS_ACTOR.PLANTA }).select('_id')
 
-const crearActor = async (nombre, email, password, tipo) => {
-    if (tipo === ROLES.PLANTA) {
-        const error = new Error("No se puede crear un segundo actor de tipo PLANTA")
+    if (plantaExistente && String(plantaExistente._id) !== String(idActual)) {
+        const error = new Error("Ya existe un actor de tipo PLANTA")
         error.estado = 409
 
         throw error
+    }
+}
+
+const crearActor = async (nombre, email, password, tipo) => {
+    const tipoNormalizado = tipo.trim().toUpperCase()
+
+    if (tipoNormalizado === TIPOS_ACTOR.PLANTA) {
+        await validarUnicidadPlanta()
     }
 
     const nuevo = new Actor({
         nombre: nombre.trim(),
         email: email.trim().toLowerCase(),
         password: encriptarPassword(password),
-        tipo: tipo.trim()
+        tipo: tipoNormalizado
     })
 
     await nuevo.save()
@@ -62,14 +68,18 @@ const actualizarActor = async (id, nombre, email, password, tipo, activo) => {
     const datosNormalizados = {
         nombre: nombre?.trim(),
         email: email?.trim().toLowerCase(),
-        tipo: tipo?.trim()
+        tipo: tipo?.trim().toUpperCase()
     }
 
-    if (esPlanta(actor) && datosNormalizados.tipo !== ROLES.PLANTA) {
+    if (esPlanta(actor) && datosNormalizados.tipo !== TIPOS_ACTOR.PLANTA) {
         const error = new Error("No se puede editar el tipo del actor PLANTA")
         error.estado = 409
 
         throw error
+    }
+
+    if (!esPlanta(actor) && datosNormalizados.tipo === TIPOS_ACTOR.PLANTA) {
+        await validarUnicidadPlanta(id)
     }
 
     const passwordNormalizado = password?.trim()
@@ -141,7 +151,6 @@ export default {
     buscarActorPorId,
     buscarActorPorEmail,
     obtenerActoresActivos,
-    obtenerTipos,
     crearActor,
     actualizarActor,
     cambiarEstadoActor,
