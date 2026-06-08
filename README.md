@@ -87,8 +87,11 @@ Crear un archivo `.env` en la raíz:
 ```env
 MONGO_URI=mongodb://127.0.0.1:27017/panificadora
 PUERTO=3000
-SESSION_SECRET=clave_secreta
+SESION_SECRETO=clave_secreta
+CLAVE_ALTA_PLANTA=clave_unica_para_alta_inicial
 ```
+
+`CLAVE_ALTA_PLANTA` habilita la ruta `/alta-planta` para crear el actor inicial tipo `PLANTA` solo si todavía no existe uno registrado.
 
 Ejecutar:
 
@@ -113,6 +116,7 @@ http://localhost:3000
 Web:
 
 - `/` login
+- `/alta-planta`
 - `/portada`
 - `/actores`
 - `/productos`

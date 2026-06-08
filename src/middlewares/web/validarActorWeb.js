@@ -1,10 +1,61 @@
 import actorService from "../../services/actorService.js"
-import { obtenerTiposActor } from "../../lib/tiposActor.js"
+import { TIPOS_ACTOR, obtenerTiposActor } from "../../lib/tiposActor.js"
+
+const datosFormularioAltaPlanta = (req) => ({
+    actor: {
+        nombre: req.body.nombre,
+        email: req.body.email,
+        tipo: TIPOS_ACTOR.PLANTA
+    },
+    tipos: [TIPOS_ACTOR.PLANTA],
+    claveAltaPlanta: req.body.clave_alta_planta,
+    modoAltaPlanta: true,
+    formAction: '/alta-planta',
+    cancelarHref: '/',
+    titulo: 'Alta inicial de planta'
+})
+
+const validarClaveAltaPlantaWeb = async (req, res, next) => {
+    try {
+        if (await actorService.existeActorPlanta()) {
+            return res.status(409).render('error', { mensaje: 'Ya existe un actor de tipo PLANTA' })
+        }
+
+        const claveConfigurada = process.env.CLAVE_ALTA_PLANTA?.trim()
+
+        if (!claveConfigurada) {
+            return res.status(500).render('error', { mensaje: 'No está configurada la clave de alta de planta' })
+        }
+
+        const claveRecibida = req.body.clave_alta_planta?.trim()
+
+        if (claveRecibida !== claveConfigurada) {
+            return res.status(403).render('actores/nuevo', {
+                error: 'Clave de alta inválida',
+                ...datosFormularioAltaPlanta(req)
+            })
+        }
+
+        req.altaPlantaInicial = true
+        req.body.tipo = TIPOS_ACTOR.PLANTA
+
+        next()
+    } catch (error) {
+        res.status(500).render('error', { mensaje: 'Error validando clave de alta' })
+    }
+}
 
 const validarActorWeb = async (req, res, next) => {
     try {
-        const { nombre, email, password, tipo } = req.body
+        const { nombre, email, password } = req.body
+        let { tipo } = req.body
         const { id } = req.params
+        const esAltaPlantaInicial = req.altaPlantaInicial === true
+
+        if (esAltaPlantaInicial) {
+            tipo = TIPOS_ACTOR.PLANTA
+            req.body.tipo = tipo
+        }
 
         // data
         const [tipos, actores, actor] = await Promise.all([
@@ -27,6 +78,18 @@ const validarActorWeb = async (req, res, next) => {
                 tipo
             },
             tipos
+        }
+
+        if (esAltaPlantaInicial) {
+            datosFormulario = {
+                ...datosFormulario,
+                ...datosFormularioAltaPlanta(req),
+                actor: {
+                    nombre,
+                    email,
+                    tipo: TIPOS_ACTOR.PLANTA
+                }
+            }
         }
 
         if (id) {
@@ -77,3 +140,4 @@ const validarActorWeb = async (req, res, next) => {
 }
 
 export default validarActorWeb
+export { validarClaveAltaPlantaWeb }
