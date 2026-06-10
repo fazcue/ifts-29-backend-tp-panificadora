@@ -28,11 +28,11 @@ Completado:
 - [x] ABAC para proteger accesos web y API según tipo y estado del actor.
 - [x] Portal web básico para que sucursales y franquicias gestionen sus propios pedidos.
 - [x] Demanda consolidada para planificar producción.
+- [x] Detección de retrasos en entregas.
 
 Pendiente / futuro:
 
 - [ ] Información para compra de insumos y materia prima.
-- [ ] Detección de retrasos en entregas.
 - [ ] Reportes para conciliación de facturación interna y externa.
 - [ ] Seguimiento del cobro de royalties a franquicias.
 - [ ] Indicadores de gestión para apoyar la toma de decisiones.
