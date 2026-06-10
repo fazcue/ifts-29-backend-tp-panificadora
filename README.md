@@ -27,10 +27,10 @@ Completado:
 - [x] Control de dependencias antes de eliminar recursos usados por pedidos.
 - [x] ABAC para proteger accesos web y API según tipo y estado del actor.
 - [x] Portal web básico para que sucursales y franquicias gestionen sus propios pedidos.
+- [x] Demanda consolidada para planificar producción.
 
 Pendiente / futuro:
 
-- [ ] Demanda consolidada para planificar producción.
 - [ ] Información para compra de insumos y materia prima.
 - [ ] Detección de retrasos en entregas.
 - [ ] Reportes para conciliación de facturación interna y externa.
