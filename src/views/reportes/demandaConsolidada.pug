@@ -1,0 +1,18 @@
+extends ../layout
+include ../mixins/cabecera
+
+block content
+    +cabecera('Demanda consolidada', 'Productos requeridos de pedidos con estado PENDIENTE / EN PRODUCCIÓN')
+        a.btn.btn-secondary(href='/reportes') Volver
+
+    if demanda.length > 0
+        ul.list
+            each item in demanda
+                li.item
+                    div.info
+                        h3= item.producto
+                        p Cantidad total requerida
+
+                    span.badge.badge-on= item.cantidad
+    else
+        p.empty No hay demanda de productos en este momento

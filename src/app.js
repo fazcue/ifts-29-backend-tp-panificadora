@@ -13,6 +13,7 @@ import loginRouterWeb from './routes/web/loginRoutes.js'
 import actoresRouterWeb from './routes/web/actoresRoutes.js'
 import pedidosRouterWeb from './routes/web/pedidosRoutes.js'
 import productosRouterWeb from './routes/web/productosRoutes.js'
+import reportesRouterWeb from './routes/web/reportesRoutes.js'
 
 import { protegerApi, protegerWeb } from './middlewares/auth.js'
 
@@ -43,6 +44,7 @@ app.use('/', loginRouterWeb)
 app.use('/actores', protegerWeb, actoresRouterWeb)
 app.use('/pedidos', protegerWeb, pedidosRouterWeb)
 app.use('/productos', protegerWeb, productosRouterWeb)
+app.use('/reportes', protegerWeb, reportesRouterWeb)
 
 // Rutas API
 app.use('/api/actores', protegerApi, actoresRouter)

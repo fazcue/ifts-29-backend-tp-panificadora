@@ -1,9 +1,17 @@
 extends layout
 
 block content
+    - const esPlanta = user?.tipo === 'PLANTA'
+
     p Selecciona la sección que desea administrar
     div.actions
-        if user && user.tipo === 'PLANTA'
+        if esPlanta
             a.btn(href='/actores') Actores
             a.btn(href='/productos') Productos
         a.btn(href='/pedidos') Pedidos
+
+    if esPlanta
+        br
+        p Además, puede ver distintos reportes accediendo a
+        div.actions
+            a.btn(href='/reportes') Reportes
