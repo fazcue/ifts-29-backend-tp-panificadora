@@ -47,6 +47,9 @@ const politicas = {
         editar: puedeModificarPedido,
         eliminar: puedeModificarPedido,
     },
+    reportes: {
+        ver: soloPlanta
+    }
 }
 
 export { politicas }

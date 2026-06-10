@@ -1,5 +1,7 @@
-mixin cabecera(titulo)
+mixin cabecera(titulo, descripcion = null)
     div.head
         div
             h2= titulo
         block
+    if descripcion
+        p= descripcion

@@ -1,0 +1,9 @@
+extends ../layout
+include ../mixins/cabecera
+
+block content
+    +cabecera('Reportes')
+
+    p Selecciona el reporte que desea ver
+    div.actions
+        a.btn(href='/reportes/demanda-consolidada') Demanda consolidada
