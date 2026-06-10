@@ -1,0 +1,25 @@
+extends ../layout
+include ../mixins/cabecera
+
+block content
+    +cabecera('Retrasos en entregas', 'Pedidos vencidos o entregados fuera de término')
+        a.btn.btn-secondary(href='/reportes') Volver
+
+    if pedidos.length > 0
+        ul.list
+            each pedido in pedidos
+                li.item
+                    div.info
+                        h3= `#${pedido.id}`
+                        p= `Actor: ${pedido.actor ? pedido.actor.nombre : 'Sin actor'}`
+                        p= `Estado: ${pedido.estado}`
+                        p= `Entrega esperada: ${pedido.fecha_entrega_esperada}`
+
+                        if pedido.fecha_entrega_real
+                            p= `Entrega real: ${pedido.fecha_entrega_real}`
+                        else
+                            p Entrega real: pendiente
+
+                    span.badge.badge-off Retrasado
+    else
+        p.empty No hay entregas retrasadas
