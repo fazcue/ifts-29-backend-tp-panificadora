@@ -2,6 +2,7 @@ import Pedido from "../models/Pedido.js"
 import detallePedidoService from "./detallePedidoService.js"
 import productoService from "./productoService.js"
 import { esIdValido } from "../lib/utils.js"
+import { ESTADOS_PEDIDO } from "../lib/estadosPedido.js"
 
 const obtenerPedidos = async (filtro = {}) => {
     return await Pedido.find(filtro).populate(['actor', 'productos'])
@@ -90,15 +91,26 @@ const crearPedido = async (fechaEntregaEsperada, idActor, productos) => {
     }
 }
 
-const actualizarPedido = async (id, fechaEntregaEsperada, fechaEntregaReal, estado, idActor, productos = null) => {
+const actualizarPedido = async (id, fechaEntregaEsperada, estado, idActor, productos = null) => {
     if (!esIdValido(id)) {
         return null
     }
 
+    const pedidoActual = await Pedido.findById(id)
+
+    if (!pedidoActual) {
+        return null
+    }
+
+    const estadoActualizado = estado?.trim()
+    const fechaEntregaReal = estadoActualizado === ESTADOS_PEDIDO.ENTREGADO
+        ? pedidoActual.fecha_entrega_real || new Date().toISOString().slice(0, 10)
+        : null
+
     const datosActualizados = {
         fecha_entrega_esperada: fechaEntregaEsperada,
-        fecha_entrega_real: fechaEntregaReal?.trim() || null,
-        estado: estado?.trim(),
+        fecha_entrega_real: fechaEntregaReal,
+        estado: estadoActualizado,
         actor: idActor
     }
 

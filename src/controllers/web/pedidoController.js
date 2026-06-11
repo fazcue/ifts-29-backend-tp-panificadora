@@ -34,9 +34,9 @@ const crearPedidoWeb = async (req, res) => {
 const actualizarPedidoWeb = async (req, res) => {
     try {
         const id = req.params.id
-        const { fecha_entrega_esperada, fecha_entrega_real, estado, id_actor, productos } = req.body
+        const { fecha_entrega_esperada, estado, id_actor, productos } = req.body
 
-        const pedido = await pedidoService.actualizarPedido(id, fecha_entrega_esperada, fecha_entrega_real, estado, id_actor, productos)
+        const pedido = await pedidoService.actualizarPedido(id, fecha_entrega_esperada, estado, id_actor, productos)
 
         if (!pedido) {
             return res.status(404).render("error", { mensaje: "Pedido no encontrado" })

@@ -18,10 +18,10 @@ block content
             label(for='fecha_entrega_esperada') Fecha de entrega esperada
             input#fecha_entrega_esperada(type='date' name='fecha_entrega_esperada' value=pedido.fecha_entrega_esperada required)
         
-        if esPlanta
+        if pedido.fecha_entrega_real
             div.field
-                label(for='fecha_entrega_real') Fecha de entrega real
-                input#fecha_entrega_real(type='date' name='fecha_entrega_real' value=pedido.fecha_entrega_real)
+                label Fecha de entrega real
+                p= pedido.fecha_entrega_real
         
         if esPlanta
             div.field
