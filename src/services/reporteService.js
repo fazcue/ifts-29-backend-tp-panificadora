@@ -56,4 +56,15 @@ const obtenerDemandaConsolidada = () => {
     ])
 }
 
-export default { obtenerDemandaConsolidada }
+const obtenerRetrasosEntregas = () => {
+    const hoy = new Date().toISOString().slice(0, 10)
+
+    return Pedido.find({
+        estado: { $ne: ESTADOS_PEDIDO.ENTREGADO },
+        fecha_entrega_esperada: { $lt: hoy }
+    })
+        .populate('actor')
+        .sort({ fecha_entrega_esperada: 1 })
+}
+
+export default { obtenerDemandaConsolidada, obtenerRetrasosEntregas }

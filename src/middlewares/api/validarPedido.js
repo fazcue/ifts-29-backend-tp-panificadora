@@ -55,7 +55,7 @@ const validarCrearPedido = async (req, res, next) => {
 
 const validarActualizarPedido = async (req, res, next) => {
     try {
-        let { fecha_entrega_esperada, fecha_entrega_real, estado, id_actor, productos } = req.body
+        let { fecha_entrega_esperada, estado, id_actor, productos } = req.body
         const { id } = req.params
 
         // pedido
@@ -69,7 +69,6 @@ const validarActualizarPedido = async (req, res, next) => {
         if (!esPlanta(req.session.user)) {
             estado = resultadoPedido.valor.estado
             id_actor = resultadoPedido.valor.actor.id
-            fecha_entrega_real = resultadoPedido.valor.fecha_entrega_real
         }
 
         // fecha entrega esperada
@@ -77,13 +76,6 @@ const validarActualizarPedido = async (req, res, next) => {
 
         if (!resultadoFechaEsperada.ok) {
             return responseValidator.respuestaError(res, resultadoFechaEsperada)
-        }
-
-        // fecha entrega real
-        const resultadoFechaReal = pedidoValidator.validarFechaEntregaReal(fecha_entrega_real)
-
-        if (!resultadoFechaReal.ok) {
-            return responseValidator.respuestaError(res, resultadoFechaReal)
         }
 
         // actor
@@ -111,7 +103,7 @@ const validarActualizarPedido = async (req, res, next) => {
 
         // entrega de datos normalizados
         req.body.fecha_entrega_esperada = resultadoFechaEsperada.valor
-        req.body.fecha_entrega_real = resultadoFechaReal.valor
+        delete req.body.fecha_entrega_real
         req.body.estado = resultadoEstado.valor
         req.body.id_actor = resultadoActor.valor.id
         req.body.productos = resultadoProductos.valor

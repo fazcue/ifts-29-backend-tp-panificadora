@@ -22,4 +22,15 @@ const listarDemandaProduccionWeb = async (req, res) => {
     }
 }
 
-export { listarAccesosReportes, listarDemandaProduccionWeb }
+const listarRetrasosEntregasWeb = async (req, res) => {
+    try {
+        const pedidos = await reporteService.obtenerRetrasosEntregas()
+        const titulo = "Retrasos en entregas"
+
+        res.render("reportes/retrasosEntregas", { pedidos, titulo })
+    } catch (error) {
+        responderErrorWeb(res, error, "Error al obtener retrasos en entregas")
+    }
+}
+
+export { listarAccesosReportes, listarDemandaProduccionWeb, listarRetrasosEntregasWeb }

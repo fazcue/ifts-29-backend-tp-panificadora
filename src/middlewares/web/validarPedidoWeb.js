@@ -49,7 +49,7 @@ const datosFormularioCrear = async (fecha_entrega_esperada, id_actor) => {
 }
 
 // datos de formulario al actualizar nuevo pedido
-const datosFormularioActualizar = async (id, fecha_entrega_esperada, fecha_entrega_real, estado, id_actor, productos = []) => {
+const datosFormularioActualizar = async (id, fecha_entrega_esperada, estado, id_actor, productos = []) => {
     const [actoresActivos, productosActivos, estados, pedidoActual] = await Promise.all([
         actorService.obtenerActoresActivos(),
         productoService.obtenerProductosActivos(),
@@ -61,7 +61,7 @@ const datosFormularioActualizar = async (id, fecha_entrega_esperada, fecha_entre
         pedido: {
             ...pedidoActual,
             fecha_entrega_esperada,
-            fecha_entrega_real,
+            fecha_entrega_real: pedidoActual?.fecha_entrega_real,
             estado,
             actor: id_actor
         },
@@ -118,11 +118,11 @@ const validarCrearPedidoWeb = async (req, res, next) => {
 
 const validarActualizarPedidoWeb = async (req, res, next) => {
     try {
-        let { fecha_entrega_esperada, fecha_entrega_real, estado, id_actor, productos } = req.body
+        let { fecha_entrega_esperada, estado, id_actor, productos } = req.body
         const { id } = req.params
 
         // datos formulario (necesario para el render)
-        const datosFormulario = await datosFormularioActualizar(id, fecha_entrega_esperada, fecha_entrega_real, estado, id_actor, productos)
+        const datosFormulario = await datosFormularioActualizar(id, fecha_entrega_esperada, estado, id_actor, productos)
 
         // pedido
         const resultadoPedido = await pedidoValidator.validarPedido(id, true)
@@ -135,7 +135,6 @@ const validarActualizarPedidoWeb = async (req, res, next) => {
         if (!esPlanta(req.session.user)) {
             estado = resultadoPedido.valor.estado
             id_actor = resultadoPedido.valor.actor.id
-            fecha_entrega_real = resultadoPedido.valor.fecha_entrega_real
         }
 
         // fecha entrega esperada
@@ -143,13 +142,6 @@ const validarActualizarPedidoWeb = async (req, res, next) => {
 
         if (!resultadoFechaEsperada.ok) {
             return responseValidator.respuestaErrorWeb(res, VISTA_ACTUALIZAR_PEDIDO, resultadoFechaEsperada, datosFormulario)
-        }
-
-        // fecha entrega real
-        const resultadoFechaReal = pedidoValidator.validarFechaEntregaReal(fecha_entrega_real)
-
-        if (!resultadoFechaReal.ok) {
-            return responseValidator.respuestaErrorWeb(res, VISTA_ACTUALIZAR_PEDIDO, resultadoFechaReal, datosFormulario)
         }
 
         // actor
@@ -177,7 +169,7 @@ const validarActualizarPedidoWeb = async (req, res, next) => {
 
         // entrega de datos normalizados
         req.body.fecha_entrega_esperada = resultadoFechaEsperada.valor
-        req.body.fecha_entrega_real = resultadoFechaReal.valor
+        delete req.body.fecha_entrega_real
         req.body.estado = resultadoEstado.valor
         req.body.id_actor = resultadoActor.valor.id
         req.body.productos = resultadoProductos.valor
