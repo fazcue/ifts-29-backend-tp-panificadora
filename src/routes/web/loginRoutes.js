@@ -1,30 +1,22 @@
 import { Router } from 'express'
-import {
-	formularioLogin,
+import { 
+	renderFormularioLogin,
 	portada,
 	ingresar,
 	cerrarSesion,
-} from '../../controllers/web/loginController.js'
-import {
-	crearPlantaInicialWeb,
 	renderFormularioAltaPlantaWeb,
-} from '../../controllers/web/actorController.js'
+	crearPlantaInicialWeb
+} from '../../controllers/web/loginController.js'
 import { protegerWeb } from '../../middlewares/auth.js'
-import validarActorWeb, {
-	validarClaveAltaPlantaWeb,
-} from '../../middlewares/web/validarActorWeb.js'
+import { validarActorWeb } from '../../middlewares/web/validarActorWeb.js'
+import { validarClaveAltaPlantaWeb } from '../../middlewares/web/validarLoginWeb.js'
 
 const router = Router()
 
-router.get('/', formularioLogin)
+router.get('/', renderFormularioLogin)
 router.post('/', ingresar)
 router.get('/alta-planta', renderFormularioAltaPlantaWeb)
-router.post(
-	'/alta-planta',
-	validarClaveAltaPlantaWeb,
-	validarActorWeb,
-	crearPlantaInicialWeb,
-)
+router.post('/alta-planta',	validarClaveAltaPlantaWeb, validarActorWeb,	crearPlantaInicialWeb)
 router.get('/portada', protegerWeb, portada)
 router.get('/salir', cerrarSesion)
 

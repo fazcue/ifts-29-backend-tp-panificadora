@@ -1,37 +1,78 @@
 import actorService from '../../services/actorService.js'
+import { TIPOS_ACTOR } from '../../lib/tiposActor.js'
 import bcryptjs from 'bcryptjs'
-
-const datosLogin = async (datos = {}) => {
-	const existePlanta = await actorService.existeActorPlanta()
-	const altaPlantaHabilitada = Boolean(process.env.CLAVE_ALTA_PLANTA?.trim())
-
-	return {
-		...datos,
-		mostrarAltaPlanta: !existePlanta && altaPlantaHabilitada,
-	}
-}
-
-const renderLogin = async (res, datos = {}) => {
-	try {
-		return res.render('login', await datosLogin(datos))
-	} catch (error) {
-		return res.render('login', datos)
-	}
-}
-
-const formularioLogin = async (req, res) => {
-	await renderLogin(res)
-}
+import { responderErrorWeb } from '../../lib/errorResponses.js'
 
 const portada = (req, res) => res.render('portada')
 
-const ingresar = async (req, res, next) => {
+const renderFormularioAltaPlantaWeb = async (req, res) => {
+	try {
+		if (!process.env.CLAVE_ALTA_PLANTA?.trim()) {
+			return res
+				.status(500)
+				.render('error', { mensaje: 'No está configurada la clave de alta de planta' })
+		}
+
+		if (await actorService.existeActorPlanta()) {
+			return res
+				.status(409)
+				.render('error', { mensaje: 'Ya existe un actor de tipo PLANTA' })
+		}
+
+		res.render('actores/nuevo', { modoAltaPlanta: true, titulo: 'Alta inicial de planta'})
+	} catch (error) {
+		responderErrorWeb(res, error, 'Error al cargar formulario alta planta')
+	}
+}
+
+const crearPlantaInicialWeb = async (req, res) => {
+	try {
+		const { nombre, email, password } = req.body
+
+		const actor = await actorService.crearActor(
+			nombre,
+			email,
+			password,
+			TIPOS_ACTOR.PLANTA,
+		)
+
+		req.session.user = {
+			id: actor._id,
+			nombre: actor.nombre,
+			email: actor.email,
+			tipo: actor.tipo,
+			activo: actor.activo,
+		}
+
+		req.session.save((error) => {
+			if (error) {
+				return res.render('login', {
+					error: 'La planta fue creada, pero ocurrió un error al iniciar sesión',
+				})
+			}
+            
+			res.redirect('/portada')
+		})
+	} catch (error) {
+		responderErrorWeb(res, error, 'Error al crear planta')
+	}
+}
+
+const renderFormularioLogin = async (req, res) => {
+    if (!req.session.user) {
+		return res.render('login')
+    }
+
+    res.redirect('/portada')
+}
+
+const ingresar = async (req, res) => {
 	try {
 		const { email, password } = req.body
 		const actor = await actorService.buscarActorPorEmail(email)
 
 		if (!actor || !actor.password || !bcryptjs.compareSync(password, actor.password)) {
-			return await renderLogin(res, { error: 'Email o contraseña incorrectos' })
+            return res.render('login', { error: 'Email o contraseña incorrectos' })
 		}
 
 		// sesion
@@ -45,15 +86,13 @@ const ingresar = async (req, res, next) => {
 
         req.session.save(async (error) => {
             if (error) {
-                console.error('Error al guardar sesión:', error)
-                return await renderLogin(res, { error: 'Ocurrió un error interno en el servidor' })
+                return res.render('login', { error: 'Ocurrió un error interno en el servidor' })
             }
 
             res.redirect('/portada')
         })
 	} catch (error) {
-        console.error("Error al ingresar:", error)
-        return await renderLogin(res, { error: 'Ocurrió un error interno en el servidor' })
+        return res.render('login', { error: 'Ocurrió un error interno en el servidor' })
 	}
 }
 
@@ -66,4 +105,4 @@ const cerrarSesion = (req, res) => {
     })
 }
 
-export { formularioLogin, portada, ingresar, cerrarSesion }
+export { renderFormularioLogin, portada, ingresar, cerrarSesion, renderFormularioAltaPlantaWeb, crearPlantaInicialWeb }

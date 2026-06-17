@@ -10,7 +10,7 @@ block content
     +reporteError(error)
 
     //- Formulario de alta
-    form.panel(action=formAction || '/actores/nuevo' method='POST')
+    form.panel(action=modoAltaPlanta ? '/alta-planta' : '/actores/nuevo' method='POST')
 
         div.field
             label(for='nombre') Nombre
@@ -43,4 +43,4 @@ block content
         
         div.actions
             button.btn(type='submit') Guardar
-            a.btn.btn-secondary(href=cancelarHref || '/actores') Cancelar
+            a.btn.btn-secondary(href=modoAltaPlanta ? '/' : '/actores') Cancelar
