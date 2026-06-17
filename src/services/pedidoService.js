@@ -104,7 +104,7 @@ const actualizarPedido = async (id, fechaEntregaEsperada, estado, idActor, produ
 
     const estadoActualizado = estado?.trim()
     const fechaEntregaReal = estadoActualizado === ESTADOS_PEDIDO.ENTREGADO
-        ? pedidoActual.fecha_entrega_real || new Date().toISOString().slice(0, 10)
+        ? pedidoActual.fecha_entrega_real || new Date()
         : null
 
     const datosActualizados = {

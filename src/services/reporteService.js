@@ -57,7 +57,8 @@ const obtenerDemandaConsolidada = () => {
 }
 
 const obtenerRetrasosEntregas = () => {
-    const hoy = new Date().toISOString().slice(0, 10)
+    const hoy = new Date()
+    hoy.setHours(23, 59, 59, 999)  // final del día de hoy
 
     return Pedido.find({
         estado: { $ne: ESTADOS_PEDIDO.ENTREGADO },

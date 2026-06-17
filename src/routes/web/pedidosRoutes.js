@@ -3,8 +3,8 @@ import {
 	actualizarPedidoWeb,
 	crearPedidoWeb,
 	eliminarPedidoWeb,
-	formularioEditarPedidoWeb,
-	formularioNuevoPedidoWeb,
+	renderFormularioEditarPedidoWeb,
+	renderFormularioNuevoPedidoWeb,
 	listarPedidosWeb,
 } from '../../controllers/web/pedidoController.js'
 import {
@@ -20,7 +20,7 @@ router.get('/', tienePermisosWeb('pedidos', 'ver'), listarPedidosWeb)
 router.get(
 	'/nuevo',
 	tienePermisosWeb('pedidos', 'crear'),
-	formularioNuevoPedidoWeb,
+	renderFormularioNuevoPedidoWeb,
 )
 router.post(
 	'/nuevo',
@@ -31,7 +31,7 @@ router.post(
 router.get(
 	'/editar/:id',
 	tienePermisosWeb('pedidos', 'editar', cargarPedido),
-	formularioEditarPedidoWeb,
+	renderFormularioEditarPedidoWeb,
 )
 router.post(
 	'/editar/:id',

@@ -4,6 +4,7 @@ import productoService from '../../services/productoService.js'
 import { esPlanta } from "../../lib/tiposActor.js"
 import { responderErrorWeb } from "../../lib/errorResponses.js"
 import { obtenerEstadosPedido } from "../../lib/estadosPedido.js"
+import { fmtFecha } from "../../lib/utils.js"
 
 const listarPedidosWeb = async (req, res) => {
     try {
@@ -13,7 +14,7 @@ const listarPedidosWeb = async (req, res) => {
         const pedidos = await pedidoService.obtenerPedidos(filtro)
         const titulo = "Listado de pedidos"
 
-        res.render("pedidos/listado", { pedidos, titulo })
+        res.render("pedidos/listado", { pedidos, titulo, fmtFecha })
     } catch (error) {
         responderErrorWeb(res, error, "Error al cargar listado de pedidos")
     }
@@ -65,7 +66,7 @@ const eliminarPedidoWeb = async (req, res) => {
 }
 
 // formularios
-const formularioNuevoPedidoWeb = async (req, res) => {
+const renderFormularioNuevoPedidoWeb = async (req, res) => {
     try {
         const actorLogueado = req.session.user
 
@@ -82,7 +83,7 @@ const formularioNuevoPedidoWeb = async (req, res) => {
     }
 }
 
-const formularioEditarPedidoWeb = async (req, res) => {
+const renderFormularioEditarPedidoWeb = async (req, res) => {
     try {
         const id = req.params.id
         const datosPedido = await pedidoService.obtenerPedidoParaEditar(id)
@@ -116,7 +117,7 @@ const formularioEditarPedidoWeb = async (req, res) => {
             actor: String(idActor)
         }
 
-        res.render("pedidos/editar", { pedido: pedidoFormulario, actores, estados, productos, titulo })
+        res.render("pedidos/editar", { pedido: pedidoFormulario, actores, estados, productos, titulo, fmtFecha })
     } catch (error) {
         responderErrorWeb(res, error, "Error al cargar formulario editar pedido")
     }
@@ -124,9 +125,9 @@ const formularioEditarPedidoWeb = async (req, res) => {
 
 export {
     listarPedidosWeb,
-    formularioNuevoPedidoWeb,
+    renderFormularioNuevoPedidoWeb,
     crearPedidoWeb,
-    formularioEditarPedidoWeb,
+    renderFormularioEditarPedidoWeb,
     actualizarPedidoWeb,
     eliminarPedidoWeb
 }

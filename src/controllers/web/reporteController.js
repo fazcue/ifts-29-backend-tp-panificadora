@@ -1,5 +1,6 @@
 import reporteService from "../../services/reporteService.js"
 import { responderErrorWeb } from "../../lib/errorResponses.js"
+import { fmtFecha } from "../../lib/utils.js"
 
 const listarAccesosReportes = async (req, res) => {
     try {
@@ -27,7 +28,7 @@ const listarRetrasosEntregasWeb = async (req, res) => {
         const pedidos = await reporteService.obtenerRetrasosEntregas()
         const titulo = "Retrasos en entregas"
 
-        res.render("reportes/retrasosEntregas", { pedidos, titulo })
+        res.render("reportes/retrasosEntregas", { pedidos, titulo, fmtFecha })
     } catch (error) {
         responderErrorWeb(res, error, "Error al obtener retrasos en entregas")
     }

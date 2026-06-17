@@ -22,9 +22,9 @@ block content
                             p=  `Actor: ${pedido.actor.nombre}`
 
                         if pedido.fecha_entrega_real
-                            p= `Entrega real: ${pedido.fecha_entrega_real}`
+                            p= `Entrega real: ${fmtFecha(pedido.fecha_entrega_real)}`
                         else
-                            p= `Entrega esperada: ${pedido.fecha_entrega_esperada}`
+                            p= `Entrega esperada: ${fmtFecha(pedido.fecha_entrega_esperada)}`
 
                     span.badge(class=pedido.estado === 'ENTREGADO' ? 'badge-on' : 'badge-off')= pedido.estado
 
