@@ -1,5 +1,4 @@
 import actorService from '../../services/actorService.js'
-import { responderErrorWeb } from '../../lib/errorResponses.js'
 import { obtenerTiposActor } from '../../lib/tiposActor.js'
 
 const listarActoresWeb = async (req, res) => {
@@ -9,7 +8,7 @@ const listarActoresWeb = async (req, res) => {
 
 		res.render('actores/listado', { actores, titulo })
 	} catch (error) {
-		responderErrorWeb(res, error, 'Error al cargar listado de actores')
+		res.status(500).render('error', { mensaje: 'Error al cargar listado de actores' })
 	}
 }
 
@@ -20,7 +19,7 @@ const renderFormularioNuevoActorWeb = (req, res) => {
 
 		res.render('actores/nuevo', { tipos, titulo })
 	} catch (error) {
-		responderErrorWeb(res, error, 'Error al cargar formulario nuevo actor')
+		res.status(500).render('error', { mensaje: 'Error al cargar formulario nuevo actor' })
 	}
 }
 
@@ -32,7 +31,7 @@ const crearActorWeb = async (req, res) => {
 
 		res.redirect('/actores')
 	} catch (error) {
-		responderErrorWeb(res, error, 'Error al crear actor')
+		res.status(500).render('error', { mensaje: 'Error al crear actor' })
 	}
 }
 
@@ -53,7 +52,7 @@ const renderFormularioEditarActorWeb = async (req, res) => {
 
 		res.render('actores/editar', { actor, tipos, titulo })
 	} catch (error) {
-		responderErrorWeb(res, error, 'Error al cargar formulario editar actor')
+		res.status(500).render('error', { mensaje: 'Error al cargar formulario editar actor' })
 	}
 }
 
@@ -79,7 +78,7 @@ const actualizarActorWeb = async (req, res) => {
 
 		res.redirect('/actores')
 	} catch (error) {
-		responderErrorWeb(res, error, 'Error al actualizar actor')
+		res.status(500).render('error', { mensaje: 'Error al actualizar actor' })
 	}
 }
 
@@ -97,7 +96,7 @@ const cambiarEstadoWeb = async (req, res) => {
 
 		res.redirect('/actores')
 	} catch (error) {
-		responderErrorWeb(res, error, 'Error al cambiar estado')
+		res.status(500).render('error', { mensaje: 'Error al cambiar estado' })
 	}
 }
 

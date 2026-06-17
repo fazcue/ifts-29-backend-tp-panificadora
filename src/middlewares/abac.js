@@ -5,7 +5,7 @@ const responderErrorWeb = (res, estado, mensaje) => {
 }
 
 const responderErrorApi = (res, estado, mensaje) => {
-    return res.status(estado).json({ error: mensaje })
+    return res.status(estado).json({ mensaje })
 }
 
 const tienePermisos = (modulo, accion, cargarRecurso, responderError) => {

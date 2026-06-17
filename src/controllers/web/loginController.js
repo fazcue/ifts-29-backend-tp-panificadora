@@ -1,12 +1,11 @@
 import actorService from '../../services/actorService.js'
 import { TIPOS_ACTOR } from '../../lib/tiposActor.js'
 import bcryptjs from 'bcryptjs'
-import { responderErrorWeb } from '../../lib/errorResponses.js'
 
 const portada = (req, res) => res.render('portada')
 
 const renderFormularioAltaPlantaWeb = async (req, res) => {
-	try {
+	try {		
 		if (!process.env.CLAVE_ALTA_PLANTA?.trim()) {
 			return res
 				.status(500)
@@ -21,7 +20,7 @@ const renderFormularioAltaPlantaWeb = async (req, res) => {
 
 		res.render('actores/nuevo', { modoAltaPlanta: true, titulo: 'Alta inicial de planta'})
 	} catch (error) {
-		responderErrorWeb(res, error, 'Error al cargar formulario alta planta')
+		res.status(500).render('error', { mensaje: 'Error al cargar formulario alta planta' })
 	}
 }
 
@@ -54,7 +53,7 @@ const crearPlantaInicialWeb = async (req, res) => {
 			res.redirect('/portada')
 		})
 	} catch (error) {
-		responderErrorWeb(res, error, 'Error al crear planta')
+		res.status(500).render('error', { mensaje: 'Error al crear planta' })
 	}
 }
 

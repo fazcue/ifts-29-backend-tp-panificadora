@@ -1,5 +1,4 @@
-import productoService from "../../services/productoService.js"
-import { responderErrorApi } from "../../lib/errorResponses.js"
+import productoService from '../../services/productoService.js'
 
 const listarProductos = async (req, res) => {
     try {
@@ -7,7 +6,7 @@ const listarProductos = async (req, res) => {
 
         res.status(200).json(productos)
     } catch (error) {
-        responderErrorApi(res, error, "Error al listar productos")
+        res.status(500).json({ mensaje: 'Error al listar productos' })
     }
 }
 
@@ -17,12 +16,12 @@ const listarProducto = async (req, res) => {
         const producto = await productoService.buscarProductoPorId(id)
 
         if (!producto) {
-            return res.status(404).json({ error: "Producto no encontrado" })
+            return res.status(404).json({ error: 'Producto no encontrado' })
         }
 
         res.status(200).json(producto)
     } catch (error) {
-        responderErrorApi(res, error, "Error al listar producto")
+        res.status(500).json({ mensaje: 'Error al listar producto' })
     }
 }
 
@@ -34,7 +33,7 @@ const crearProducto = async (req, res) => {
 
         res.status(201).json(nuevo)
     } catch (error) {
-        responderErrorApi(res, error, "Error al crear producto")
+        res.status(500).json({ mensaje: 'Error al crear producto' })
     }
 }
 
@@ -46,12 +45,12 @@ const actualizarProducto = async (req, res) => {
         const producto = await productoService.actualizarProducto(id, nombre, precio, activo)
 
         if (!producto) {
-            return res.status(404).json({ error: "Producto no encontrado" })
+            return res.status(404).json({ error: 'Producto no encontrado' })
         }
 
         res.status(200).json(producto)
     } catch (error) {
-        responderErrorApi(res, error, "Error al actualizar producto")
+        res.status(500).json({ mensaje: 'Error al actualizar producto' })
     }
 }
 
@@ -62,12 +61,12 @@ const eliminarProducto = async (req, res) => {
         const producto = await productoService.eliminarProducto(id)
 
         if (!producto) {
-            return res.status(404).json({ error: "Producto no encontrado" })
+            return res.status(404).json({ error: 'Producto no encontrado' })
         }
 
         res.status(200).json(producto)
     } catch (error) {
-        responderErrorApi(res, error, "Error al eliminar producto")
+        res.status(500).json({ mensaje: 'Error al eliminar producto' })
     }
 }
 

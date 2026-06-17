@@ -2,7 +2,6 @@ import actorService from "../../services/actorService.js"
 import pedidoService from "../../services/pedidoService.js"
 import productoService from '../../services/productoService.js'
 import { esPlanta } from "../../lib/tiposActor.js"
-import { responderErrorWeb } from "../../lib/errorResponses.js"
 import { obtenerEstadosPedido } from "../../lib/estadosPedido.js"
 import { fmtFecha } from "../../lib/utils.js"
 
@@ -16,7 +15,7 @@ const listarPedidosWeb = async (req, res) => {
 
         res.render("pedidos/listado", { pedidos, titulo, fmtFecha })
     } catch (error) {
-        responderErrorWeb(res, error, "Error al cargar listado de pedidos")
+		res.status(500).render('error', { mensaje: 'Error al cargar listado de pedidos' })
     }
 }
 
@@ -28,7 +27,7 @@ const crearPedidoWeb = async (req, res) => {
 
         res.redirect("/pedidos")
     } catch (error) {
-        responderErrorWeb(res, error, "Error al crear pedido")
+        res.status(500).render('error', { mensaje: 'Error al crear pedido' })
     }
 }
 
@@ -45,7 +44,7 @@ const actualizarPedidoWeb = async (req, res) => {
 
         res.redirect("/pedidos")
     } catch (error) {
-        responderErrorWeb(res, error, "Error al actualizar pedido")
+        res.status(500).render('error', { mensaje: 'Error al actualizar pedido' })
     }
 }
 
@@ -61,7 +60,7 @@ const eliminarPedidoWeb = async (req, res) => {
 
         res.redirect("/pedidos")
     } catch (error) {
-        responderErrorWeb(res, error, "Error al eliminar pedido")
+        res.status(500).render('error', { mensaje: 'Error al eliminar pedido' })
     }
 }
 
@@ -79,7 +78,7 @@ const renderFormularioNuevoPedidoWeb = async (req, res) => {
 
         res.render("pedidos/nuevo", { actores, productos, titulo })
     } catch (error) {
-        responderErrorWeb(res, error, "Error al cargar formulario nuevo pedido")
+        res.status(500).render('error', { mensaje: 'Error al cargar formulario nuevo pedido' })
     }
 }
 
@@ -119,7 +118,7 @@ const renderFormularioEditarPedidoWeb = async (req, res) => {
 
         res.render("pedidos/editar", { pedido: pedidoFormulario, actores, estados, productos, titulo, fmtFecha })
     } catch (error) {
-        responderErrorWeb(res, error, "Error al cargar formulario editar pedido")
+        res.status(500).render('error', { mensaje: 'Error al cargar formulario editar pedido' })
     }
 }
 

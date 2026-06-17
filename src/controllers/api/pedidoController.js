@@ -1,6 +1,5 @@
-import pedidoService from "../../services/pedidoService.js"
-import { esPlanta } from "../../lib/tiposActor.js"
-import { responderErrorApi } from "../../lib/errorResponses.js"
+import pedidoService from '../../services/pedidoService.js'
+import { esPlanta } from '../../lib/tiposActor.js'
 
 const listarPedidos = async (req, res) => {
     try {
@@ -10,7 +9,7 @@ const listarPedidos = async (req, res) => {
 
         res.status(200).json(pedidos)
     } catch (error) {
-        responderErrorApi(res, error, "Error al listar pedidos")
+        res.status(500).json({ mensaje: 'Error al listar pedidos' })
     }
 }
 
@@ -20,12 +19,12 @@ const listarPedido = async (req, res) => {
         const pedido = await pedidoService.buscarPedidoPorIdConDetalles(id)
 
         if (!pedido) {
-            return res.status(404).json({ error: "Pedido no encontrado" })
+            return res.status(404).json({ error: 'Pedido no encontrado' })
         }
 
         res.status(200).json(pedido)
     } catch (error) {
-        responderErrorApi(res, error, "Error al listar pedido")
+        res.status(500).json({ mensaje: 'Error al listar pedido' })
     }
 }
 
@@ -37,7 +36,7 @@ const crearPedido = async (req, res) => {
 
         res.status(201).json(nuevo)
     } catch (error) {
-        responderErrorApi(res, error, "Error al crear pedido")
+        res.status(500).json({ mensaje: 'Error al crear pedido' })
     }
 }
 
@@ -49,12 +48,12 @@ const actualizarPedido = async (req, res) => {
         const pedido = await pedidoService.actualizarPedido(id, fecha_entrega_esperada, estado, id_actor, productos)
 
         if (!pedido) {
-            return res.status(404).json({ error: "Pedido no encontrado" })
+            return res.status(404).json({ error: 'Pedido no encontrado' })
         }
 
         res.status(200).json(pedido)
     } catch (error) {
-        responderErrorApi(res, error, "Error al actualizar pedido")
+        res.status(500).json({ mensaje: 'Error al actualizar pedido' })
     }
 }
 
@@ -65,12 +64,12 @@ const eliminarPedido = async (req, res) => {
         const pedido = await pedidoService.eliminarPedido(id)
 
         if (!pedido) {
-            return res.status(404).json({ error: "Pedido no encontrado" })
+            return res.status(404).json({ error: 'Pedido no encontrado' })
         }
 
         res.status(200).json(pedido)
     } catch (error) {
-        responderErrorApi(res, error, "Error al eliminar pedido")
+        res.status(500).json({ mensaje: 'Error al eliminar pedido' })
     }
 }
 
