@@ -8,12 +8,14 @@ import { fileURLToPath } from 'url'
 import actoresRouter from './routes/api/actoresRoutes.js'
 import pedidosRouter from './routes/api/pedidosRoutes.js'
 import productosRouter from './routes/api/productosRoutes.js'
+import insumosRouter from './routes/api/insumosRoutes.js'
 // Rutas Web
 import loginRouterWeb from './routes/web/loginRoutes.js'
 import actoresRouterWeb from './routes/web/actoresRoutes.js'
 import pedidosRouterWeb from './routes/web/pedidosRoutes.js'
 import productosRouterWeb from './routes/web/productosRoutes.js'
 import reportesRouterWeb from './routes/web/reportesRoutes.js'
+import insumosRouterWeb from './routes/web/insumosRoutes.js'
 
 import { protegerApi, protegerWeb } from './middlewares/auth.js'
 
@@ -44,12 +46,14 @@ app.use('/', loginRouterWeb)
 app.use('/actores', protegerWeb, actoresRouterWeb)
 app.use('/pedidos', protegerWeb, pedidosRouterWeb)
 app.use('/productos', protegerWeb, productosRouterWeb)
+app.use('/insumos', protegerWeb, insumosRouterWeb)
 app.use('/reportes', protegerWeb, reportesRouterWeb)
 
 // Rutas API
 app.use('/api/actores', protegerApi, actoresRouter)
 app.use('/api/pedidos', protegerApi, pedidosRouter)
 app.use('/api/productos', protegerApi, productosRouter)
+app.use('/api/insumos', protegerApi, insumosRouter)
 
 // 404
 app.use('/api', (req, res) => res.status(404).json({ error: 'Recurso no encontrado' }))

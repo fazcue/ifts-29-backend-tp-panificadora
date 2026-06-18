@@ -47,6 +47,13 @@ const politicas = {
         editar: puedeModificarPedido,
         eliminar: puedeModificarPedido,
     },
+    insumos: {
+        ver: soloPlanta,
+        crear: soloPlanta,
+        editar: soloPlanta,
+        cambiarEstado: soloPlanta,
+        eliminar: soloPlanta,
+    },
     reportes: {
         ver: soloPlanta
     }
