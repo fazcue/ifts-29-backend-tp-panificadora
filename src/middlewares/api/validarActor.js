@@ -62,7 +62,7 @@ const validarActor = async (req, res, next) => {
 
         next()
     } catch (err) {
-        res.status(500).json({ error: 'Error validando actor' })
+        res.status(500).json({ mensaje: 'Error validando actor' })
     }
 }
 

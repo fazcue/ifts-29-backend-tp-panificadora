@@ -49,7 +49,7 @@ const validarCrearPedido = async (req, res, next) => {
 
         next()
     } catch (err) {
-        return res.status(500).json({ error: "Error validando pedido" })
+        return res.status(500).json({ mensaje: "Error validando pedido" })
     }
 }
 
@@ -110,7 +110,7 @@ const validarActualizarPedido = async (req, res, next) => {
 
         next()
     } catch (err) {
-        return res.status(500).json({ error: "Error validando pedido" })
+        return res.status(500).json({ mensaje: "Error validando pedido" })
     }
 }
 

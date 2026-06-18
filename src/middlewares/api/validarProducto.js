@@ -53,7 +53,7 @@ const validarProducto = async (req, res, next) => {
 
         next()
     } catch (err) {
-        return res.status(500).json({ error: 'Error validando producto' })
+        return res.status(500).json({ mensaje: 'Error validando producto' })
     }
 }
 
