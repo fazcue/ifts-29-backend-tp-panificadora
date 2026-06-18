@@ -1,0 +1,35 @@
+extends ../layout
+include ../mixins/cabecera
+include ../mixins/reporteError
+
+block content
+    //- Cabecera
+    +cabecera('Nuevo insumo')
+
+    //- Reporte de error
+    +reporteError(error)
+
+    //- Formulario de alta
+    form.panel(action='/insumos/nuevo' method='POST')
+        
+        div.field
+            label(for='nombre') Nombre
+            input#nombre(type='text' name='nombre' value=insumo && insumo.nombre required)
+        
+        div.field
+            label(for='unidad') Unidad
+            select#unidad(name='unidad' required)
+                option(value='') Seleccionar...
+                option(value='kg' selected=insumo && insumo.unidad==='kg') kg (kilogramo)
+                option(value='g' selected=insumo && insumo.unidad==='g') g (gramo)
+                option(value='l' selected=insumo && insumo.unidad==='l') l (litro)
+                option(value='ml' selected=insumo && insumo.unidad==='ml') ml (mililitro)
+                option(value='unidades' selected=insumo && insumo.unidad==='unidades') unidades
+
+        div.field
+            label(for='balance') Balance inicial
+            input#balance(type='number' name='balance' min='0' step='1' value=insumo && insumo.balance required)
+        
+        div.actions
+            button.btn(type='submit') Guardar
+            a.btn.btn-secondary(href='/insumos') Cancelar

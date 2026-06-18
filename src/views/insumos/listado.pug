@@ -1,0 +1,33 @@
+extends ../layout
+include ../mixins/cabecera
+
+block content
+    //- Cabecera con enlace
+    +cabecera('Insumos')
+        a.btn(href='/insumos/nuevo') Nuevo
+
+    //- Listado insumos
+    if insumos.length > 0
+        ul.list
+            each insumo in insumos
+                li.item
+                    div.info
+                        h3= insumo.nombre
+                        p= `Balance: ${insumo.balance} ${insumo.unidad}`
+
+                    if insumo.activo
+                        span.badge.badge-on ACTIVO
+                    else
+                        span.badge.badge-off NO ACTIVO
+
+                    div.actions
+                        a.btn.btn-secondary(href=`/insumos/editar/${insumo.id}`) Editar
+                        form(action=`/insumos/cambiar-estado/${insumo.id}` method='POST')
+                            if insumo.activo
+                                button.btn(type='submit') Desactivar
+                            else
+                                button.btn(type='submit') Activar
+                        form(action=`/insumos/eliminar/${insumo.id}` method='POST')
+                            button.btn(type='submit') Eliminar
+    else
+        p.empty Sin insumos registrados

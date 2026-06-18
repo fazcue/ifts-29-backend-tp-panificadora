@@ -1,0 +1,34 @@
+extends ../layout
+include ../mixins/cabecera
+include ../mixins/reporteError
+
+block content
+    //- Cabecera
+    +cabecera('Editar insumo')
+
+    //- Reporte de error
+    +reporteError(error)
+
+    //- Formulario de edición
+    form.panel(action=`/insumos/editar/${insumo.id}` method='POST')
+        
+        div.field
+            label(for='nombre') Nombre
+            input#nombre(type='text' name='nombre' value=insumo.nombre required)
+        
+        div.field
+            label(for='unidad') Unidad
+            select#unidad(name='unidad' required)
+                option(value='kg' selected=insumo.unidad==='kg') kg (kilogramo)
+                option(value='g' selected=insumo.unidad==='g') g (gramo)
+                option(value='l' selected=insumo.unidad==='l') l (litro)
+                option(value='ml' selected=insumo.unidad==='ml') ml (mililitro)
+                option(value='unidades' selected=insumo.unidad==='unidades') unidades
+        
+        div.field
+            label(for='balance') Balance
+            input#balance(type='number' name='balance' min='0' step='1' value=insumo.balance required)
+        
+        div.actions
+            button.btn(type='submit') Guardar
+            a.btn.btn-secondary(href='/insumos') Cancelar
