@@ -1,4 +1,4 @@
-import pedidoService from '../../services/pedidoService.js'
+import pedidoService from '../../services/pedido.service.js'
 import { esPlanta } from '../../lib/tiposActor.js'
 
 const listarPedidos = async (req, res) => {

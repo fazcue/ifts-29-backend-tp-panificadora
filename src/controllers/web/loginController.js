@@ -1,4 +1,4 @@
-import actorService from '../../services/actorService.js'
+import actorService from '../../services/actor.service.js'
 import { TIPOS_ACTOR } from '../../lib/tiposActor.js'
 import bcryptjs from 'bcryptjs'
 

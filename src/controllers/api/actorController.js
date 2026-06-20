@@ -1,4 +1,4 @@
-import actorService from '../../services/actorService.js'
+import actorService from '../../services/actor.service.js'
 
 const listarActores = async (req, res) => {
     try {

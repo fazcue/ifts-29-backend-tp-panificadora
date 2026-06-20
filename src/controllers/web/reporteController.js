@@ -1,4 +1,4 @@
-import reporteService from "../../services/reporteService.js"
+import reporteService from "../../services/reporte.service.js"
 import { fmtFecha } from "../../lib/utils.js"
 
 const listarAccesosReportes = async (req, res) => {

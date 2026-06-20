@@ -17,7 +17,7 @@ import productosRouterWeb from './routes/web/productosRoutes.js'
 import reportesRouterWeb from './routes/web/reportesRoutes.js'
 import insumosRouterWeb from './routes/web/insumosRoutes.js'
 
-import { protegerApi, protegerWeb } from './middlewares/auth.js'
+import { protegerApi, protegerWeb } from './middlewares/auth.middleware.js'
 
 dotenv.config()
 

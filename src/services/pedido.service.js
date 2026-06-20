@@ -1,6 +1,6 @@
 import Pedido from "../models/Pedido.js"
-import detallePedidoService from "./detallePedidoService.js"
-import productoService from "./productoService.js"
+import detallePedidoService from "./detallePedido.service.js"
+import productoService from "./producto.service.js"
 import { esIdValido } from "../lib/utils.js"
 import { ESTADOS_PEDIDO } from "../lib/estadosPedido.js"
 

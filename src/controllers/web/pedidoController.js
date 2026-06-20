@@ -1,6 +1,6 @@
-import actorService from "../../services/actorService.js"
-import pedidoService from "../../services/pedidoService.js"
-import productoService from '../../services/productoService.js'
+import actorService from "../../services/actor.service.js"
+import pedidoService from "../../services/pedido.service.js"
+import productoService from '../../services/producto.service.js'
 import { esPlanta } from "../../lib/tiposActor.js"
 import { obtenerEstadosPedido } from "../../lib/estadosPedido.js"
 import { fmtFecha } from "../../lib/utils.js"

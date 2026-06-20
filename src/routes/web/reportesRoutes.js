@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { listarAccesosReportes, listarDemandaProduccionWeb, listarRetrasosEntregasWeb } from '../../controllers/web/reporteController.js'
-import { tienePermisosWeb } from '../../middlewares/abac.js'
+import { tienePermisosWeb } from '../../middlewares/abac.middleware.js'
 
 const router = Router()
 

@@ -8,8 +8,8 @@ import {
     renderFormularioNuevoInsumoWeb,
     listarInsumosWeb,
 } from '../../controllers/web/insumoController.js'
-import validarInsumoWeb from '../../middlewares/web/validarInsumoWeb.js'
-import { tienePermisosWeb } from '../../middlewares/abac.js'
+import { validarInsumoWeb } from '../../middlewares/insumo.middleware.js'
+import { tienePermisosWeb } from '../../middlewares/abac.middleware.js'
 
 const router = Router()
 

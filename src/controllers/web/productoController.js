@@ -1,4 +1,4 @@
-import productoService from "../../services/productoService.js"
+import productoService from "../../services/producto.service.js"
 
 const listarProductosWeb = async (req, res) => {
     try {

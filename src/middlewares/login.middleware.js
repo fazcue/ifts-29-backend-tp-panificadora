@@ -1,4 +1,4 @@
-import actorService from "../../services/actorService.js"
+import actorService from "../services/actor.service.js"
 
 const validarClaveAltaPlantaWeb = async (req, res, next) => {
     try {
@@ -16,7 +16,7 @@ const validarClaveAltaPlantaWeb = async (req, res, next) => {
 
         if (claveRecibida !== claveConfigurada) {
             return res.status(403).render('actores/nuevo', {
-                error: 'Clave de alta inválida',
+                mensaje: 'Clave de alta inválida',
                 titulo: 'Alta inicial de planta',
                 modoAltaPlanta: true,
                 actor: {
@@ -25,6 +25,8 @@ const validarClaveAltaPlantaWeb = async (req, res, next) => {
                 },
             })
         }
+
+        req.altaPlantaInicial = true
 
         next()
     } catch (error) {

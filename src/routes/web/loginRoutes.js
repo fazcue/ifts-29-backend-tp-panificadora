@@ -7,9 +7,9 @@ import {
 	renderFormularioAltaPlantaWeb,
 	crearPlantaInicialWeb
 } from '../../controllers/web/loginController.js'
-import { protegerWeb } from '../../middlewares/auth.js'
-import { validarActorWeb } from '../../middlewares/web/validarActorWeb.js'
-import { validarClaveAltaPlantaWeb } from '../../middlewares/web/validarLoginWeb.js'
+import { protegerWeb } from '../../middlewares/auth.middleware.js'
+import { validarActorWeb } from '../../middlewares/actor.middleware.js'
+import { validarClaveAltaPlantaWeb } from '../../middlewares/login.middleware.js'
 
 const router = Router()
 

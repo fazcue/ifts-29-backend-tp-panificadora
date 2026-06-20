@@ -1,4 +1,4 @@
-import insumoService from '../../services/insumoService.js'
+import insumoService from '../../services/insumo.service.js'
 
 const listarInsumosWeb = async (req, res) => {
     try {

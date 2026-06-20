@@ -7,8 +7,8 @@ import {
 	renderFormularioNuevoActorWeb,
 	listarActoresWeb,
 } from '../../controllers/web/actorController.js'
-import { validarActorWeb } from '../../middlewares/web/validarActorWeb.js'
-import { tienePermisosWeb } from '../../middlewares/abac.js'
+import { validarActorWeb } from '../../middlewares/actor.middleware.js'
+import { tienePermisosWeb } from '../../middlewares/abac.middleware.js'
 
 const router = Router()
 
