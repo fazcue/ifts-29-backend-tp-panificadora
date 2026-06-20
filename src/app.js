@@ -31,15 +31,15 @@ app.set('trust proxy', 1)
 // Middlewares
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
-app.use(express.static("public"))
+app.use(express.static('public'))
 
 // Sesiones
 app.use(configurarSesion)
 app.use(inyectarDatosUsuario)
 
 // Motor plantillas Pug
-app.set("view engine", "pug")
-app.set("views", join(__dirname, "views"))
+app.set('view engine', 'pug')
+app.set('views', join(__dirname, 'views'))
 
 // Rutas web
 app.use('/', loginRouterWeb)

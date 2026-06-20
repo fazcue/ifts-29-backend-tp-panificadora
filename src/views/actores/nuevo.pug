@@ -7,7 +7,7 @@ block content
     +cabecera(titulo || 'Nuevo actor')
 
     //- Reporte de error
-    +reporteError(error)
+    +reporteError(mensaje)
 
     //- Formulario de alta
     form.panel(action=modoAltaPlanta ? '/alta-planta' : '/actores/nuevo' method='POST')
@@ -39,7 +39,7 @@ block content
         if modoAltaPlanta
             div.field
                 label(for='clave_alta_planta') Clave de alta
-                input#clave_alta_planta(type='password' name='clave_alta_planta' value=claveAltaPlanta required)
+                input#clave_alta_planta(type='password' name='clave_alta_planta' required)
         
         div.actions
             button.btn(type='submit') Guardar
