@@ -2,35 +2,45 @@
 
 Aplicación Node.js + Express para gestionar pedidos de una panificadora con planta central, sucursales y franquicias.
 
-Incluye interfaz web, API JSON, autenticación con sesiones y control de acceso por atributos del actor.
+Incluye interfaz web, API JSON, autenticación con sesiones, control de acceso por atributos del actor (ABAC), reportes y gestión de insumos.
 
 ## Funcionalidades principales
 
-- Login con email y contraseña.
-- Gestión de actores, productos y pedidos.
-- Pedidos con detalle de productos y estados.
+- Login con email y contraseña (sesiones persistentes en MongoDB).
+- Registro inicial del actor `PLANTA` mediante clave secreta.
+- Gestión de actores, productos, pedidos e insumos.
+- Pedidos con detalle de productos, fechas como tipo `Date` y seguimiento de estados.
+- Reportes: demanda consolidada y detección de retrasos en entregas.
 - Interfaz web con Pug.
-- API JSON para los mismos recursos principales.
+- API JSON para los mismos recursos.
+- ABAC (Attribute-Based Access Control) para web y API.
+- Validaciones de dominio en middleware/validador separados por módulo.
 - Persistencia en MongoDB con Mongoose.
 
 ## Estado del proyecto
 
-Completado:
+### Completado
 
 - [x] Arquitectura modular con modelos, rutas, controladores, servicios, middlewares y validadores.
 - [x] Persistencia en MongoDB con Mongoose.
-- [x] Autenticación web con sesiones.
-- [x] CRUD web y API para actores, productos y pedidos.
-- [x] Pedidos relacionados con actor y detalle de productos.
-- [x] Estados de pedido: pendiente, en producción, despachado y entregado.
+- [x] Autenticación web con sesiones almacenadas en MongoDB (`connect-mongo`).
+- [x] Registro inicial de planta con `CLAVE_ALTA_PLANTA`.
+- [x] CRUD web y API para actores, productos, pedidos e insumos.
+- [x] Pedidos relacionados con actor y detalle de productos (virtual populate).
+- [x] Estados de pedido: `PENDIENTE`, `EN_PRODUCCION`, `DESPACHADO`, `ENTREGADO`.
+- [x] Fecha de entrega real auto-asignada al marcar como entregado.
 - [x] Validaciones de datos obligatorios y referencias entre módulos.
 - [x] Control de dependencias antes de eliminar recursos usados por pedidos.
-- [x] ABAC para proteger accesos web y API según tipo y estado del actor.
+- [x] ABAC para proteger accesos web y API según tipo y estado del actor (`abac.middleware.js` + `abacPolicies.js`).
 - [x] Portal web básico para que sucursales y franquicias gestionen sus propios pedidos.
-- [x] Demanda consolidada para planificar producción.
-- [x] Detección de retrasos en entregas.
+- [x] Reporte de demanda consolidada para planificar producción.
+- [x] Reporte de retrasos en entregas (pedidos vencidos no entregados).
+- [x] Unificación de middlewares web/API por módulo (patrón `esWeb`).
+- [x] Migración de servicios a dot notation (`actor.service.js`, `pedido.service.js`, etc.).
+- [x] Validadores modulares por dominio (`actor.validator.js`, `insumo.validator.js`, etc.).
+- [x] Helper `fmtFecha` para formateo de fechas.
 
-Pendiente / futuro:
+### Pendiente / futuro
 
 - [ ] Información para compra de insumos y materia prima.
 - [ ] Reportes para conciliación de facturación interna y externa.
@@ -38,42 +48,55 @@ Pendiente / futuro:
 - [ ] Indicadores de gestión para apoyar la toma de decisiones.
 - [ ] Documentación final de pruebas y funcionamiento.
 
-## Reglas de acceso
+## Reglas de acceso (ABAC)
 
-El sistema usa ABAC basado en los atributos del actor autenticado.
+El sistema usa ABAC basado en los atributos del actor autenticado, definido en `policies/abacPolicies.js`.
 
-- `PLANTA` tiene acceso global a actores, productos y pedidos.
-- `FRANQUICIA` y `SUCURSAL` solo acceden a sus propios pedidos.
-- Actores inactivos pueden ver sus pedidos, pero no crear, editar ni eliminar.
-- Solo `PLANTA` puede gestionar actores y productos.
+| Recurso     | Acción            | `PLANTA` | `FRANQUICIA` / `SUCURSAL`       |
+|-------------|-------------------|----------|----------------------------------|
+| Actores     | ver / crear / editar / eliminar | ✅       | ❌                               |
+| Productos   | ver / crear / editar / eliminar | ✅       | ❌                               |
+| Insumos     | ver / crear / editar / eliminar | ✅       | ❌                               |
+| Reportes    | ver               | ✅       | ❌                               |
+| Pedidos     | ver               | ✅       | Solo los propios                  |
+| Pedidos     | crear              | ✅       | Solo si el actor está activo      |
+| Pedidos     | editar / eliminar  | ✅       | Solo si activo, propio y `PENDIENTE` |
+
+- Los actores inactivos pueden ver sus pedidos pero no crear, editar ni eliminar.
+- Solo `PLANTA` puede gestionar actores, productos, insumos y ver reportes.
 - Debe existir un único actor `PLANTA`.
 - El actor `PLANTA` no puede desactivarse ni cambiar su tipo.
 
 ## Tecnologías
 
-- Node.js
-- Express
-- MongoDB + Mongoose
-- Pug
-- express-session + connect-mongo
-- bcryptjs
+- **Node.js** — Entorno de ejecución.
+- **Express** — Framework web.
+- **MongoDB + Mongoose** — Base de datos y ODM.
+- **Pug** — Motor de plantillas.
+- **express-session + connect-mongo** — Sesiones persistentes.
+- **bcryptjs** — Hash de contraseñas.
+- **dotenv** — Variables de entorno.
 
-## Estructura
+## Estructura del proyecto
 
 ```txt
 src/
-  app.js
-  config/         # MongoDB y sesiones
-  controllers/    # Controladores web y API
-  lib/            # Constantes y helpers compartidos
-  loaders/        # Carga de recursos para ABAC
-  middlewares/    # Auth, ABAC y validaciones
-  models/         # Modelos Mongoose
-  policies/       # Políticas ABAC
-  routes/         # Rutas web y API
-  services/       # Acceso a datos y lógica reutilizable
-  validators/     # Validaciones de dominio
-  views/          # Vistas Pug
+  app.js                  # Punto de entrada
+  config/                 # Conexión MongoDB y configuración de sesiones
+  controllers/
+    api/                  # Controladores para la API REST
+    web/                  # Controladores para las vistas Pug
+  lib/                    # Constantes (estadosPedido.js, tiposActor.js, unidades.js) y helpers (utils.js)
+  loaders/                # Carga de recursos para ABAC (resourceLoaders.js)
+  middlewares/            # Middlewares por módulo (actor, insumo, pedido, producto), auth y ABAC
+  models/                 # Modelos Mongoose (Actor, DetallePedido, Insumo, Pedido, Producto)
+  policies/               # Políticas ABAC (abacPolicies.js)
+  routes/
+    api/                  # Rutas de la API REST
+    web/                  # Rutas de la interfaz web
+  services/               # Lógica de negocio y acceso a datos (actor.service.js, etc.)
+  validators/             # Validaciones de dominio (actor.validator.js, insumo.validator.js, etc.)
+  views/                  # Plantillas Pug (actores, insumos, pedidos, productos, reportes, comunes)
 ```
 
 ## Instalación
@@ -91,7 +114,8 @@ SESION_SECRETO=clave_secreta
 CLAVE_ALTA_PLANTA=clave_unica_para_alta_inicial
 ```
 
-`CLAVE_ALTA_PLANTA` habilita la ruta `/alta-planta` para crear el actor inicial tipo `PLANTA` solo si todavía no existe uno registrado.
+- `SESION_SECRETO` — Secreto para firmar las cookies de sesión.
+- `CLAVE_ALTA_PLANTA` — Habilita la ruta `/alta-planta` para crear el actor inicial tipo `PLANTA` solo si todavía no existe uno registrado.
 
 Ejecutar:
 
@@ -113,35 +137,68 @@ http://localhost:3000
 
 ## Rutas principales
 
-Web:
+### Web (vistas Pug)
 
-- `/` login
-- `/alta-planta`
-- `/portada`
-- `/actores`
-- `/productos`
-- `/pedidos`
+| Ruta                    | Descripción                                    |
+|-------------------------|------------------------------------------------|
+| `/`                     | Login                                          |
+| `/alta-planta`          | Registro inicial del actor PLANTA              |
+| `/portada`              | Página principal (post-login)                  |
+| `/actores`              | CRUD de actores (solo PLANTA)                  |
+| `/productos`            | CRUD de productos (solo PLANTA)                |
+| `/insumos`              | CRUD de insumos (solo PLANTA)                  |
+| `/pedidos`              | CRUD de pedidos                                |
+| `/reportes`             | Acceso a reportes (solo PLANTA)                |
+| `/reportes/demanda-consolidada` | Demanda consolidada para producción    |
+| `/reportes/retrasos-entregas`   | Pedidos con retraso en la entrega       |
 
-API:
+### API REST
 
-- `/api/actores`
-- `/api/productos`
-- `/api/pedidos`
+| Método | Ruta                   | Descripción                       |
+|--------|------------------------|-----------------------------------|
+| GET    | `/api/actores`         | Listar actores                    |
+| GET    | `/api/actores/:id`     | Obtener un actor                  |
+| POST   | `/api/actores`         | Crear actor                       |
+| PUT    | `/api/actores/:id`     | Actualizar actor                  |
+| DELETE | `/api/actores/:id`     | Eliminar actor                    |
+| GET    | `/api/productos`       | Listar productos                  |
+| GET    | `/api/productos/:id`   | Obtener un producto               |
+| POST   | `/api/productos`       | Crear producto                    |
+| PUT    | `/api/productos/:id`   | Actualizar producto               |
+| DELETE | `/api/productos/:id`   | Eliminar producto                 |
+| GET    | `/api/pedidos`         | Listar pedidos                    |
+| GET    | `/api/pedidos/:id`     | Obtener un pedido                 |
+| POST   | `/api/pedidos`         | Crear pedido                      |
+| PUT    | `/api/pedidos/:id`     | Actualizar pedido                 |
+| DELETE | `/api/pedidos/:id`     | Eliminar pedido                   |
+| GET    | `/api/insumos`         | Listar insumos                    |
+| GET    | `/api/insumos/:id`     | Obtener un insumo                 |
+| POST   | `/api/insumos`         | Crear insumo                      |
+| PUT    | `/api/insumos/:id`     | Actualizar insumo                 |
+| DELETE | `/api/insumos/:id`     | Eliminar insumo                   |
 
 ## Datos de dominio
 
-Tipos de actor:
+### Tipos de actor
 
 - `PLANTA`
 - `FRANQUICIA`
 - `SUCURSAL`
 
-Estados de pedido:
+### Estados de pedido
 
 - `PENDIENTE`
 - `EN_PRODUCCION`
 - `DESPACHADO`
 - `ENTREGADO`
+
+### Unidades de insumo
+
+- `kg` — kilogramo
+- `g` — gramo
+- `l` — litro
+- `ml` — mililitro
+- `unidades` — unidades
 
 ## Autor
 
