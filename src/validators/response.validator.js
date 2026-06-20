@@ -4,24 +4,23 @@ const errorValidacion = (mensaje, estado = 400) => ({
     estado
 })
 
-const exito = (valor = null) => ({
+const exitoValidacion = (valor = null) => ({
     ok: true,
     mensaje: "",
     estado: 200,
     valor
 })
 
-const respuestaError = (res, resultado) => {
+const respuestaError = (res, resultado, esWeb = false, vistaActual = 'error', datosFormulario = {}) => {
+    if (esWeb) {
+        return res.status(resultado.estado).render(vistaActual, { mensaje: resultado.mensaje, ...datosFormulario })
+    }
+
     return res.status(resultado.estado).json({ error: resultado.mensaje })
 }
 
-const respuestaErrorWeb = (res, vista, resultado, datosFormulario) => {
-    return res.status(resultado.estado).render(vista, { error: resultado.mensaje, ...datosFormulario })
-}
-
-export default {
+export {
     errorValidacion,
-    exito,
-    respuestaError,
-    respuestaErrorWeb
+    exitoValidacion,
+    respuestaError
 }
