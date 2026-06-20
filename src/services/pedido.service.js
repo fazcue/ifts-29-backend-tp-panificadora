@@ -1,6 +1,6 @@
 import Pedido from "../models/Pedido.js"
-import detallePedidoService from "./detallePedidoService.js"
-import productoService from "./productoService.js"
+import detallePedidoService from "./detallePedido.service.js"
+import productoService from "./producto.service.js"
 import { esIdValido } from "../lib/utils.js"
 import { ESTADOS_PEDIDO } from "../lib/estadosPedido.js"
 
@@ -104,7 +104,7 @@ const actualizarPedido = async (id, fechaEntregaEsperada, estado, idActor, produ
 
     const estadoActualizado = estado?.trim()
     const fechaEntregaReal = estadoActualizado === ESTADOS_PEDIDO.ENTREGADO
-        ? pedidoActual.fecha_entrega_real || new Date().toISOString().slice(0, 10)
+        ? pedidoActual.fecha_entrega_real || new Date()
         : null
 
     const datosActualizados = {

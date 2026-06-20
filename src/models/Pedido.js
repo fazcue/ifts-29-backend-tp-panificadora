@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { ESTADOS_PEDIDO } from '../lib/estadosPedido.js'
+import { ESTADOS_PEDIDO, obtenerEstadosPedido } from '../lib/estadosPedido.js'
 
 const pedidoSchema = new mongoose.Schema(
     {
@@ -9,17 +9,17 @@ const pedidoSchema = new mongoose.Schema(
             default: Date.now
 		},
 		fecha_entrega_esperada: {
-			type: String,
+			type: Date,
 			required: [true, 'La fecha de entrega es obligatoria'],
 		},
 		fecha_entrega_real: {
-			type: String,
+			type: Date,
             required: false,
 			default: null,
 		},
 		estado: {
 			type: String,
-            enum: Object.values(ESTADOS_PEDIDO),
+            enum: obtenerEstadosPedido(),
 			required: false,
 			default: ESTADOS_PEDIDO.PENDIENTE,
 		},

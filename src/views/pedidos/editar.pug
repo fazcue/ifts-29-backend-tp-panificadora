@@ -9,19 +9,19 @@ block content
     +cabecera('Editar pedido')
 
     //- Reporte de error
-    +reporteError(error)
+    +reporteError(mensaje)
 
     //- Formulario de edición
     form.panel(action=`/pedidos/editar/${pedido.id}` method='POST')
         
         div.field
             label(for='fecha_entrega_esperada') Fecha de entrega esperada
-            input#fecha_entrega_esperada(type='date' name='fecha_entrega_esperada' value=pedido.fecha_entrega_esperada required)
+            input#fecha_entrega_esperada(type='date' name='fecha_entrega_esperada' value=fmtFecha(pedido.fecha_entrega_esperada) required)
         
         if pedido.fecha_entrega_real
             div.field
                 label Fecha de entrega real
-                p= pedido.fecha_entrega_real
+                p= fmtFecha(pedido.fecha_entrega_real)
         
         if esPlanta
             div.field

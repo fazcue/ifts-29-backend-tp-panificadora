@@ -1,24 +1,23 @@
-import productoService from "../../services/productoService.js"
-import { responderErrorWeb } from "../../lib/errorResponses.js"
+import productoService from "../../services/producto.service.js"
 
 const listarProductosWeb = async (req, res) => {
     try {
         const productos = await productoService.obtenerProductos()
-        const titulo = "Listado de productos"
+        const titulo = 'Listado de productos'
 
-        res.render("productos/listado", { productos, titulo })
+        res.render('productos/listado', { productos, titulo })
     } catch (error) {
-        responderErrorWeb(res, error, "Error al cargar listado de productos")
+		res.status(500).render('error', { mensaje: 'Error al cargar listado de productos' })
     }
 }
 
 const formularioNuevoProductoWeb = async (req, res) => {
     try {
-        const titulo = "Alta de nuevo producto"
+        const titulo = 'Alta de nuevo producto'
 
-        res.render("productos/nuevo", { titulo })
+        res.render('productos/nuevo', { titulo })
     } catch (error) {
-        responderErrorWeb(res, error, "Error al cargar formulario nuevo producto")
+        res.status(500).render('error', { mensaje: 'Error al cargar formulario nuevo producto' })
     }
 }
 
@@ -28,9 +27,9 @@ const crearProductoWeb = async (req, res) => {
 
         await productoService.crearProducto(nombre, precio)
 
-        res.redirect("/productos")
+        res.redirect('/productos')
     } catch (error) {
-        responderErrorWeb(res, error, "Error al crear producto")
+        res.status(500).render('error', { mensaje: 'Error al crear producto' })
     }
 }
 
@@ -40,14 +39,14 @@ const formularioEditarProductoWeb = async (req, res) => {
         const producto = await productoService.buscarProductoPorId(id)
 
         if (!producto) {
-            return res.status(404).render("error", { mensaje: "Producto no encontrado" })
+            return res.status(404).render('error', { mensaje: 'Producto no encontrado' })
         }
 
-        const titulo = `Editar producto "${producto.nombre}"`
+        const titulo = `Editar producto '${producto.nombre}'`
 
-        res.render("productos/editar", { producto, titulo })
+        res.render('productos/editar', { producto, titulo })
     } catch (error) {
-        responderErrorWeb(res, error, "Error al cargar formulario editar producto")
+        res.status(500).render('error', { mensaje: 'Error al cargar formulario editar producto' })
     }
 }
 
@@ -59,12 +58,12 @@ const actualizarProductoWeb = async (req, res) => {
         const producto = await productoService.actualizarProducto(id, nombre, precio)
 
         if (!producto) {
-            return res.status(404).render("error", { mensaje: "Producto no encontrado" })
+            return res.status(404).render('error', { mensaje: 'Producto no encontrado' })
         }
 
-        res.redirect("/productos")
+        res.redirect('/productos')
     } catch (error) {
-        responderErrorWeb(res, error, "Error al actualizar producto")
+        res.status(500).render('error', { mensaje: 'Error al actualizar producto' })
     }
 }
 
@@ -75,12 +74,12 @@ const cambiarEstadoProductoWeb = async (req, res) => {
         const producto = await productoService.cambiarEstadoProducto(id)
 
         if (!producto) {
-            return res.status(404).render("error", { mensaje: "Producto no encontrado" })
+            return res.status(404).render('error', { mensaje: 'Producto no encontrado' })
         }
 
-        res.redirect("/productos")
+        res.redirect('/productos')
     } catch (error) {
-        responderErrorWeb(res, error, "Error al cambiar estado")
+        res.status(500).render('error', { mensaje: 'Error al cambiar estado' })
     }
 }
 
@@ -91,12 +90,12 @@ const eliminarProductoWeb = async (req, res) => {
         const producto = await productoService.eliminarProducto(id)
 
         if (!producto) {
-            return res.status(404).render("error", { mensaje: "Producto no encontrado" })
+            return res.status(404).render('error', { mensaje: 'Producto no encontrado' })
         }
 
-        res.redirect("/productos")
+        res.redirect('/productos')
     } catch (error) {
-        responderErrorWeb(res, error, "Error al eliminar producto")
+        res.status(500).render('error', { mensaje: 'Error al eliminar producto' })
     }
 }
 

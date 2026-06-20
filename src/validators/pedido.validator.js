@@ -1,14 +1,14 @@
-import { fechaValida } from "../lib/utils.js"
-import actorService from "../services/actorService.js"
-import pedidoService from "../services/pedidoService.js"
-import productoService from "../services/productoService.js"
-import responseValidator from "./response.validator.js"
-import { obtenerEstadosPedido } from "../lib/estadosPedido.js"
+import { fechaValida } from '../lib/utils.js'
+import actorService from '../services/actor.service.js'
+import pedidoService from '../services/pedido.service.js'
+import productoService from '../services/producto.service.js'
+import { errorValidacion, exitoValidacion } from './response.validator.js'
+import { obtenerEstadosPedido } from '../lib/estadosPedido.js'
 
 const validarFechaEntregaEsperada = (fecha) => {
     // tipo inválido
-    if (typeof fecha !== "string") {
-        return responseValidator.errorValidacion("La fecha de entrega esperada debe ser texto")
+    if (typeof fecha !== 'string') {
+        return errorValidacion('La fecha de entrega esperada debe ser texto')
     }
 
     // normalizar
@@ -16,63 +16,63 @@ const validarFechaEntregaEsperada = (fecha) => {
 
     // dato faltante
     if (!fechaLimpia) {
-        return responseValidator.errorValidacion("La fecha de entrega esperada es obligatoria")
+        return errorValidacion('La fecha de entrega esperada es obligatoria')
     }
 
     // formato inválido
     if (!fechaValida(fechaLimpia)) {
-        return responseValidator.errorValidacion("Fecha de entrega esperada inválida")
+        return errorValidacion('Fecha de entrega esperada inválida')
     }
 
-    return responseValidator.exito(fechaLimpia)
+    return exitoValidacion(fechaLimpia)
 }
 
 const validarActor = async (id, validarActivo = true) => {
     // dato faltante
-    if (id === undefined || id === null || id === "") {
-        return responseValidator.errorValidacion("El actor es obligatorio")
+    if (id === undefined || id === null || id === '') {
+        return errorValidacion('El actor es obligatorio')
     }
 
     const actor = await actorService.buscarActorPorId(id)
 
     // inexistente
     if (!actor) {
-        return responseValidator.errorValidacion("Actor inexistente")
+        return errorValidacion('Actor inexistente')
     }
 
     // inactivo
     if (validarActivo && !actor.activo) {
-        return responseValidator.errorValidacion("El actor debe estar activo para realizar pedidos")
+        return errorValidacion('El actor debe estar activo para realizar pedidos')
     }
 
-    return responseValidator.exito(actor)
+    return exitoValidacion(actor)
 }
 
 const validarFechaEntregaReal = (fecha) => {
-    // dato faltante (exitoso al crear pedido)
-    if (fecha === undefined || fecha === null || fecha === "") {
-        return responseValidator.exito()
+    // dato faltante (exitoValidacionso al crear pedido)
+    if (fecha === undefined || fecha === null || fecha === '') {
+        return exitoValidacion()
     }
 
     // tipo inv{alido}
-    if (typeof fecha !== "string") {
-        return responseValidator.errorValidacion("La fecha de entrega real debe ser texto")
+    if (typeof fecha !== 'string') {
+        return errorValidacion('La fecha de entrega real debe ser texto')
     }
 
     // normalizar
     const fechaLimpia = fecha.trim()
 
-    // dato faltante (exitoso al crear pedido)
+    // dato faltante (exitoValidacionso al crear pedido)
     if (!fechaLimpia) {
-        return responseValidator.exito(null)
+        return exitoValidacion(null)
     }
 
     // formato inválido
     if (!fechaValida(fechaLimpia)) {
-        return responseValidator.errorValidacion("Fecha de entrega real inválida")
+        return errorValidacion('Fecha de entrega real inválida')
     }
 
-    return responseValidator.exito(fechaLimpia)
+    return exitoValidacion(fechaLimpia)
 }
 
 const validarPedido = async (id, incluirDetalles = false) => {
@@ -82,21 +82,21 @@ const validarPedido = async (id, incluirDetalles = false) => {
 
     // inexistente
     if (!pedido) {
-        return responseValidator.errorValidacion("Pedido no encontrado", 404)
+        return errorValidacion('Pedido no encontrado', 404)
     }
 
-    return responseValidator.exito(pedido)
+    return exitoValidacion(pedido)
 }
 
 const validarEstado = async (estado) => {
     // dato faltante
-    if (estado === undefined || estado === null || estado === "") {
-        return responseValidator.errorValidacion("El estado es obligatorio")
+    if (estado === undefined || estado === null || estado === '') {
+        return errorValidacion('El estado es obligatorio')
     }
 
     // tipo inválido
-    if (typeof estado !== "string") {
-        return responseValidator.errorValidacion("El estado debe ser texto")
+    if (typeof estado !== 'string') {
+        return errorValidacion('El estado debe ser texto')
     }
 
     // normalizar
@@ -104,17 +104,17 @@ const validarEstado = async (estado) => {
 
     // dato faltante
     if (!estadoLimpio) {
-        return responseValidator.errorValidacion("El estado es obligatorio")
+        return errorValidacion('El estado es obligatorio')
     }
 
     const estados = obtenerEstadosPedido()
 
     // inválido
     if (!estados.includes(estadoLimpio)) {
-        return responseValidator.errorValidacion(`Estado inválido. Opciones: ${estados.join(", ")}`)
+        return errorValidacion(`Estado inválido. Opciones: ${estados.join(', ')}`)
     }
 
-    return responseValidator.exito(estadoLimpio)
+    return exitoValidacion(estadoLimpio)
 }
 
 const obtenerPrecioUnitario = (productosExistentes = [], idProducto, precioProducto) => {
@@ -126,20 +126,20 @@ const obtenerPrecioUnitario = (productosExistentes = [], idProducto, precioProdu
 const validarProductos = async (productos, productosExistentes = []) => {
     // tipo inválido
     if (!Array.isArray(productos)) {
-        return responseValidator.errorValidacion("Se debe añadir al menos un producto")
+        return errorValidacion('Se debe añadir al menos un producto')
     }
 
     // normalizar: solo se procesan productos con cantidad indicada
     const productosSeleccionados = productos.filter(producto => {
         const cantidad = producto?.cantidad
-        const cantidadTexto = String(cantidad ?? "").trim()
+        const cantidadTexto = String(cantidad ?? '').trim()
 
-        return cantidadTexto !== "" && Number(cantidadTexto) !== 0
+        return cantidadTexto !== '' && Number(cantidadTexto) !== 0
     })
 
     // Al menos un producto seleccionado
     if (productosSeleccionados.length === 0) {
-        return responseValidator.errorValidacion("Se debe añadir al menos un producto")
+        return errorValidacion('Se debe añadir al menos un producto')
     }
 
     // validación individual de productos
@@ -152,41 +152,41 @@ const validarProductos = async (productos, productosExistentes = []) => {
 
         // producto obligatorio
         if (!idProducto) {
-            return responseValidator.errorValidacion("El id del producto es obligatorio")
+            return errorValidacion('El id del producto es obligatorio')
         }
 
         // producto duplicado
         if (idsProductos.has(idProducto)) {
-            return responseValidator.errorValidacion("No se puede repetir el mismo producto en un pedido")
+            return errorValidacion('No se puede repetir el mismo producto en un pedido')
         }
 
         idsProductos.add(idProducto)
 
         // cantidad inválida
         if (Number.isNaN(cantidad)) {
-            return responseValidator.errorValidacion("La cantidad debe ser numérica")
+            return errorValidacion('La cantidad debe ser numérica')
         }
 
         if (!Number.isInteger(cantidad)) {
-            return responseValidator.errorValidacion("La cantidad debe ser un numero entero")
+            return errorValidacion('La cantidad debe ser un numero entero')
         }
 
         if (cantidad <= 0) {
-            return responseValidator.errorValidacion("La cantidad debe ser mayor a cero")
+            return errorValidacion('La cantidad debe ser mayor a cero')
         }
 
         const producto = await productoService.buscarProductoPorId(idProducto)
 
         // producto inexistente
         if (!producto) {
-            return responseValidator.errorValidacion(`Producto con id ${idProducto} inexistente`)
+            return errorValidacion(`Producto con id ${idProducto} inexistente`)
         }
 
         const productoExistente = productosExistentes.some((item) => String(item.id_producto) === String(producto.id))
 
         // producto inactivo
         if (!producto.activo && !productoExistente) {
-            return responseValidator.errorValidacion(`Producto "${producto.nombre}" inactivo`)
+            return errorValidacion(`Producto "${producto.nombre}" inactivo`)
         }
 
         productosNormalizados.push({
@@ -196,7 +196,7 @@ const validarProductos = async (productos, productosExistentes = []) => {
         })
     }
 
-    return responseValidator.exito(productosNormalizados)
+    return exitoValidacion(productosNormalizados)
 }
 
 export default {

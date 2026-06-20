@@ -1,5 +1,5 @@
-import reporteService from "../../services/reporteService.js"
-import { responderErrorWeb } from "../../lib/errorResponses.js"
+import reporteService from "../../services/reporte.service.js"
+import { fmtFecha } from "../../lib/utils.js"
 
 const listarAccesosReportes = async (req, res) => {
     try {
@@ -7,7 +7,7 @@ const listarAccesosReportes = async (req, res) => {
 
         res.render("reportes/accesos", { titulo })
     } catch (error) {
-        responderErrorWeb(res, error, "Error al cargar accesos de reportes")
+        res.status(500).render('error', { mensaje: 'Error al cargar accesos de reportes' })
     }
 }
 
@@ -18,7 +18,7 @@ const listarDemandaProduccionWeb = async (req, res) => {
 
         res.render("reportes/demandaConsolidada", { demanda, titulo })
     } catch (error) {
-        responderErrorWeb(res, error, "Error al obtener demanda de producción")
+        res.status(500).render('error', { mensaje: 'Error al obtener demanda de producción' })
     }
 }
 
@@ -27,9 +27,9 @@ const listarRetrasosEntregasWeb = async (req, res) => {
         const pedidos = await reporteService.obtenerRetrasosEntregas()
         const titulo = "Retrasos en entregas"
 
-        res.render("reportes/retrasosEntregas", { pedidos, titulo })
+        res.render("reportes/retrasosEntregas", { pedidos, titulo, fmtFecha })
     } catch (error) {
-        responderErrorWeb(res, error, "Error al obtener retrasos en entregas")
+        res.status(500).render('error', { mensaje: 'Error al obtener retrasos en entregas' })
     }
 }
 

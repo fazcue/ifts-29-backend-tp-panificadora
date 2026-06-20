@@ -11,7 +11,7 @@ block content
     p Por favor, logueate para ingresar al sistema
 
     //- Reporte de error
-    +reporteError(error)
+    +reporteError(mensaje)
 
     //- Formulario de login
     form.panel(action='/' method='POST')
@@ -26,5 +26,3 @@ block content
 
         div.actions
             button.btn(type='submit') Ingresar
-            if mostrarAltaPlanta
-                a.btn.btn-secondary(href='/alta-planta') Alta planta

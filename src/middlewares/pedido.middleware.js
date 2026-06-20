@@ -1,14 +1,14 @@
-import responseValidator from "../../validators/response.validator.js"
-import pedidoService from "../../services/pedidoService.js"
-import actorService from "../../services/actorService.js"
-import pedidoValidator from "../../validators/pedido.validator.js"
-import productoService from "../../services/productoService.js"
-import { esPlanta } from "../../lib/tiposActor.js"
-import { obtenerEstadosPedido } from "../../lib/estadosPedido.js"
+import pedidoService from '../services/pedido.service.js'
+import actorService from '../services/actor.service.js'
+import pedidoValidator from '../validators/pedido.validator.js'
+import productoService from '../services/producto.service.js'
+import { esPlanta } from '../lib/tiposActor.js'
+import { obtenerEstadosPedido } from '../lib/estadosPedido.js'
+import { respuestaError } from '../validators/response.validator.js'
+import { fmtFecha } from '../lib/utils.js'
 
-// vistas
-const VISTA_CREAR_PEDIDO = 'pedidos/nuevo'
-const VISTA_ACTUALIZAR_PEDIDO = 'pedidos/editar'
+const VISTA_CREAR = 'pedidos/nuevo'
+const VISTA_ACTUALIZAR = 'pedidos/editar'
 
 const agregarCantidadesFormulario = (productosActivos, productosFormulario = []) => {
     return productosActivos.map((producto) => {
@@ -17,7 +17,7 @@ const agregarCantidadesFormulario = (productosActivos, productosFormulario = [])
         return {
             ...producto.toObject(),
             id: producto.id,
-            cantidad_pedida: productoFormulario?.cantidad || ""
+            cantidad_pedida: productoFormulario?.cantidad || '',
         }
     })
 }
@@ -27,34 +27,32 @@ const productosExistentesPedido = (pedido) => {
         .filter((detalle) => detalle.producto)
         .map((detalle) => ({
             id_producto: detalle.producto._id || detalle.producto,
-            precio_unitario: detalle.precio_unitario
+            precio_unitario: detalle.precio_unitario,
         }))
 }
 
-// datos de formulario al crear nuevo pedido
 const datosFormularioCrear = async (fecha_entrega_esperada, id_actor) => {
-    const [ actoresActivos, productosActivos ] = await Promise.all([
+    const [actoresActivos, productosActivos] = await Promise.all([
         actorService.obtenerActoresActivos(),
-        productoService.obtenerProductosActivos()
+        productoService.obtenerProductosActivos(),
     ])
 
     return {
         pedido: {
             fecha_entrega_esperada,
-            actor: id_actor
+            actor: id_actor,
         },
         actores: actoresActivos,
-        productos: productosActivos
+        productos: productosActivos,
     }
 }
 
-// datos de formulario al actualizar nuevo pedido
 const datosFormularioActualizar = async (id, fecha_entrega_esperada, estado, id_actor, productos = []) => {
     const [actoresActivos, productosActivos, estados, pedidoActual] = await Promise.all([
         actorService.obtenerActoresActivos(),
         productoService.obtenerProductosActivos(),
         obtenerEstadosPedido(),
-        pedidoService.buscarPedidoPorId(id)
+        pedidoService.buscarPedidoPorId(id),
     ])
 
     return {
@@ -63,27 +61,34 @@ const datosFormularioActualizar = async (id, fecha_entrega_esperada, estado, id_
             fecha_entrega_esperada,
             fecha_entrega_real: pedidoActual?.fecha_entrega_real,
             estado,
-            actor: id_actor
+            actor: id_actor,
         },
         actores: actoresActivos,
         estados,
-        productos: agregarCantidadesFormulario(productosActivos, productos)
+        productos: agregarCantidadesFormulario(productosActivos, productos),
+        fmtFecha
     }
 }
 
-const validarCrearPedidoWeb = async (req, res, next) => {
+const validarCrearPedidoBase = async (req, res, next, opciones) => {
+    const esWeb = opciones.esWeb
+
     try {
         const { fecha_entrega_esperada, productos } = req.body
         let id_actor = req.body.id_actor
 
-        // datos formulario (necesario para el render)
-        const datosFormulario = await datosFormularioCrear(fecha_entrega_esperada, id_actor)
+        // Preparar datos del formulario (solo web)
+        let datosFormulario = {}
+
+        if (esWeb) {
+            datosFormulario = await datosFormularioCrear(fecha_entrega_esperada, id_actor)
+        }
 
         // fecha entrega esperada
         const resultadoFechaEsperada = pedidoValidator.validarFechaEntregaEsperada(fecha_entrega_esperada)
 
         if (!resultadoFechaEsperada.ok) {
-            return responseValidator.respuestaErrorWeb(res, VISTA_CREAR_PEDIDO, resultadoFechaEsperada, datosFormulario)
+            return respuestaError(res, resultadoFechaEsperada, esWeb, VISTA_CREAR, datosFormulario)
         }
 
         // id actor (si no es PLANTA, debe ser igual a user.id)
@@ -95,40 +100,47 @@ const validarCrearPedidoWeb = async (req, res, next) => {
         const resultadoActor = await pedidoValidator.validarActor(id_actor)
 
         if (!resultadoActor.ok) {
-            return responseValidator.respuestaErrorWeb(res, VISTA_CREAR_PEDIDO, resultadoActor, datosFormulario)
+            return respuestaError(res, resultadoActor, esWeb, VISTA_CREAR, datosFormulario)
         }
 
         // productos
         const resultadoProductos = await pedidoValidator.validarProductos(productos)
 
         if (!resultadoProductos.ok) {
-            return responseValidator.respuestaErrorWeb(res, VISTA_CREAR_PEDIDO, resultadoProductos, datosFormulario)
+            return respuestaError(res, resultadoProductos, esWeb, VISTA_CREAR, datosFormulario)
         }
 
-        // entrega de datos normalizados
+        // datos normalizados
         req.body.fecha_entrega_esperada = resultadoFechaEsperada.valor
         req.body.id_actor = resultadoActor.valor.id
         req.body.productos = resultadoProductos.valor
 
         next()
     } catch (err) {
-        return res.status(500).render('error', { mensaje: "Error validando pedido" })
+        const resultado = { estado: 500, mensaje: 'Error validando pedido' }
+        return respuestaError(res, resultado, esWeb)
     }
 }
 
-const validarActualizarPedidoWeb = async (req, res, next) => {
+const validarActualizarPedidoBase = async (req, res, next, opciones) => {
+    const esWeb = opciones.esWeb
+
     try {
         let { fecha_entrega_esperada, estado, id_actor, productos } = req.body
         const { id } = req.params
 
-        // datos formulario (necesario para el render)
-        const datosFormulario = await datosFormularioActualizar(id, fecha_entrega_esperada, estado, id_actor, productos)
+        // Preparar datos del formulario (solo web)
+        let datosFormulario = {}
+
+        if (esWeb) {
+            datosFormulario = await datosFormularioActualizar(id, fecha_entrega_esperada, estado, id_actor, productos)
+        }
 
         // pedido
         const resultadoPedido = await pedidoValidator.validarPedido(id, true)
 
         if (!resultadoPedido.ok) {
-            return responseValidator.respuestaErrorWeb(res, VISTA_ACTUALIZAR_PEDIDO, resultadoPedido, datosFormulario)
+            return respuestaError(res, resultadoPedido, esWeb, VISTA_ACTUALIZAR, datosFormulario)
         }
 
         // si no es planta, mantener valores de atributos no editables
@@ -141,33 +153,37 @@ const validarActualizarPedidoWeb = async (req, res, next) => {
         const resultadoFechaEsperada = pedidoValidator.validarFechaEntregaEsperada(fecha_entrega_esperada)
 
         if (!resultadoFechaEsperada.ok) {
-            return responseValidator.respuestaErrorWeb(res, VISTA_ACTUALIZAR_PEDIDO, resultadoFechaEsperada, datosFormulario)
+            return respuestaError(res, resultadoFechaEsperada, esWeb, VISTA_ACTUALIZAR, datosFormulario)
         }
 
         // actor
         const idActorPedido = resultadoPedido.valor.actor?._id || resultadoPedido.valor.actor
         const validarActivo = idActorPedido?.toString() !== id_actor
+
         const resultadoActor = await pedidoValidator.validarActor(id_actor, validarActivo)
 
         if (!resultadoActor.ok) {
-            return responseValidator.respuestaErrorWeb(res, VISTA_ACTUALIZAR_PEDIDO, resultadoActor, datosFormulario)
+            return respuestaError(res, resultadoActor, esWeb, VISTA_ACTUALIZAR, datosFormulario)
         }
 
         // estado
         const resultadoEstado = await pedidoValidator.validarEstado(estado)
 
         if (!resultadoEstado.ok) {
-            return responseValidator.respuestaErrorWeb(res, VISTA_ACTUALIZAR_PEDIDO, resultadoEstado, datosFormulario)
+            return respuestaError(res, resultadoEstado, esWeb, VISTA_ACTUALIZAR, datosFormulario)
         }
 
         // productos
-        const resultadoProductos = await pedidoValidator.validarProductos(productos, productosExistentesPedido(resultadoPedido.valor))
+        const resultadoProductos = await pedidoValidator.validarProductos(
+            productos,
+            productosExistentesPedido(resultadoPedido.valor),
+        )
 
         if (!resultadoProductos.ok) {
-            return responseValidator.respuestaErrorWeb(res, VISTA_ACTUALIZAR_PEDIDO, resultadoProductos, datosFormulario)
+            return respuestaError(res, resultadoProductos, esWeb, VISTA_ACTUALIZAR, datosFormulario)
         }
 
-        // entrega de datos normalizados
+        // datos normalizados
         req.body.fecha_entrega_esperada = resultadoFechaEsperada.valor
         delete req.body.fecha_entrega_real
         req.body.estado = resultadoEstado.valor
@@ -175,9 +191,31 @@ const validarActualizarPedidoWeb = async (req, res, next) => {
         req.body.productos = resultadoProductos.valor
 
         next()
-    } catch (error) {
-        res.status(500).render("error", { mensaje: "Error validando pedido" })
+    } catch (err) {
+        const resultado = { estado: 500, mensaje: 'Error validando pedido' }
+        return respuestaError(res, resultado, esWeb)
     }
 }
 
-export { validarCrearPedidoWeb, validarActualizarPedidoWeb }
+const validarCrearPedidoApi = (req, res, next) => {
+    return validarCrearPedidoBase(req, res, next, { esWeb: false })
+}
+
+const validarActualizarPedidoApi = (req, res, next) => {
+    return validarActualizarPedidoBase(req, res, next, { esWeb: false })
+}
+
+const validarCrearPedidoWeb = (req, res, next) => {
+    return validarCrearPedidoBase(req, res, next, { esWeb: true })
+}
+
+const validarActualizarPedidoWeb = (req, res, next) => {
+    return validarActualizarPedidoBase(req, res, next, { esWeb: true })
+}
+
+export {
+    validarCrearPedidoApi,
+    validarActualizarPedidoApi,
+    validarCrearPedidoWeb,
+    validarActualizarPedidoWeb,
+}
