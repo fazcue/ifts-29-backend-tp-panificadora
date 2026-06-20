@@ -6,7 +6,7 @@ const listarInsumos = async (req, res) => {
 
         res.status(200).json(insumos)
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al listar insumos' })
+        res.status(500).json({ error: 'Error al listar insumos' })
     }
 }
 
@@ -21,7 +21,7 @@ const listarInsumo = async (req, res) => {
 
         res.status(200).json(insumo)
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al listar insumo' })
+        res.status(500).json({ error: 'Error al listar insumo' })
     }
 }
 
@@ -33,7 +33,7 @@ const crearInsumo = async (req, res) => {
 
         res.status(201).json(nuevo)
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al crear insumo' })
+        res.status(500).json({ error: 'Error al crear insumo' })
     }
 }
 
@@ -50,7 +50,7 @@ const actualizarInsumo = async (req, res) => {
 
         res.status(200).json(insumo)
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al actualizar insumo' })
+        res.status(500).json({ error: 'Error al actualizar insumo' })
     }
 }
 
@@ -66,7 +66,7 @@ const eliminarInsumo = async (req, res) => {
 
         res.status(200).json(insumo)
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al eliminar insumo' })
+        res.status(500).json({ error: 'Error al eliminar insumo' })
     }
 }
 

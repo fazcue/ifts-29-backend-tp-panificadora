@@ -9,7 +9,7 @@ const listarPedidos = async (req, res) => {
 
         res.status(200).json(pedidos)
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al listar pedidos' })
+        res.status(500).json({ error: 'Error al listar pedidos' })
     }
 }
 
@@ -24,7 +24,7 @@ const listarPedido = async (req, res) => {
 
         res.status(200).json(pedido)
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al listar pedido' })
+        res.status(500).json({ error: 'Error al listar pedido' })
     }
 }
 
@@ -36,7 +36,7 @@ const crearPedido = async (req, res) => {
 
         res.status(201).json(nuevo)
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al crear pedido' })
+        res.status(500).json({ error: 'Error al crear pedido' })
     }
 }
 
@@ -53,7 +53,7 @@ const actualizarPedido = async (req, res) => {
 
         res.status(200).json(pedido)
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al actualizar pedido' })
+        res.status(500).json({ error: 'Error al actualizar pedido' })
     }
 }
 
@@ -69,7 +69,7 @@ const eliminarPedido = async (req, res) => {
 
         res.status(200).json(pedido)
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al eliminar pedido' })
+        res.status(500).json({ error: 'Error al eliminar pedido' })
     }
 }
 

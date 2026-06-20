@@ -6,7 +6,7 @@ const listarProductos = async (req, res) => {
 
         res.status(200).json(productos)
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al listar productos' })
+        res.status(500).json({ error: 'Error al listar productos' })
     }
 }
 
@@ -21,7 +21,7 @@ const listarProducto = async (req, res) => {
 
         res.status(200).json(producto)
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al listar producto' })
+        res.status(500).json({ error: 'Error al listar producto' })
     }
 }
 
@@ -33,7 +33,7 @@ const crearProducto = async (req, res) => {
 
         res.status(201).json(nuevo)
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al crear producto' })
+        res.status(500).json({ error: 'Error al crear producto' })
     }
 }
 
@@ -50,7 +50,7 @@ const actualizarProducto = async (req, res) => {
 
         res.status(200).json(producto)
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al actualizar producto' })
+        res.status(500).json({ error: 'Error al actualizar producto' })
     }
 }
 
@@ -66,7 +66,7 @@ const eliminarProducto = async (req, res) => {
 
         res.status(200).json(producto)
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al eliminar producto' })
+        res.status(500).json({ error: 'Error al eliminar producto' })
     }
 }
 

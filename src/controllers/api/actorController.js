@@ -6,7 +6,7 @@ const listarActores = async (req, res) => {
 
         res.status(200).json(actores)
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al listar actores' })
+        res.status(500).json({ error: 'Error al listar actores' })
     }
 }
 
@@ -22,7 +22,7 @@ const listarActor = async (req, res) => {
 
         res.status(200).json(actor)
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al listar actor' })
+        res.status(500).json({ error: 'Error al listar actor' })
     }
 }
 
@@ -34,7 +34,7 @@ const crearActor = async (req, res) => {
 
         res.status(201).json(nuevo)
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al crear actor' })
+        res.status(500).json({ error: 'Error al crear actor' })
     }
 }
 
@@ -51,7 +51,7 @@ const actualizarActor = async (req, res) => {
         
         res.status(200).json(actor)
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al actualizar actor' })
+        res.status(500).json({ error: 'Error al actualizar actor' })
     }
 }
 
@@ -67,7 +67,7 @@ const eliminarActor = async (req, res) => {
         
         res.status(200).json(actor)
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al eliminar actor' })
+        res.status(500).json({ error: 'Error al eliminar actor' })
     }
 }
 

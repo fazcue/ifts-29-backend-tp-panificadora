@@ -71,7 +71,7 @@ const ingresar = async (req, res) => {
 		const actor = await actorService.buscarActorPorEmail(email)
 
 		if (!actor || !actor.password || !bcryptjs.compareSync(password, actor.password)) {
-            return res.render('login', { error: 'Email o contraseña incorrectos' })
+            return res.render('login', { mensaje: 'Email o contraseña incorrectos' })
 		}
 
 		// sesion
@@ -85,13 +85,13 @@ const ingresar = async (req, res) => {
 
         req.session.save(async (error) => {
             if (error) {
-                return res.render('login', { error: 'Ocurrió un error interno en el servidor' })
+                return res.render('login', { mensaje: 'Ocurrió un error interno en el servidor' })
             }
 
             res.redirect('/portada')
         })
 	} catch (error) {
-        return res.render('login', { error: 'Ocurrió un error interno en el servidor' })
+        return res.render('login', { mensaje: 'Ocurrió un error interno en el servidor' })
 	}
 }
 
