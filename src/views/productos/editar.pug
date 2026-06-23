@@ -20,6 +20,33 @@ block content
             label(for='precio') Precio
             input#precio(type='number' name='precio' min='0.01' step='0.01' value=producto.precio required)
         
+        div.field
+            label Insumos (receta)
+            if insumos && insumos.length > 0
+                ul.list
+                    each insumo, index in insumos
+                        li.item(data-insumo-row)
+                            div.info
+                                h3= insumo.nombre
+                                p= `Unidad: ${insumo.unidad} | Balance: ${insumo.balance}`
+                            div.actions
+                                input(
+                                    type='hidden'
+                                    name=`insumos[${index}][id_insumo]`
+                                    value=insumo.id
+                                )
+                                label(for=`insumo_${insumo.id}`) Cantidad necesaria
+                                input(
+                                    id=`insumo_${insumo.id}`
+                                    type='number'
+                                    name=`insumos[${index}][cantidad_necesaria]`
+                                    min='0'
+                                    step='0.001'
+                                    value=insumo.cantidad_necesaria || ''
+                                )
+            else
+                p.empty Sin insumos activos registrados
+        
         div.actions
             button.btn(type='submit') Guardar
             a.btn.btn-secondary(href='/productos') Cancelar

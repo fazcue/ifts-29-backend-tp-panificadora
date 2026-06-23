@@ -1,6 +1,7 @@
-import Producto from "../models/Producto.js"
-import { esIdValido } from "../lib/utils.js"
-import DetallePedido from "../models/DetallePedido.js"
+import Producto from '../models/Producto.js'
+import { esIdValido } from '../lib/utils.js'
+import DetallePedido from '../models/DetallePedido.js'
+import recetaService from './receta.service.js'
 
 const obtenerProductos = async () => {
     return await Producto.find()
@@ -18,20 +19,43 @@ const obtenerProductosActivos = async () => {
     return await Producto.find({ activo: true })
 }
 
-const crearProducto = async (nombre, precio, activo = false) => {
-    const nuevo = new Producto({
-        nombre: nombre.trim(),
-        precio,
-        activo,
-    })
+const crearProducto = async (nombre, precio, activo = false, insumos = []) => {
+    let nuevo = null
 
-    await nuevo.save()
+    try {
+        nuevo = new Producto({
+            nombre: nombre.trim(),
+            precio,
+            activo,
+        })
 
-    return nuevo
+        await nuevo.save()
+
+        // crear receta (insumos)
+        if (insumos.length > 0) {
+            await recetaService.crearReceta(nuevo.id, insumos)
+        }
+
+        return nuevo
+    } catch (error) {
+        // si falla la creación de la receta, eliminar datos huérfanos
+        if (nuevo?.id) {
+            await recetaService.eliminarRecetasPorProducto(nuevo.id)
+            await Producto.findByIdAndDelete(nuevo.id)
+        }
+
+        throw error
+    }
 }
 
-const actualizarProducto = async (id, nombre, precio, activo) => {
+const actualizarProducto = async (id, nombre, precio, activo, insumos = null) => {
     if (!esIdValido(id)) {
+        return null
+    }
+
+    const productoActual = await Producto.findById(id)
+
+    if (!productoActual) {
         return null
     }
 
@@ -44,11 +68,25 @@ const actualizarProducto = async (id, nombre, precio, activo) => {
         datosActualizados.activo = activo
     }
 
-    return await Producto.findByIdAndUpdate(
+    const producto = await Producto.findByIdAndUpdate(
         id,
         datosActualizados,
         { returnDocument: 'after', runValidators: true }
     )
+
+    if (!producto) {
+        return null
+    }
+
+    // actualizar receta si se enviaron insumos
+    if (insumos) {
+        await recetaService.eliminarRecetasPorProducto(id)
+        if (insumos.length > 0) {
+            await recetaService.crearReceta(id, insumos)
+        }
+    }
+
+    return producto
 }
 
 const cambiarEstadoProducto = async (id) => {
@@ -78,11 +116,14 @@ const eliminarProducto = async (id) => {
     const usadoEnPedido = await DetallePedido.exists({ producto: id })
 
     if (usadoEnPedido) {
-        const error = new Error("No se puede eliminar un producto asociado a pedidos")
+        const error = new Error('No se puede eliminar un producto asociado a pedidos')
         error.estado = 409
 
         throw error
     }
+
+    // eliminar receta asociada
+    await recetaService.eliminarRecetasPorProducto(id)
 
     return await Producto.findByIdAndDelete(id)
 }
