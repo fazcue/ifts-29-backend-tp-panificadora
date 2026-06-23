@@ -4,22 +4,17 @@ import pedidoService from '../services/pedido.service.js'
 import productoService from '../services/producto.service.js'
 import { errorValidacion, exitoValidacion } from './response.validator.js'
 import { obtenerEstadosPedido } from '../lib/estadosPedido.js'
+import { validarTextoObligatorio } from './common.validator.js'
 
 const validarFechaEntregaEsperada = (fecha) => {
-    // tipo inválido
-    if (typeof fecha !== 'string') {
-        return errorValidacion('La fecha de entrega esperada debe ser texto')
+    const resultado = validarTextoObligatorio(fecha, 'fecha de entrega esperada')
+
+    if (!resultado.ok) {
+        return resultado
     }
 
-    // normalizar
-    const fechaLimpia = fecha.trim()
+    const fechaLimpia = resultado.valor
 
-    // dato faltante
-    if (!fechaLimpia) {
-        return errorValidacion('La fecha de entrega esperada es obligatoria')
-    }
-
-    // formato inválido
     if (!fechaValida(fechaLimpia)) {
         return errorValidacion('Fecha de entrega esperada inválida')
     }
@@ -89,27 +84,15 @@ const validarPedido = async (id, incluirDetalles = false) => {
 }
 
 const validarEstado = async (estado) => {
-    // dato faltante
-    if (estado === undefined || estado === null || estado === '') {
-        return errorValidacion('El estado es obligatorio')
+    const resultado = validarTextoObligatorio(estado, 'estado')
+
+    if (!resultado.ok) {
+        return resultado
     }
 
-    // tipo inválido
-    if (typeof estado !== 'string') {
-        return errorValidacion('El estado debe ser texto')
-    }
-
-    // normalizar
-    const estadoLimpio = estado.trim()
-
-    // dato faltante
-    if (!estadoLimpio) {
-        return errorValidacion('El estado es obligatorio')
-    }
-
+    const estadoLimpio = resultado.valor
     const estados = obtenerEstadosPedido()
 
-    // inválido
     if (!estados.includes(estadoLimpio)) {
         return errorValidacion(`Estado inválido. Opciones: ${estados.join(', ')}`)
     }
@@ -124,79 +107,92 @@ const obtenerPrecioUnitario = (productosExistentes = [], idProducto, precioProdu
 }
 
 const validarProductos = async (productos, productosExistentes = []) => {
-    // tipo inválido
-    if (!Array.isArray(productos)) {
-        return errorValidacion('Se debe añadir al menos un producto')
-    }
+	// Si no se enviaron productos, es válido (no se modifican)
+	if (productos === undefined) {
+		return exitoValidacion(null)
+	}
 
-    // normalizar: solo se procesan productos con cantidad indicada
-    const productosSeleccionados = productos.filter(producto => {
-        const cantidad = producto?.cantidad
-        const cantidadTexto = String(cantidad ?? '').trim()
+	// tipo inválido
+	if (!Array.isArray(productos)) {
+		return errorValidacion('Se debe añadir al menos un producto')
+	}
 
-        return cantidadTexto !== '' && Number(cantidadTexto) !== 0
-    })
+	// normalizar: solo se procesan productos con cantidad indicada
+	const productosSeleccionados = productos.filter((producto) => {
+		const cantidad = producto?.cantidad
+		const cantidadTexto = String(cantidad ?? '').trim()
 
-    // Al menos un producto seleccionado
-    if (productosSeleccionados.length === 0) {
-        return errorValidacion('Se debe añadir al menos un producto')
-    }
+		return cantidadTexto !== '' && Number(cantidadTexto) !== 0
+	})
 
-    // validación individual de productos
-    const idsProductos = new Set()
-    const productosNormalizados = []
+	// Al menos un producto seleccionado
+	if (productosSeleccionados.length === 0) {
+		return errorValidacion('Se debe añadir al menos un producto')
+	}
 
-    for (const item of productosSeleccionados) {
-        const idProducto = item?.id_producto
-        const cantidad = Number(item?.cantidad)
+	// validación individual de productos
+	const idsProductos = new Set()
+	const productosNormalizados = []
 
-        // producto obligatorio
-        if (!idProducto) {
-            return errorValidacion('El id del producto es obligatorio')
-        }
+	for (const item of productosSeleccionados) {
+		const idProducto = item?.id_producto
+		const cantidad = Number(item?.cantidad)
 
-        // producto duplicado
-        if (idsProductos.has(idProducto)) {
-            return errorValidacion('No se puede repetir el mismo producto en un pedido')
-        }
+		// producto obligatorio
+		if (!idProducto) {
+			return errorValidacion('El id del producto es obligatorio')
+		}
 
-        idsProductos.add(idProducto)
+		// producto duplicado
+		if (idsProductos.has(idProducto)) {
+			return errorValidacion(
+				'No se puede repetir el mismo producto en un pedido',
+			)
+		}
 
-        // cantidad inválida
-        if (Number.isNaN(cantidad)) {
-            return errorValidacion('La cantidad debe ser numérica')
-        }
+		idsProductos.add(idProducto)
 
-        if (!Number.isInteger(cantidad)) {
-            return errorValidacion('La cantidad debe ser un numero entero')
-        }
+		// cantidad inválida
+		if (Number.isNaN(cantidad)) {
+			return errorValidacion('La cantidad debe ser numérica')
+		}
 
-        if (cantidad <= 0) {
-            return errorValidacion('La cantidad debe ser mayor a cero')
-        }
+		if (!Number.isInteger(cantidad)) {
+			return errorValidacion('La cantidad debe ser un numero entero')
+		}
 
-        const producto = await productoService.buscarProductoPorId(idProducto)
+		if (cantidad <= 0) {
+			return errorValidacion('La cantidad debe ser mayor a cero')
+		}
 
-        // producto inexistente
-        if (!producto) {
-            return errorValidacion(`Producto con id ${idProducto} inexistente`)
-        }
+		const producto = await productoService.buscarProductoPorId(idProducto)
 
-        const productoExistente = productosExistentes.some((item) => String(item.id_producto) === String(producto.id))
+		// producto inexistente
+		if (!producto) {
+			return errorValidacion(`Producto con id ${idProducto} inexistente`)
+		}
 
-        // producto inactivo
-        if (!producto.activo && !productoExistente) {
-            return errorValidacion(`Producto "${producto.nombre}" inactivo`)
-        }
+		const productoExistente = productosExistentes.some(
+			(item) => String(item.id_producto) === String(producto.id),
+		)
 
-        productosNormalizados.push({
-            id_producto: producto.id,
-            cantidad,
-            precio_unitario: obtenerPrecioUnitario(productosExistentes, producto.id, producto.precio),
-        })
-    }
+		// producto inactivo
+		if (!producto.activo && !productoExistente) {
+			return errorValidacion(`Producto "${producto.nombre}" inactivo`)
+		}
 
-    return exitoValidacion(productosNormalizados)
+		productosNormalizados.push({
+			id_producto: producto.id,
+			cantidad,
+			precio_unitario: obtenerPrecioUnitario(
+				productosExistentes,
+				producto.id,
+				producto.precio,
+			),
+		})
+	}
+
+	return exitoValidacion(productosNormalizados)
 }
 
 export default {

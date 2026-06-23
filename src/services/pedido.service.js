@@ -1,11 +1,21 @@
-import Pedido from "../models/Pedido.js"
-import detallePedidoService from "./detallePedido.service.js"
-import productoService from "./producto.service.js"
-import { esIdValido } from "../lib/utils.js"
-import { ESTADOS_PEDIDO } from "../lib/estadosPedido.js"
+import Pedido from '../models/Pedido.js'
+import detallePedidoService from './detallePedido.service.js'
+import productoService from './producto.service.js'
+import actorService from './actor.service.js'
+import { esIdValido, fmtFecha } from '../lib/utils.js'
+import { ESTADOS_PEDIDO, obtenerEstadosPedido } from '../lib/estadosPedido.js'
 
 const obtenerPedidos = async (filtro = {}) => {
-    return await Pedido.find(filtro).populate(['actor', 'productos'])
+    return await Pedido.find(filtro)
+        .populate([
+            'actor',
+            {
+                path: 'productos',
+                populate: {
+                    path: 'producto',
+                },
+            },
+	    ])
 }
 
 const buscarPedidoPorId = async (id, atributos = null) => {
@@ -22,20 +32,19 @@ const buscarPedidoPorIdConDetalles = async (id) => {
     }
 
     return await Pedido.findById(id)
-        .populate("actor")
+        .populate('actor')
         .populate({
-            path: "productos",
+            path: 'productos',
             populate: {
-                path: "producto"
+                path: 'producto'
             }
         })
 }
 
-const productoParaFormulario = (producto, cantidad = "") => ({
+const productoParaFormulario = (producto, cantidad = '') => ({
+    ...(producto.toObject ? producto.toObject() : producto),
     id: producto.id,
-    nombre: producto.nombre,
-    precio: producto.precio,
-    cantidad_pedida: cantidad
+    cantidad_pedida: cantidad || ''
 })
 
 const obtenerPedidoParaEditar = async (id) => {
@@ -151,6 +160,87 @@ const eliminarPedido = async (id) => {
     return pedido
 }
 
+const productosExistentesPedido = (pedido) => {
+    return (pedido.productos || [])
+        .filter((detalle) => detalle.producto)
+        .map((detalle) => ({
+            id_producto: detalle.producto._id || detalle.producto,
+            precio_unitario: detalle.precio_unitario,
+        }))
+}
+
+const obtenerDatosParaCrearPedido = async (fecha_entrega_esperada, id_actor) => {
+    const [actoresActivos, productosActivos] = await Promise.all([
+        actorService.obtenerActoresActivos(),
+        productoService.obtenerProductosActivos(),
+    ])
+
+    return {
+        pedido: {
+            fecha_entrega_esperada,
+            actor: id_actor,
+        },
+        actores: actoresActivos,
+        productos: productosActivos,
+    }
+}
+
+const obtenerDatosParaActualizarPedido = async (id, fecha_entrega_esperada, estado, id_actor, productos = []) => {
+    const [actoresActivos, productosActivos, estados, pedidoActual] = await Promise.all([
+        actorService.obtenerActoresActivos(),
+        productoService.obtenerProductosActivos(),
+        obtenerEstadosPedido(),
+        buscarPedidoPorIdConDetalles(id),
+    ])
+
+    // Productos del pedido actual (ya poblados, incluye inactivos)
+    const productosDelPedido = (pedidoActual?.productos || [])
+        .filter((detalle) => detalle.producto)
+        .map((detalle) => {
+            const pf = productos.find(
+                (item) => String(item.id_producto) === String(detalle.producto.id),
+            )
+
+            return productoParaFormulario(
+                detalle.producto,
+                Number(pf?.cantidad) > 0 ? pf.cantidad : detalle.cantidad,
+            )
+        })
+
+    // IDs de productos ya en el pedido
+    const idsProductosDelPedido = new Set(productosDelPedido.map((p) => p.id))
+
+    // Activos que NO están en el pedido (para poder agregarlos nuevos)
+    const productosActivosNoIncluidos = productosActivos
+        .filter((p) => !idsProductosDelPedido.has(p.id))
+        .map((p) => {
+            const pf = productos.find((item) => String(item.id_producto) === String(p.id))
+
+            return productoParaFormulario(p, Number(pf?.cantidad) > 0 ? pf.cantidad : '')
+        })
+
+    const basePedido = pedidoActual
+        ? pedidoActual.toObject({ virtuals: true })
+        : {}
+
+    return {
+        pedido: {
+            ...basePedido,
+            fecha_entrega_esperada,
+            fecha_entrega_real: pedidoActual?.fecha_entrega_real,
+            estado,
+            actor: id_actor,
+        },
+        actores: actoresActivos,
+        estados,
+        productos: [
+            ...productosDelPedido,
+            ...productosActivosNoIncluidos,
+        ],
+        fmtFecha,
+    }
+}
+
 export default {
     obtenerPedidos,
     buscarPedidoPorId,
@@ -158,5 +248,9 @@ export default {
     obtenerPedidoParaEditar,
     crearPedido,
     actualizarPedido,
-    eliminarPedido
+    eliminarPedido,
+    productoParaFormulario,
+    productosExistentesPedido,
+    obtenerDatosParaCrearPedido,
+    obtenerDatosParaActualizarPedido,
 }
