@@ -1,5 +1,5 @@
-import DetallePedido from "../models/DetallePedido.js"
-import { esIdValido } from "../lib/utils.js"
+import DetallePedido from '../models/DetallePedido.js'
+import { esIdValido } from '../lib/utils.js'
 
 const crearDetallesPedido = async (idPedido, productos) => {
     const detalles = productos.map((producto) => ({

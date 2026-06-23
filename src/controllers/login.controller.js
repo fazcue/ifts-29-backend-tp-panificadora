@@ -1,6 +1,8 @@
-import actorService from '../../services/actor.service.js'
-import { TIPOS_ACTOR } from '../../lib/tiposActor.js'
+import actorService from '../services/actor.service.js'
+import { TIPOS_ACTOR } from '../lib/tiposActor.js'
 import bcryptjs from 'bcryptjs'
+import { iniciarSesion } from '../config/session.js'
+import { normalizarError, respuestaError } from '../validators/response.validator.js'
 
 const portada = (req, res) => res.render('portada')
 
@@ -20,7 +22,8 @@ const renderFormularioAltaPlantaWeb = async (req, res) => {
 
 		res.render('actores/nuevo', { modoAltaPlanta: true, titulo: 'Alta inicial de planta'})
 	} catch (error) {
-		res.status(500).render('error', { mensaje: 'Error al cargar formulario alta planta' })
+		const resultado = normalizarError(error, 'Error al cargar formulario alta planta')
+		respuestaError(res, resultado, true)
 	}
 }
 
@@ -35,25 +38,12 @@ const crearPlantaInicialWeb = async (req, res) => {
 			TIPOS_ACTOR.PLANTA,
 		)
 
-		req.session.user = {
-			id: actor._id,
-			nombre: actor.nombre,
-			email: actor.email,
-			tipo: actor.tipo,
-			activo: actor.activo,
-		}
-
-		req.session.save((error) => {
-			if (error) {
-				return res.render('login', {
-					error: 'La planta fue creada, pero ocurrió un error al iniciar sesión',
-				})
-			}
-            
-			res.redirect('/portada')
+		iniciarSesion(req, res, actor, {
+			mensajeError: 'La planta fue creada, pero ocurrió un error al iniciar sesión',
 		})
 	} catch (error) {
-		res.status(500).render('error', { mensaje: 'Error al crear planta' })
+		const resultado = normalizarError(error, 'Error al crear planta')
+		respuestaError(res, resultado, true)
 	}
 }
 
@@ -74,24 +64,10 @@ const ingresar = async (req, res) => {
             return res.render('login', { mensaje: 'Email o contraseña incorrectos' })
 		}
 
-		// sesion
-        req.session.user = {
-            id: actor._id,
-            nombre: actor.nombre,
-            email: actor.email,
-            tipo: actor.tipo,
-            activo: actor.activo
-        }
-
-        req.session.save(async (error) => {
-            if (error) {
-                return res.render('login', { mensaje: 'Ocurrió un error interno en el servidor' })
-            }
-
-            res.redirect('/portada')
-        })
+		iniciarSesion(req, res, actor)
 	} catch (error) {
-        return res.render('login', { mensaje: 'Ocurrió un error interno en el servidor' })
+		const resultado = normalizarError(error, 'Ocurrió un error interno en el servidor')
+		respuestaError(res, resultado, true)
 	}
 }
 

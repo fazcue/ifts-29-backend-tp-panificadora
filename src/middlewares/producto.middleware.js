@@ -1,15 +1,32 @@
 import productoValidator from '../validators/producto.validator.js'
+import recetaValidator from '../validators/receta.validator.js'
+import recetaService from '../services/receta.service.js'
+import insumoService from '../services/insumo.service.js'
 import { respuestaError } from '../validators/response.validator.js'
 
 const VISTA_CREAR = 'productos/nuevo'
 const VISTA_ACTUALIZAR = 'productos/editar'
+
+const prepararInsumosFormulario = (insumosActivos, insumosReceta = []) => {
+    return insumosActivos.map((insumo) => {
+        const recetaInsumo = insumosReceta.find(
+            (item) => String(item.insumo?._id || item.insumo) === String(insumo.id),
+        )
+
+        return {
+            ...insumo.toObject(),
+            id: insumo.id,
+            cantidad_necesaria: recetaInsumo?.cantidad_necesaria || '',
+        }
+    })
+}
 
 const validarProductoBase = async (req, res, next, opciones) => {
     const esWeb = opciones.esWeb
 
     try {
         const { id } = req.params
-        const { nombre, precio } = req.body
+        const { nombre, precio, insumos } = req.body
 
         const vistaActual = id ? VISTA_ACTUALIZAR : VISTA_CREAR
         let productoActual = null
@@ -25,17 +42,47 @@ const validarProductoBase = async (req, res, next, opciones) => {
             productoActual = resultadoProducto.valor
         }
 
+        // insumos existentes (receta actual del producto, si es edición)
+        const recetaActual = id ? await recetaService.obtenerInsumosPorProducto(id) : []
+
         // datos formulario (web) para re-render
         let datosFormulario = {}
 
         if (esWeb) {
+            const insumosActivos = await insumoService.obtenerInsumosActivos()
+
+            // Insumos de la receta actual (ya poblados, incluye inactivos)
+            const insumosDeLaReceta = recetaActual
+                .filter(item => item.insumo)
+                .map(item => ({
+                    ...item.insumo.toObject(),
+                    id: item.insumo.id,
+                    cantidad_necesaria: item.cantidad_necesaria,
+                }))
+
+            // IDs de insumos ya en la receta
+            const idsInsumosReceta = new Set(insumosDeLaReceta.map(i => i.id))
+
+            // Activos que NO están en la receta (para poder agregarlos nuevos)
+            const insumosActivosNoIncluidos = insumosActivos
+                .filter(i => !idsInsumosReceta.has(i.id))
+                .map(i => ({
+                    ...i.toObject(),
+                    id: i.id,
+                    cantidad_necesaria: '',
+                }))
+
+            // Combinar
+            const insumosFormulario = [...insumosDeLaReceta, ...insumosActivosNoIncluidos]
+
             datosFormulario = {
                 producto: {
                     id: productoActual?.id,
                     activo: productoActual?.activo,
                     nombre,
                     precio,
-                }
+                },
+                insumos: insumosFormulario,
             }
         }
 
@@ -75,9 +122,17 @@ const validarProductoBase = async (req, res, next, opciones) => {
             }
         }
 
+        // insumos (receta)
+        const resultadoInsumos = await recetaValidator.validarInsumos(insumos, recetaActual)
+
+        if (!resultadoInsumos.ok) {
+            return respuestaError(res, resultadoInsumos, esWeb, vistaActual, datosFormulario)
+        }
+
         // entrega de datos normalizados
         req.body.nombre = resultadoNombre.valor
         req.body.precio = resultadoPrecio.valor
+        req.body.insumos = resultadoInsumos.valor
 
         next()
     } catch (err) {

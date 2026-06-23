@@ -6,7 +6,7 @@ import {
 	renderFormularioEditarPedidoWeb,
 	renderFormularioNuevoPedidoWeb,
 	listarPedidosWeb,
-} from '../../controllers/web/pedidoController.js'
+} from '../../controllers/pedido.controller.js'
 import { validarCrearPedidoWeb, validarActualizarPedidoWeb } from '../../middlewares/pedido.middleware.js'
 import { tienePermisosWeb } from '../../middlewares/abac.middleware.js'
 import { cargarPedido } from '../../loaders/resourceLoaders.js'

@@ -1,5 +1,6 @@
 import productoService from '../services/producto.service.js'
 import { errorValidacion, exitoValidacion } from './response.validator.js'
+import { validarTextoObligatorio, validarNombreUnico as nombreUnico } from './common.validator.js'
 
 const validarProducto = async (id) => {
     const producto = await productoService.buscarProductoPorId(id)
@@ -12,39 +13,10 @@ const validarProducto = async (id) => {
     return exitoValidacion(producto)
 }
 
-const validarNombre = (nombre) => {
-    // tipo inválido
-    if (typeof nombre !== 'string') {
-        return errorValidacion('El nombre debe ser texto')
-    }
-
-    // normalizar
-    const nombreLimpio = nombre.trim()
-
-    // dato faltante
-    if (!nombreLimpio) {
-        return errorValidacion('El nombre es obligatorio')
-    }
-
-    return exitoValidacion(nombreLimpio)
-}
+const validarNombre = (nombre) => validarTextoObligatorio(nombre, 'nombre')
 
 const validarNombreUnico = async (nombre, idActual = null) => {
-    const productos = await productoService.obtenerProductos()
-
-    // normalizar
-    const nombreNormalizado = nombre.trim().toLowerCase()
-
-    const existeProducto = productos.some(producto => {
-        return producto.id !== idActual && producto.nombre.trim().toLowerCase() === nombreNormalizado
-    })
-
-    // duplicado
-    if (existeProducto) {
-        return errorValidacion(`Ya existe un producto con el nombre ${nombre}`, 409)
-    }
-
-    return exitoValidacion(nombre)
+    return await nombreUnico(nombre, idActual, productoService.obtenerProductos, 'producto')
 }
 
 const validarPrecio = (precio) => {

@@ -12,7 +12,7 @@ const tienePermisosBase = (modulo, accion, cargarRecurso, esWeb) => {
         }
 
         const politica = politicas[modulo]?.[accion]
-        const permitido = politica?.(user, recurso, req) === true
+        const permitido = politica?.(user, recurso) === true
 
         if (!permitido) {
             const resultado = { estado: 403, mensaje: 'Acceso denegado. No tienes permisos para realizar dicha acción.' }

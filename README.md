@@ -9,6 +9,7 @@ Incluye interfaz web, API JSON, autenticación con sesiones, control de acceso p
 - Login con email y contraseña (sesiones persistentes en MongoDB).
 - Registro inicial del actor `PLANTA` mediante clave secreta.
 - Gestión de actores, productos, pedidos e insumos.
+- Recetas que vinculan productos con insumos (cantidad necesaria por unidad).
 - Pedidos con detalle de productos, fechas como tipo `Date` y seguimiento de estados.
 - Reportes: demanda consolidada y detección de retrasos en entregas.
 - Interfaz web con Pug.
@@ -31,6 +32,9 @@ Incluye interfaz web, API JSON, autenticación con sesiones, control de acceso p
 - [x] Fecha de entrega real auto-asignada al marcar como entregado.
 - [x] Validaciones de datos obligatorios y referencias entre módulos.
 - [x] Control de dependencias antes de eliminar recursos usados por pedidos.
+- [x] Recetas que asocian insumos a cada producto con cantidad necesaria.
+- [x] Validadores genéricos reutilizables (`common.validator.js`).
+- [x] Control de dependencias: no eliminar insumo si está vinculado a una receta.
 - [x] ABAC para proteger accesos web y API según tipo y estado del actor (`abac.middleware.js` + `abacPolicies.js`).
 - [x] Portal web básico para que sucursales y franquicias gestionen sus propios pedidos.
 - [x] Reporte de demanda consolidada para planificar producción.
@@ -42,7 +46,7 @@ Incluye interfaz web, API JSON, autenticación con sesiones, control de acceso p
 
 ### Pendiente / futuro
 
-- [ ] Información para compra de insumos y materia prima.
+- [ ] Informes para compra de insumos y materia prima según recetas.
 - [ ] Reportes para conciliación de facturación interna y externa.
 - [ ] Seguimiento del cobro de royalties a franquicias.
 - [ ] Indicadores de gestión para apoyar la toma de decisiones.
@@ -83,13 +87,11 @@ El sistema usa ABAC basado en los atributos del actor autenticado, definido en `
 src/
   app.js                  # Punto de entrada
   config/                 # Conexión MongoDB y configuración de sesiones
-  controllers/
-    api/                  # Controladores para la API REST
-    web/                  # Controladores para las vistas Pug
+  controllers/            # Controladores unificados (web/API según contexto)
   lib/                    # Constantes (estadosPedido.js, tiposActor.js, unidades.js) y helpers (utils.js)
   loaders/                # Carga de recursos para ABAC (resourceLoaders.js)
   middlewares/            # Middlewares por módulo (actor, insumo, pedido, producto), auth y ABAC
-  models/                 # Modelos Mongoose (Actor, DetallePedido, Insumo, Pedido, Producto)
+  models/                 # Modelos Mongoose (Actor, DetallePedido, Insumo, Pedido, Producto, Receta)
   policies/               # Políticas ABAC (abacPolicies.js)
   routes/
     api/                  # Rutas de la API REST

@@ -7,7 +7,7 @@ import {
 	formularioEditarProductoWeb,
 	formularioNuevoProductoWeb,
 	listarProductosWeb,
-} from '../../controllers/web/productoController.js'
+} from '../../controllers/producto.controller.js'
 import { validarProductoWeb } from '../../middlewares/producto.middleware.js'
 import { tienePermisosWeb } from '../../middlewares/abac.middleware.js'
 

@@ -1,74 +1,10 @@
 import pedidoService from '../services/pedido.service.js'
-import actorService from '../services/actor.service.js'
 import pedidoValidator from '../validators/pedido.validator.js'
-import productoService from '../services/producto.service.js'
 import { esPlanta } from '../lib/tiposActor.js'
-import { obtenerEstadosPedido } from '../lib/estadosPedido.js'
 import { respuestaError } from '../validators/response.validator.js'
-import { fmtFecha } from '../lib/utils.js'
 
 const VISTA_CREAR = 'pedidos/nuevo'
 const VISTA_ACTUALIZAR = 'pedidos/editar'
-
-const agregarCantidadesFormulario = (productosActivos, productosFormulario = []) => {
-    return productosActivos.map((producto) => {
-        const productoFormulario = productosFormulario.find((item) => String(item.id_producto) === String(producto.id))
-
-        return {
-            ...producto.toObject(),
-            id: producto.id,
-            cantidad_pedida: productoFormulario?.cantidad || '',
-        }
-    })
-}
-
-const productosExistentesPedido = (pedido) => {
-    return (pedido.productos || [])
-        .filter((detalle) => detalle.producto)
-        .map((detalle) => ({
-            id_producto: detalle.producto._id || detalle.producto,
-            precio_unitario: detalle.precio_unitario,
-        }))
-}
-
-const datosFormularioCrear = async (fecha_entrega_esperada, id_actor) => {
-    const [actoresActivos, productosActivos] = await Promise.all([
-        actorService.obtenerActoresActivos(),
-        productoService.obtenerProductosActivos(),
-    ])
-
-    return {
-        pedido: {
-            fecha_entrega_esperada,
-            actor: id_actor,
-        },
-        actores: actoresActivos,
-        productos: productosActivos,
-    }
-}
-
-const datosFormularioActualizar = async (id, fecha_entrega_esperada, estado, id_actor, productos = []) => {
-    const [actoresActivos, productosActivos, estados, pedidoActual] = await Promise.all([
-        actorService.obtenerActoresActivos(),
-        productoService.obtenerProductosActivos(),
-        obtenerEstadosPedido(),
-        pedidoService.buscarPedidoPorId(id),
-    ])
-
-    return {
-        pedido: {
-            ...pedidoActual,
-            fecha_entrega_esperada,
-            fecha_entrega_real: pedidoActual?.fecha_entrega_real,
-            estado,
-            actor: id_actor,
-        },
-        actores: actoresActivos,
-        estados,
-        productos: agregarCantidadesFormulario(productosActivos, productos),
-        fmtFecha
-    }
-}
 
 const validarCrearPedidoBase = async (req, res, next, opciones) => {
     const esWeb = opciones.esWeb
@@ -77,11 +13,14 @@ const validarCrearPedidoBase = async (req, res, next, opciones) => {
         const { fecha_entrega_esperada, productos } = req.body
         let id_actor = req.body.id_actor
 
+        // Si no se enviaron productos, usar array vacio
+        const productosNormalizados = productos ?? []
+
         // Preparar datos del formulario (solo web)
         let datosFormulario = {}
 
         if (esWeb) {
-            datosFormulario = await datosFormularioCrear(fecha_entrega_esperada, id_actor)
+            datosFormulario = await pedidoService.obtenerDatosParaCrearPedido(fecha_entrega_esperada, id_actor)
         }
 
         // fecha entrega esperada
@@ -104,7 +43,7 @@ const validarCrearPedidoBase = async (req, res, next, opciones) => {
         }
 
         // productos
-        const resultadoProductos = await pedidoValidator.validarProductos(productos)
+        const resultadoProductos = await pedidoValidator.validarProductos(productosNormalizados)
 
         if (!resultadoProductos.ok) {
             return respuestaError(res, resultadoProductos, esWeb, VISTA_CREAR, datosFormulario)
@@ -133,7 +72,7 @@ const validarActualizarPedidoBase = async (req, res, next, opciones) => {
         let datosFormulario = {}
 
         if (esWeb) {
-            datosFormulario = await datosFormularioActualizar(id, fecha_entrega_esperada, estado, id_actor, productos)
+            datosFormulario = await pedidoService.obtenerDatosParaActualizarPedido(id, fecha_entrega_esperada, estado, id_actor, productos)
         }
 
         // pedido
@@ -176,7 +115,7 @@ const validarActualizarPedidoBase = async (req, res, next, opciones) => {
         // productos
         const resultadoProductos = await pedidoValidator.validarProductos(
             productos,
-            productosExistentesPedido(resultadoPedido.valor),
+            pedidoService.productosExistentesPedido(resultadoPedido.valor),
         )
 
         if (!resultadoProductos.ok) {

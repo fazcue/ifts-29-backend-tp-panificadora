@@ -1,14 +1,7 @@
 import { Router } from 'express'
-import {
-	cambiarEstadoWeb,
-	actualizarActorWeb,
-	crearActorWeb,
-	renderFormularioEditarActorWeb,
-	renderFormularioNuevoActorWeb,
-	listarActoresWeb,
-} from '../../controllers/web/actorController.js'
 import { validarActorWeb } from '../../middlewares/actor.middleware.js'
 import { tienePermisosWeb } from '../../middlewares/abac.middleware.js'
+import { listarActoresWeb, renderFormularioNuevoActorWeb, renderFormularioEditarActorWeb, crearActorWeb, actualizarActorWeb, cambiarEstadoWeb } from '../../controllers/actor.controller.js'
 
 const router = Router()
 

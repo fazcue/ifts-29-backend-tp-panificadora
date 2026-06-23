@@ -1,6 +1,7 @@
 import insumoService from '../services/insumo.service.js'
 import { obtenerUnidades, esUnidadValida } from '../lib/unidades.js'
 import { errorValidacion, exitoValidacion } from './response.validator.js'
+import { validarTextoObligatorio, validarNombreUnico as nombreUnico } from './common.validator.js'
 
 const validarInsumo = async (id) => {
     const insumo = await insumoService.buscarInsumoPorId(id)
@@ -12,45 +13,20 @@ const validarInsumo = async (id) => {
     return exitoValidacion(insumo)
 }
 
-const validarNombre = (nombre) => {
-    if (typeof nombre !== 'string') {
-        return errorValidacion('El nombre debe ser texto')
-    }
-
-    const nombreLimpio = nombre.trim()
-
-    if (!nombreLimpio) {
-        return errorValidacion('El nombre es obligatorio')
-    }
-
-    return exitoValidacion(nombreLimpio)
-}
+const validarNombre = (nombre) => validarTextoObligatorio(nombre, 'nombre')
 
 const validarNombreUnico = async (nombre, idActual = null) => {
-    const insumos = await insumoService.obtenerInsumos()
-    const nombreNormalizado = nombre.trim().toLowerCase()
-
-    const existeInsumo = insumos.some((insumo) => {
-        return insumo.id !== idActual && insumo.nombre.trim().toLowerCase() === nombreNormalizado
-    })
-
-    if (existeInsumo) {
-        return errorValidacion(`Ya existe un insumo con el nombre ${nombre}`, 409)
-    }
-
-    return exitoValidacion(nombre)
+    return await nombreUnico(nombre, idActual, insumoService.obtenerInsumos, 'insumo')
 }
 
 const validarUnidad = (unidad) => {
-    if (typeof unidad !== 'string') {
-        return errorValidacion('La unidad debe ser texto')
+    const resultado = validarTextoObligatorio(unidad, 'unidad')
+
+    if (!resultado.ok) {
+        return resultado
     }
 
-    const unidadLimpia = unidad.trim().toLowerCase()
-
-    if (!unidadLimpia) {
-        return errorValidacion('La unidad es obligatoria')
-    }
+    const unidadLimpia = resultado.valor.toLowerCase()
 
     if (!esUnidadValida(unidadLimpia)) {
         return errorValidacion(

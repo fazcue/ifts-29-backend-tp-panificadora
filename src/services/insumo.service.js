@@ -1,4 +1,5 @@
 import Insumo from '../models/Insumo.js'
+import Receta from '../models/Receta.js'
 import { esIdValido } from '../lib/utils.js'
 
 const obtenerInsumos = async () => {
@@ -70,6 +71,16 @@ const eliminarInsumo = async (id) => {
     if (!insumo) {
         return null
     }
+
+    const usadoEnReceta = await Receta.exists({ insumo: id })
+
+    console.log('USADO EN RECETA', usadoEnReceta)
+
+	if (usadoEnReceta) {
+		const error = new Error('No se puede eliminar un insumo asociado a productos')
+		error.estado = 409
+		throw error
+	}
 
     return await Insumo.findByIdAndDelete(id)
 }

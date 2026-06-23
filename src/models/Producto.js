@@ -27,4 +27,14 @@ const productoSchema = new mongoose.Schema(
     },
 )
 
+// virtual: permite utilizar 'populate' para traer los insumos (receta)
+productoSchema.virtual('insumos', {
+    ref: 'Receta',
+    localField: '_id',
+    foreignField: 'producto',
+})
+
+productoSchema.set('toJSON', { virtuals: true })
+productoSchema.set('toObject', { virtuals: true })
+
 export default mongoose.model('Producto', productoSchema)

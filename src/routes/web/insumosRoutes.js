@@ -7,7 +7,7 @@ import {
     renderFormularioEditarInsumoWeb,
     renderFormularioNuevoInsumoWeb,
     listarInsumosWeb,
-} from '../../controllers/web/insumoController.js'
+} from '../../controllers/insumo.controller.js'
 import { validarInsumoWeb } from '../../middlewares/insumo.middleware.js'
 import { tienePermisosWeb } from '../../middlewares/abac.middleware.js'
 
