@@ -1,20 +1,20 @@
 import { Router } from 'express'
 import {
-    actualizarInsumo,
-    crearInsumo,
-    eliminarInsumo,
-    listarInsumo,
-    listarInsumos,
-} from '../../controllers/api/insumoController.js'
+    listarInsumosApi,
+    listarInsumoApi,
+    crearInsumoApi,
+    actualizarInsumoApi,
+    eliminarInsumoApi,
+} from '../../controllers/insumo.controller.js'
 import { validarInsumoApi } from '../../middlewares/insumo.middleware.js'
 import { tienePermisosApi } from '../../middlewares/abac.middleware.js'
 
 const router = Router()
 
-router.get('/', tienePermisosApi('insumos', 'ver'), listarInsumos)
-router.get('/:id', tienePermisosApi('insumos', 'ver'), listarInsumo)
-router.post('/', tienePermisosApi('insumos', 'crear'), validarInsumoApi, crearInsumo)
-router.put('/:id', tienePermisosApi('insumos', 'editar'), validarInsumoApi, actualizarInsumo)
-router.delete('/:id', tienePermisosApi('insumos', 'eliminar'), eliminarInsumo)
+router.get('/', tienePermisosApi('insumos', 'ver'), listarInsumosApi)
+router.get('/:id', tienePermisosApi('insumos', 'ver'), listarInsumoApi)
+router.post('/', tienePermisosApi('insumos', 'crear'), validarInsumoApi, crearInsumoApi)
+router.put('/:id', tienePermisosApi('insumos', 'editar'), validarInsumoApi, actualizarInsumoApi)
+router.delete('/:id', tienePermisosApi('insumos', 'eliminar'), eliminarInsumoApi)
 
 export default router

@@ -6,7 +6,7 @@ import {
 	cerrarSesion,
 	renderFormularioAltaPlantaWeb,
 	crearPlantaInicialWeb
-} from '../../controllers/web/loginController.js'
+} from '../../controllers/login.controller.js'
 import { protegerWeb } from '../../middlewares/auth.middleware.js'
 import { validarActorWeb } from '../../middlewares/actor.middleware.js'
 import { validarClaveAltaPlantaWeb } from '../../middlewares/login.middleware.js'
