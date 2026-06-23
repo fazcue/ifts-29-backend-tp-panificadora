@@ -8,8 +8,7 @@ const protegerWeb = (req, res, next) => {
 const protegerApi = (req, res, next) => {
 	if (!req.session.user) {
 		return res.status(401).json({
-			status: 'error',
-			message: 'No autorizado. Debe iniciar sesión.',
+			error: 'No autorizado. Debe iniciar sesión.',
 		})
 	}
 	next()

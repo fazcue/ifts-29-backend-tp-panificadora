@@ -1,7 +1,7 @@
-import Actor from "../models/Actor.js"
-import Pedido from "../models/Pedido.js"
-import { TIPOS_ACTOR, esPlanta } from "../lib/tiposActor.js"
-import { esIdValido, encriptarPassword } from "../lib/utils.js"
+import Actor from '../models/Actor.js'
+import Pedido from '../models/Pedido.js'
+import { TIPOS_ACTOR, esPlanta } from '../lib/tiposActor.js'
+import { esIdValido, encriptarPassword } from '../lib/utils.js'
 
 const obtenerActores = async () => {
     return await Actor.find().select('-password')
@@ -32,7 +32,7 @@ const validarUnicidadPlanta = async (idActual = null) => {
     const plantaExistente = await Actor.findOne({ tipo: TIPOS_ACTOR.PLANTA }).select('_id')
 
     if (plantaExistente && String(plantaExistente._id) !== String(idActual)) {
-        const error = new Error("Ya existe un actor de tipo PLANTA")
+        const error = new Error('Ya existe un actor de tipo PLANTA')
         error.estado = 409
 
         throw error
@@ -56,7 +56,7 @@ const crearActor = async (nombre, email, password, tipo) => {
 
     await nuevo.save()
 
-    return nuevo
+    return await Actor.findById(nuevo._id).select('-password')
 }
 
 const actualizarActor = async (id, nombre, email, password, tipo, activo) => {
@@ -77,7 +77,7 @@ const actualizarActor = async (id, nombre, email, password, tipo, activo) => {
     }
 
     if (esPlanta(actor) && datosNormalizados.tipo !== TIPOS_ACTOR.PLANTA) {
-        const error = new Error("No se puede editar el tipo del actor PLANTA")
+        const error = new Error('No se puede editar el tipo del actor PLANTA')
         error.estado = 409
 
         throw error
@@ -116,7 +116,7 @@ const cambiarEstadoActor = async (id) => {
     }
 
     if (esPlanta(actor)) {
-        const error = new Error("No se puede desactivar al actor PLANTA")
+        const error = new Error('No se puede desactivar al actor PLANTA')
         error.estado = 409
 
         throw error
@@ -142,7 +142,7 @@ const eliminarActor = async (id) => {
     const usadoEnPedido = await Pedido.exists({ actor: id })
 
     if (usadoEnPedido) {
-        const error = new Error("No se puede eliminar un actor asociado a pedidos")
+        const error = new Error('No se puede eliminar un actor asociado a pedidos')
         error.estado = 409
 
         throw error

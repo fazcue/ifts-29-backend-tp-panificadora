@@ -25,4 +25,25 @@ const inyectarDatosUsuario = (req, res, next) => {
 	next()
 }
 
-export { configurarSesion, inyectarDatosUsuario }
+const iniciarSesion = (req, res, actor, opciones = {}) => {
+	const rutaRedireccion = opciones.rutaRedireccion || '/portada'
+	const mensajeError = opciones.mensajeError || 'Ocurrió un error interno en el servidor'
+
+	req.session.user = {
+		id: actor._id,
+		nombre: actor.nombre,
+		email: actor.email,
+		tipo: actor.tipo,
+		activo: actor.activo,
+	}
+
+	req.session.save((error) => {
+		if (error) {
+			return res.render('login', { mensaje: mensajeError })
+		}
+
+		res.redirect(rutaRedireccion)
+	})
+}
+
+export { configurarSesion, inyectarDatosUsuario, iniciarSesion }
