@@ -5,6 +5,7 @@ import { configurarSesion, inyectarDatosUsuario } from './config/session.js'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 // Rutas API
+import loginApiRouter from './routes/api/loginRoutes.js'
 import actoresRouter from './routes/api/actoresRoutes.js'
 import pedidosRouter from './routes/api/pedidosRoutes.js'
 import productosRouter from './routes/api/productosRoutes.js'
@@ -50,6 +51,7 @@ app.use('/insumos', protegerWeb, insumosRouterWeb)
 app.use('/reportes', protegerWeb, reportesRouterWeb)
 
 // Rutas API
+app.use('/api/login', loginApiRouter)
 app.use('/api/actores', protegerApi, actoresRouter)
 app.use('/api/pedidos', protegerApi, pedidosRouter)
 app.use('/api/productos', protegerApi, productosRouter)

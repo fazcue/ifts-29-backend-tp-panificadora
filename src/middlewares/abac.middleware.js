@@ -3,7 +3,7 @@ import { respuestaError } from '../validators/response.validator.js'
 
 const tienePermisosBase = (modulo, accion, cargarRecurso, esWeb) => {
     return async (req, res, next) => {
-        const user = req.session.user
+        const user = esWeb ? req.session.user : req.user
         const recurso = cargarRecurso ? await cargarRecurso(req) : null
 
         if (cargarRecurso && !recurso) {

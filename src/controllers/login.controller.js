@@ -3,7 +3,9 @@ import { TIPOS_ACTOR } from '../lib/tiposActor.js'
 import bcryptjs from 'bcryptjs'
 import { iniciarSesion } from '../config/session.js'
 import { normalizarError, respuestaError } from '../validators/response.validator.js'
+import { generarToken } from '../services/jwt.service.js'
 
+// Web
 const portada = (req, res) => res.render('portada')
 
 const renderFormularioAltaPlantaWeb = async (req, res) => {
@@ -80,4 +82,49 @@ const cerrarSesion = (req, res) => {
     })
 }
 
-export { renderFormularioLogin, portada, ingresar, cerrarSesion, renderFormularioAltaPlantaWeb, crearPlantaInicialWeb }
+// API
+const ingresarApi = async (req, res) => {
+	try {
+		const { email, password } = req.body
+
+		if (!email?.trim() || !password?.trim()) {
+			return res.status(400).json({ error: 'Email y contraseña son obligatorios' })
+		}
+
+		const actor = await actorService.buscarActorPorEmail(email)
+
+		if (!actor || !actor.password || !bcryptjs.compareSync(password, actor.password)) {
+			return res.status(401).json({ error: 'Email o contraseña incorrectos' })
+		}
+
+		if (!actor.activo) {
+			return res.status(403).json({ error: 'Cuenta desactivada. Contacte a la planta.' })
+		}
+
+		const token = generarToken(actor)
+
+		res.json({
+			token,
+			usuario: {
+				id: actor._id,
+				nombre: actor.nombre,
+				email: actor.email,
+				tipo: actor.tipo,
+				activo: actor.activo,
+			},
+		})
+	} catch (error) {
+		console.error('Error en login API:', error)
+		res.status(500).json({ error: 'Error interno del servidor' })
+	}
+}
+
+export { 
+	renderFormularioLogin,
+	portada,
+	ingresar,
+	cerrarSesion,
+	renderFormularioAltaPlantaWeb,
+	crearPlantaInicialWeb,
+	ingresarApi
+}

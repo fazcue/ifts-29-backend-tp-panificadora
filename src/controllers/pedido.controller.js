@@ -11,8 +11,8 @@ const listarPedidosBase = async (req, res, opciones) => {
     const esWeb = opciones.esWeb
 
     try {
-        const actorLogueado = req.session.user
-        const filtro = esPlanta(actorLogueado) ? {} : { actor: actorLogueado.id }
+        const actorLogueado = esWeb ? req.session.user : req.user
+        const filtro = actorLogueado && esPlanta(actorLogueado) ? {} : { actor: actorLogueado?.id }
 
         const pedidos = await pedidoService.obtenerPedidos(filtro)
 
