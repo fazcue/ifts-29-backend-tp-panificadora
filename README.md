@@ -13,7 +13,7 @@ Incluye interfaz web, API JSON, autenticación con sesiones, control de acceso p
 - Pedidos con detalle de productos, fechas como tipo `Date` y seguimiento de estados.
 - Reportes: demanda consolidada y detección de retrasos en entregas.
 - Interfaz web con Pug.
-- API JSON para los mismos recursos.
+- API JSON con autenticación JWT (Bearer token) para los mismos recursos.
 - ABAC (Attribute-Based Access Control) para web y API.
 - Validaciones de dominio en middleware/validador separados por módulo.
 - Persistencia en MongoDB con Mongoose.
@@ -25,6 +25,7 @@ Incluye interfaz web, API JSON, autenticación con sesiones, control de acceso p
 - [x] Arquitectura modular con modelos, rutas, controladores, servicios, middlewares y validadores.
 - [x] Persistencia en MongoDB con Mongoose.
 - [x] Autenticación web con sesiones almacenadas en MongoDB (`connect-mongo`).
+- [x] Autenticación API con JWT (Bearer token).
 - [x] Registro inicial de planta con `CLAVE_ALTA_PLANTA`.
 - [x] CRUD web y API para actores, productos, pedidos e insumos.
 - [x] Pedidos relacionados con actor y detalle de productos (virtual populate).
@@ -77,7 +78,8 @@ El sistema usa ABAC basado en los atributos del actor autenticado, definido en `
 - **Express** — Framework web.
 - **MongoDB + Mongoose** — Base de datos y ODM.
 - **Pug** — Motor de plantillas.
-- **express-session + connect-mongo** — Sesiones persistentes.
+- **express-session + connect-mongo** — Sesiones persistentes (web).
+- **jsonwebtoken** — Tokens JWT para autenticación API.
 - **bcryptjs** — Hash de contraseñas.
 - **dotenv** — Variables de entorno.
 
@@ -114,10 +116,14 @@ MONGO_URI=mongodb://127.0.0.1:27017/panificadora
 PUERTO=3000
 SESION_SECRETO=clave_secreta
 CLAVE_ALTA_PLANTA=clave_unica_para_alta_inicial
+JWT_SECRETO=clave_secreta_jwt
+JWT_TIEMPO_EXPIRACION=24h
 ```
 
 - `SESION_SECRETO` — Secreto para firmar las cookies de sesión.
 - `CLAVE_ALTA_PLANTA` — Habilita la ruta `/alta-planta` para crear el actor inicial tipo `PLANTA` solo si todavía no existe uno registrado.
+- `JWT_SECRETO` — Secreto para firmar los tokens JWT de la API.
+- `JWT_TIEMPO_EXPIRACION` — Duración del token (por defecto 24h).
 
 Ejecutar:
 
@@ -156,8 +162,11 @@ http://localhost:3000
 
 ### API REST
 
+Todas las rutas API (excepto `/api/login`) requieren autenticación mediante **JWT Bearer token**:
+
 | Método | Ruta                   | Descripción                       |
 |--------|------------------------|-----------------------------------|
+| POST   | `/api/login`           | Iniciar sesión (obtener JWT)      |
 | GET    | `/api/actores`         | Listar actores                    |
 | GET    | `/api/actores/:id`     | Obtener un actor                  |
 | POST   | `/api/actores`         | Crear actor                       |
