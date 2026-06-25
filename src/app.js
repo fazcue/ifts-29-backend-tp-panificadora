@@ -4,6 +4,8 @@ import conectarDB from './config/db.js'
 import { configurarSesion, inyectarDatosUsuario } from './config/session.js'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
+import { createServer } from 'http'
+import configurarSocket from './config/socket.js'
 // Rutas API
 import loginApiRouter from './routes/api/loginRoutes.js'
 import actoresRouter from './routes/api/actoresRoutes.js'
@@ -64,7 +66,10 @@ app.use((req, res) => res.status(404).render('error', { mensaje: 'Página no enc
 // MongoDB
 await conectarDB()
 
-// Servidor
-app.listen(PUERTO, () => {
+// Servidor HTTP + Socket.io
+const server = createServer(app)
+configurarSocket(server, app)
+
+server.listen(PUERTO, () => {
     console.log(`Servidor corriendo en http://localhost:${PUERTO}`)
 })
