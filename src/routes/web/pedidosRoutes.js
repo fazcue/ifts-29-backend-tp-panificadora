@@ -6,6 +6,7 @@ import {
 	renderFormularioEditarPedidoWeb,
 	renderFormularioNuevoPedidoWeb,
 	listarPedidosWeb,
+	renderListadoPedidos
 } from '../../controllers/pedido.controller.js'
 import { validarCrearPedidoWeb, validarActualizarPedidoWeb } from '../../middlewares/pedido.middleware.js'
 import { tienePermisosWeb } from '../../middlewares/abac.middleware.js'
@@ -19,5 +20,8 @@ router.post('/nuevo', tienePermisosWeb('pedidos', 'crear'), validarCrearPedidoWe
 router.get('/editar/:id', tienePermisosWeb('pedidos', 'editar', cargarPedido), renderFormularioEditarPedidoWeb)
 router.post('/editar/:id', tienePermisosWeb('pedidos', 'editar', cargarPedido),	validarActualizarPedidoWeb,	actualizarPedidoWeb)
 router.post('/eliminar/:id', tienePermisosWeb('pedidos', 'eliminar', cargarPedido),	eliminarPedidoWeb)
+
+//Re-renderizar listado (websocket)
+router.get('/listado', tienePermisosWeb('pedidos', 'ver'), renderListadoPedidos)
 
 export default router

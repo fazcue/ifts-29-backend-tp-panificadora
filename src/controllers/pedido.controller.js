@@ -5,6 +5,7 @@ import { esPlanta } from '../lib/tiposActor.js'
 import { obtenerEstadosPedido } from '../lib/estadosPedido.js'
 import { fmtFecha } from '../lib/utils.js'
 import { normalizarError, respuestaError } from '../validators/response.validator.js'
+import { emitirEventoPedidoActualizado, emitirEventoPedidoEliminado, emitirEventoPedidoNuevo } from '../services/socket.service.js'
 
 // Bases
 const listarPedidosBase = async (req, res, opciones) => {
@@ -36,6 +37,7 @@ const crearPedidoBase = async (req, res, opciones) => {
         const nuevo = await pedidoService.crearPedido(fecha_entrega_esperada, id_actor, productos)
 
         if (esWeb) {
+            emitirEventoPedidoNuevo(req, nuevo)
             return res.redirect('/pedidos')
         }
 
@@ -64,6 +66,7 @@ const actualizarPedidoBase = async (req, res, opciones) => {
         }
 
         if (esWeb) {
+            emitirEventoPedidoActualizado(req, pedido)
             return res.redirect('/pedidos')
         }
 
@@ -91,6 +94,7 @@ const eliminarPedidoBase = async (req, res, opciones) => {
         }
 
         if (esWeb) {
+            emitirEventoPedidoEliminado(req, pedido)
             return res.redirect('/pedidos')
         }
 
@@ -184,6 +188,25 @@ const renderFormularioEditarPedidoWeb = async (req, res) => {
     }
 }
 
+const renderListadoPedidos = async (req, res) => {
+    try {
+        const actorLogueado = req.session.user
+        const filtro = esPlanta(actorLogueado) ? {} : { actor: actorLogueado.id }
+
+        const pedidos = await pedidoService.obtenerPedidos(filtro)
+
+        res.render('pedidos/lista-pedidos', {
+            pedidos,
+            fmtFecha,
+            activo: actorLogueado.activo,
+            esPlanta: esPlanta(actorLogueado),
+        })
+    } catch (error) {
+        const resultado = normalizarError(error, 'Error al cargar listado')
+        respuestaError(res, resultado, true)
+    }
+}
+
 // Wrappers
 const listarPedidosApi = (req, res) => {
     return listarPedidosBase(req, res, { esWeb: false })
@@ -229,4 +252,5 @@ export {
     eliminarPedidoWeb,
     renderFormularioNuevoPedidoWeb,
     renderFormularioEditarPedidoWeb,
+    renderListadoPedidos
 }
