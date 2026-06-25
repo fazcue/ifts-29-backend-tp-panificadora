@@ -44,6 +44,10 @@ Incluye interfaz web, API JSON, autenticación con sesiones, control de acceso p
 - [x] Migración de servicios a dot notation (`actor.service.js`, `pedido.service.js`, etc.).
 - [x] Validadores modulares por dominio (`actor.validator.js`, `insumo.validator.js`, etc.).
 - [x] Helper `fmtFecha` para formateo de fechas.
+- [x] Notificaciones en tiempo real con Socket.io (autenticación por sesión Express).
+- [x] Actualización automática del listado de pedidos vía WebSocket (re-renderizado parcial con Pug).
+- [x] Toasts de notificación con Notyf al crear, actualizar o eliminar pedidos.
+- [x] Cliente Socket.io sin dependencia de query params (sesión compartida).
 
 ### Pendiente / futuro
 
@@ -80,6 +84,7 @@ El sistema usa ABAC basado en los atributos del actor autenticado, definido en `
 - **Pug** — Motor de plantillas.
 - **express-session + connect-mongo** — Sesiones persistentes (web).
 - **jsonwebtoken** — Tokens JWT para autenticación API.
+- **socket.io** — Notificaciones en tiempo real y actualización automática del listado de pedidos.
 - **bcryptjs** — Hash de contraseñas.
 - **dotenv** — Variables de entorno.
 
@@ -88,7 +93,7 @@ El sistema usa ABAC basado en los atributos del actor autenticado, definido en `
 ```txt
 src/
   app.js                  # Punto de entrada
-  config/                 # Conexión MongoDB y configuración de sesiones
+  config/                 # Conexión MongoDB, sesiones y configuración de Socket.io
   controllers/            # Controladores unificados (web/API según contexto)
   lib/                    # Constantes (estadosPedido.js, tiposActor.js, unidades.js) y helpers (utils.js)
   loaders/                # Carga de recursos para ABAC (resourceLoaders.js)
@@ -98,9 +103,11 @@ src/
   routes/
     api/                  # Rutas de la API REST
     web/                  # Rutas de la interfaz web
-  services/               # Lógica de negocio y acceso a datos (actor.service.js, etc.)
+  services/               # Lógica de negocio y acceso a datos (actor.service.js, socket.service.js, etc.)
   validators/             # Validaciones de dominio (actor.validator.js, insumo.validator.js, etc.)
   views/                  # Plantillas Pug (actores, insumos, pedidos, productos, reportes, comunes)
+public/
+  js/                     # Scripts del lado del cliente (notificaciones.js)
 ```
 
 ## Instalación

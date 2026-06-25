@@ -5,6 +5,9 @@ html
         meta(name='viewport' content='width=device-width, initial-scale=1')
         title= titulo || 'La Espiga de Oro S.R.L'
         link(rel='stylesheet' href='/css/styles.css')
+        //- Notyf
+        if user
+            link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css')
     body
         //- header
         include common/header.pug
@@ -14,3 +17,9 @@ html
         
         //- footer
         include common/footer.pug
+
+    //- WebSocket + Notyf
+    if user
+        script(src="/socket.io/socket.io.js")
+        script(src='https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js')
+        script(src='/js/notificaciones.js')

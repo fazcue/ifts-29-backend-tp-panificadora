@@ -11,27 +11,5 @@ block content
             a.btn(href='/pedidos/nuevo') Nuevo
 
     //- Listado pedidos
-    if pedidos.length > 0
-        ul.list
-            each pedido in pedidos
-                li.item
-                    div.info
-                        h3= `#${pedido.id}`
-
-                        if esPlanta
-                            p=  `Actor: ${pedido.actor.nombre}`
-
-                        if pedido.fecha_entrega_real
-                            p= `Entrega real: ${fmtFecha(pedido.fecha_entrega_real)}`
-                        else
-                            p= `Entrega esperada: ${fmtFecha(pedido.fecha_entrega_esperada)}`
-
-                    span.badge(class=pedido.estado === 'ENTREGADO' ? 'badge-on' : 'badge-off')= pedido.estado
-
-                    if esPlanta || activo && pedido.estado === 'PENDIENTE'
-                        div.actions
-                            a.btn.btn-secondary(href=`/pedidos/editar/${pedido.id}`) Editar
-                            form(action=`/pedidos/eliminar/${pedido.id}` method='POST')
-                                button.btn(type='submit') Eliminar
-    else
-        p.empty Sin pedidos registrados
+    div#lista-pedidos
+        include lista-pedidos.pug
