@@ -48,12 +48,12 @@ Incluye interfaz web, API JSON, autenticación con sesiones, control de acceso p
 - [x] Actualización automática del listado de pedidos vía WebSocket (re-renderizado parcial con Pug).
 - [x] Toasts de notificación con Notyf al crear, actualizar o eliminar pedidos.
 - [x] Cliente Socket.io sin dependencia de query params (sesión compartida).
+- [x] Módulo de royalties: cálculo automático (5% sobre ventas de pedidos entregados), listado con filtros, y gestión de estados de cobro.
 
 ### Pendiente / futuro
 
 - [ ] Informes para compra de insumos y materia prima según recetas.
 - [ ] Reportes para conciliación de facturación interna y externa.
-- [ ] Seguimiento del cobro de royalties a franquicias.
 - [ ] Indicadores de gestión para apoyar la toma de decisiones.
 - [ ] Documentación final de pruebas y funcionamiento.
 
@@ -67,6 +67,7 @@ El sistema usa ABAC basado en los atributos del actor autenticado, definido en `
 | Productos   | ver / crear / editar / eliminar | ✅       | ❌                               |
 | Insumos     | ver / crear / editar / eliminar | ✅       | ❌                               |
 | Reportes    | ver               | ✅       | ❌                               |
+| Royalties   | ver / calcular / cambiar estado | ✅       | ❌                               |
 | Pedidos     | ver               | ✅       | Solo los propios                  |
 | Pedidos     | crear              | ✅       | Solo si el actor está activo      |
 | Pedidos     | editar / eliminar  | ✅       | Solo si activo, propio y `PENDIENTE` |
@@ -75,6 +76,15 @@ El sistema usa ABAC basado en los atributos del actor autenticado, definido en `
 - Solo `PLANTA` puede gestionar actores, productos, insumos y ver reportes.
 - Debe existir un único actor `PLANTA`.
 - El actor `PLANTA` no puede desactivarse ni cambiar su tipo.
+
+## Arquitectura
+
+La aplicación separa la configuración de Express del ciclo de vida del servidor:
+
+- **`app.js`** — Configura y exporta la aplicación Express (middlewares, rutas, motor de vistas, manejo de sesiones). No conecta la base de datos ni inicia el servidor.
+- **`server.js`** — Importa `app`, conecta a MongoDB, crea el servidor HTTP con Socket.io, y escucha en el puerto configurado.
+
+Esta separación permite importar `app` en entornos de prueba sin levantar un servidor real ni depender de una base de datos.
 
 ## Tecnologías
 
@@ -92,13 +102,14 @@ El sistema usa ABAC basado en los atributos del actor autenticado, definido en `
 
 ```txt
 src/
-  app.js                  # Punto de entrada
+  server.js               # Punto de entrada: conecta DB, crea servidor HTTP + Socket.io
+  app.js                  # Configuración de Express (middlewares, rutas, sesiones, motor de vistas)
   config/                 # Conexión MongoDB, sesiones y configuración de Socket.io
   controllers/            # Controladores unificados (web/API según contexto)
   lib/                    # Constantes (estadosPedido.js, tiposActor.js, unidades.js) y helpers (utils.js)
   loaders/                # Carga de recursos para ABAC (resourceLoaders.js)
   middlewares/            # Middlewares por módulo (actor, insumo, pedido, producto), auth y ABAC
-  models/                 # Modelos Mongoose (Actor, DetallePedido, Insumo, Pedido, Producto, Receta)
+  models/                 # Modelos Mongoose (Actor, DetallePedido, Insumo, Pedido, Producto, Receta, Royalty)
   policies/               # Políticas ABAC (abacPolicies.js)
   routes/
     api/                  # Rutas de la API REST
@@ -166,6 +177,8 @@ http://localhost:3000
 | `/reportes`             | Acceso a reportes (solo PLANTA)                |
 | `/reportes/demanda-consolidada` | Demanda consolidada para producción    |
 | `/reportes/retrasos-entregas`   | Pedidos con retraso en la entrega       |
+| `/royalties`                    | Listado de royalties con filtros        |
+| `/royalties/calcular`           | Formulario y cálculo de royalty         |
 
 ### API REST
 
@@ -194,6 +207,9 @@ Todas las rutas API (excepto `/api/login`) requieren autenticación mediante **J
 | POST   | `/api/insumos`         | Crear insumo                      |
 | PUT    | `/api/insumos/:id`     | Actualizar insumo                 |
 | DELETE | `/api/insumos/:id`     | Eliminar insumo                   |
+| GET    | `/api/royalties`       | Listar royalties (con filtros)    |
+| POST   | `/api/royalties/calcular` | Calcular royalty para un actor y período |
+| PATCH  | `/api/royalties/:id/estado` | Cambiar estado del royalty    |
 
 ## Datos de dominio
 
@@ -217,6 +233,12 @@ Todas las rutas API (excepto `/api/login`) requieren autenticación mediante **J
 - `l` — litro
 - `ml` — mililitro
 - `unidades` — unidades
+
+### Estados de cobro (royalties)
+
+- `PENDIENTE`
+- `FACTURADO`
+- `COBRADO`
 
 ## Autor
 
