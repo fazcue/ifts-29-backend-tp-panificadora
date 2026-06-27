@@ -1,0 +1,59 @@
+extends ../layout
+include ../mixins/cabecera
+
+block content
+    //- Cabecera con acciones
+    +cabecera('Royalties')
+        a.btn(href='/royalties/calcular') Calcular
+
+    //- Filtros
+    form.panel(action='/royalties' method='GET')
+        div.field
+            label(for='id_actor') Franquicia
+            select#id_actor(name='id_actor')
+                option(value='') Todas
+                each franquicia in franquicias
+                    option(value=franquicia.id selected=(filtro && String(filtro.id_actor) === String(franquicia.id)))= franquicia.nombre
+
+        div.field
+            label(for='periodo') Período
+            select#periodo(name='periodo')
+                option(value='') Todos
+                each p in periodos
+                    option(value=p selected=(filtro && filtro.periodo === p))= p
+
+        div.field
+            label(for='estado') Estado
+            select#estado(name='estado')
+                option(value='') Todos
+                option(value='PENDIENTE' selected=(filtro && filtro.estado === 'PENDIENTE')) Pendiente
+                option(value='FACTURADO' selected=(filtro && filtro.estado === 'FACTURADO')) Facturado
+                option(value='COBRADO' selected=(filtro && filtro.estado === 'COBRADO')) Cobrado
+
+        div.actions
+            button.btn(type='submit') Filtrar
+
+    //- Listado
+    if royalties.length > 0
+        ul.list
+            each royalty in royalties
+                li.item
+                    div.info
+                        h3= royalty.actor.nombre
+                        p= `Período: ${royalty.periodo}`
+                        p= `Monto: $${royalty.monto_calculado.toFixed(2)}`
+
+                    span.badge(class=royalty.estado === 'COBRADO' ? 'badge-on' : 'badge-off')= royalty.estado
+
+                    if royalty.estado !== 'COBRADO'
+                        div.actions
+                            if royalty.estado === 'PENDIENTE'
+                                form(action=`/royalties/cambiar-estado/${royalty.id}` method='POST')
+                                    input(type='hidden' name='estado' value='FACTURADO')
+                                    button.btn(type='submit') Facturar
+                            if royalty.estado === 'FACTURADO'
+                                form(action=`/royalties/cambiar-estado/${royalty.id}` method='POST')
+                                    input(type='hidden' name='estado' value='COBRADO')
+                                    button.btn(type='submit') Cobrar
+    else
+        p.empty No hay royalties registrados para los filtros seleccionados
