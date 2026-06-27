@@ -5,9 +5,15 @@ import actorService from './actor.service.js'
 import { esIdValido, fmtFecha } from '../lib/utils.js'
 import { ESTADOS_PEDIDO, obtenerEstadosPedido } from '../lib/estadosPedido.js'
 
-const obtenerPedidos = async (filtro = {}) => {
-    return await Pedido.find(filtro)
-        .populate([
+const obtenerPedidos = async (filtro = {}, opciones = {}) => {
+    let query = Pedido.find(filtro)
+
+    if (opciones.select) {
+        query = query.select(opciones.select)
+    }
+
+    if (opciones.populate !== false) {
+        query = query.populate([
             'actor',
             {
                 path: 'productos',
@@ -15,7 +21,25 @@ const obtenerPedidos = async (filtro = {}) => {
                     path: 'producto',
                 },
             },
-	    ])
+        ])
+    }
+
+    return await query
+}
+
+const obtenerPeriodosConDatos = async () => {
+    const periodos = await Pedido.distinct('fecha_entrega_real', {
+        fecha_entrega_real: { $ne: null },
+    })
+
+    const set = new Set()
+    periodos.forEach((fecha) => {
+        const mes = String(fecha.getMonth() + 1).padStart(2, '0')
+        const anio = fecha.getFullYear()
+        set.add(`${anio}-${mes}`)
+    })
+
+    return [...set].sort().reverse()
 }
 
 const buscarPedidoPorId = async (id, atributos = null) => {
@@ -253,4 +277,5 @@ export default {
     productosExistentesPedido,
     obtenerDatosParaCrearPedido,
     obtenerDatosParaActualizarPedido,
+    obtenerPeriodosConDatos,
 }

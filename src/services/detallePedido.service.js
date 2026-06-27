@@ -20,7 +20,17 @@ const eliminarDetallesPorPedido = async (idPedido) => {
     return await DetallePedido.deleteMany({ pedido: idPedido })
 }
 
+const obtenerTotalVentasPorPedidos = async (idsPedidos) => {
+    const [result] = await DetallePedido.aggregate([
+        { $match: { pedido: { $in: idsPedidos } } },
+        { $group: { _id: null, total: { $sum: { $multiply: ['$cantidad', '$precio_unitario'] } } } },
+    ])
+
+    return result?.total ?? 0
+}
+
 export default {
     crearDetallesPedido,
     eliminarDetallesPorPedido,
+    obtenerTotalVentasPorPedidos,
 }

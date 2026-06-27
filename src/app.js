@@ -12,6 +12,7 @@ import actoresRouter from './routes/api/actoresRoutes.js'
 import pedidosRouter from './routes/api/pedidosRoutes.js'
 import productosRouter from './routes/api/productosRoutes.js'
 import insumosRouter from './routes/api/insumosRoutes.js'
+import royaltiesRouter from './routes/api/royaltiesRoutes.js'
 // Rutas Web
 import loginRouterWeb from './routes/web/loginRoutes.js'
 import actoresRouterWeb from './routes/web/actoresRoutes.js'
@@ -19,6 +20,7 @@ import pedidosRouterWeb from './routes/web/pedidosRoutes.js'
 import productosRouterWeb from './routes/web/productosRoutes.js'
 import reportesRouterWeb from './routes/web/reportesRoutes.js'
 import insumosRouterWeb from './routes/web/insumosRoutes.js'
+import royaltiesRouterWeb from './routes/web/royaltiesRoutes.js'
 
 import { protegerApi, protegerWeb } from './middlewares/auth.middleware.js'
 
@@ -51,6 +53,7 @@ app.use('/pedidos', protegerWeb, pedidosRouterWeb)
 app.use('/productos', protegerWeb, productosRouterWeb)
 app.use('/insumos', protegerWeb, insumosRouterWeb)
 app.use('/reportes', protegerWeb, reportesRouterWeb)
+app.use('/royalties', protegerWeb, royaltiesRouterWeb)
 
 // Rutas API
 app.use('/api/login', loginApiRouter)
@@ -58,6 +61,7 @@ app.use('/api/actores', protegerApi, actoresRouter)
 app.use('/api/pedidos', protegerApi, pedidosRouter)
 app.use('/api/productos', protegerApi, productosRouter)
 app.use('/api/insumos', protegerApi, insumosRouter)
+app.use('/api/royalties', protegerApi, royaltiesRouter)
 
 // 404
 app.use('/api', (req, res) => res.status(404).json({ error: 'Recurso no encontrado' }))

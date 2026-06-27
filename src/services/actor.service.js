@@ -20,6 +20,10 @@ const buscarActorPorEmail = async (email) => {
     return await Actor.findOne({ email: emailNormalizado })
 }
 
+const obtenerActoresPorTipo = async (tipo) => {
+    return await Actor.find({ tipo, activo: true }).select('-password')
+}
+
 const obtenerActoresActivos = async () => {
     return await Actor.find({ activo: true }).select('-password')
 }
@@ -156,6 +160,7 @@ export default {
     buscarActorPorId,
     buscarActorPorEmail,
     obtenerActoresActivos,
+    obtenerActoresPorTipo,
     existeActorPlanta,
     crearActor,
     actualizarActor,

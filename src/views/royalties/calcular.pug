@@ -1,0 +1,30 @@
+extends ../layout
+include ../mixins/cabecera
+include ../mixins/reporteError
+
+block content
+    //- Cabecera
+    +cabecera('Calcular royalty')
+
+    //- Reporte de error
+    +reporteError(mensaje)
+
+    //- Formulario
+    form.panel(action='/royalties/calcular' method='POST')
+        div.field
+            label(for='id_actor') Franquicia
+            select#id_actor(name='id_actor' required)
+                option(value='') Seleccionar...
+                each franquicia in franquicias
+                    option(value=franquicia.id)= franquicia.nombre
+
+        div.field
+            label(for='periodo') Período
+            select#periodo(name='periodo' required)
+                option(value='') Seleccionar...
+                each p in periodos
+                    option(value=p)= p
+
+        div.actions
+            button.btn(type='submit') Calcular
+            a.btn.btn-secondary(href='/royalties') Cancelar

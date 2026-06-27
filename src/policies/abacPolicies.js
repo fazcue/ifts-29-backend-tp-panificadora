@@ -56,6 +56,11 @@ const politicas = {
     },
     reportes: {
         ver: soloPlanta
+    },
+    royalties: {
+        ver: soloPlanta,
+        calcular: soloPlanta,
+        cambiarEstado: soloPlanta,
     }
 }
 
