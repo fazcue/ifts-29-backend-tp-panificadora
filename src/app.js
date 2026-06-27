@@ -28,6 +28,9 @@ dotenv.config()
 const app = express()
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
+// Soporte para proxies
+app.set('trust proxy', 1)
+
 // Middlewares
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
