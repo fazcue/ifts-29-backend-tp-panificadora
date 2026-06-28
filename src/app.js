@@ -1,5 +1,4 @@
 import express from 'express'
-import dotenv from 'dotenv'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { configurarSesion, inyectarDatosUsuario } from './config/session.js'
@@ -22,8 +21,6 @@ import insumosRouterWeb from './routes/web/insumosRoutes.js'
 import royaltiesRouterWeb from './routes/web/royaltiesRoutes.js'
 
 import { protegerApi, protegerWeb } from './middlewares/auth.middleware.js'
-
-dotenv.config()
 
 const app = express()
 const __dirname = dirname(fileURLToPath(import.meta.url))
