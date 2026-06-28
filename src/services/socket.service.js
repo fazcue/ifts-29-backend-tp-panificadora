@@ -34,37 +34,42 @@ const emitirEventoPedidoNuevo = (req, pedido, usuarioActuante) => {
 
 const emitirEventoPedidoActualizado = (req, pedido, usuarioActuante) => {
     const io = req.app.get('io')
+    if (!io || !pedido) return
 
-    if (io && pedido) {
-        const actorId = pedido.actor?.toString?.()
-        const idActorAntiguo = pedido.idActorAntiguo?.toString?.()
+    const actorId = pedido.actor?.toString?.()
+    const idActorAntiguo = pedido.idActorAntiguo?.toString?.()
+    const cambioActor = idActorAntiguo && idActorAntiguo !== actorId
 
-        const payload = {
-            id: pedido.id,
-            estado: pedido.estado,
-            mensaje: `Pedido actualizado.`,
-        }
+    const idActuante = usuarioActuante?.id?.toString?.()
+    const tipoActuante = usuarioActuante?.tipo
 
-        const idActuante = usuarioActuante?.id?.toString?.()
-        const tipoActuante = usuarioActuante?.tipo
+    const basePayload = {
+        id: pedido.id,
+        estado: pedido.estado,
+    }
 
-        // Si cambió el actor, notificar al anterior (solo si no es el actuante)
-        if (idActorAntiguo && idActorAntiguo !== actorId && idActuante !== idActorAntiguo) {
-            io.to(`actor:${idActorAntiguo}`).emit('pedido:actualizado', {
-                ...payload,
-                mensaje: `Pedido reasignado`,
-            })
-        }
+    // Notificar al actor antiguo si cambió (y no es el actuante)
+    if (cambioActor && idActuante !== idActorAntiguo) {
+        io.to(`actor:${idActorAntiguo}`).emit('pedido:actualizado', {
+            ...basePayload,
+            mensaje: 'Pedido reasignado',
+        })
+    }
 
-        // Notificar al actor actual (solo si no es el propio actuante)
-        if (actorId && idActuante !== actorId) {
-            io.to(`actor:${actorId}`).emit('pedido:actualizado', payload)
-        }
+    // Notificar al actor actual (si no es el actuante)
+    if (actorId && idActuante !== actorId) {
+        io.to(`actor:${actorId}`).emit('pedido:actualizado', {
+            ...basePayload,
+            mensaje: cambioActor ? 'Pedido nuevo' : 'Pedido actualizado.',
+        })
+    }
 
-        // Notificar a PLANTA (solo si el actuante no es PLANTA)
-        if (tipoActuante !== TIPOS_ACTOR.PLANTA) {
-            io.to(`tipo:${TIPOS_ACTOR.PLANTA}`).emit('pedido:actualizado', payload)
-        }
+    // Notificar a PLANTA (si el actuante no es PLANTA)
+    if (tipoActuante !== TIPOS_ACTOR.PLANTA) {
+        io.to(`tipo:${TIPOS_ACTOR.PLANTA}`).emit('pedido:actualizado', {
+            ...basePayload,
+            mensaje: 'Pedido actualizado.',
+        })
     }
 }
 
