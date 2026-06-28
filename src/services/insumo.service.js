@@ -74,8 +74,6 @@ const eliminarInsumo = async (id) => {
 
     const usadoEnReceta = await Receta.exists({ insumo: id })
 
-    console.log('USADO EN RECETA', usadoEnReceta)
-
 	if (usadoEnReceta) {
 		const error = new Error('No se puede eliminar un insumo asociado a productos')
 		error.estado = 409
