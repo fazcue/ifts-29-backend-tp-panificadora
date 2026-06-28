@@ -50,12 +50,15 @@ Incluye interfaz web, API JSON, autenticación con sesiones, control de acceso p
 - [x] Cliente Socket.io sin dependencia de query params (sesión compartida).
 - [x] Módulo de royalties: cálculo automático (5% sobre ventas de pedidos entregados), listado con filtros, y gestión de estados de cobro.
 
+- [x] Suite completa de tests (134 tests, 14 suites) cubriendo web y API.
+- [x] Tests aislados con `mongodb-memory-server`.
+- [x] Pruebas de autenticación, autorización ABAC y validaciones.
+
 ### Pendiente / futuro
 
 - [ ] Informes para compra de insumos y materia prima según recetas.
 - [ ] Reportes para conciliación de facturación interna y externa.
 - [ ] Indicadores de gestión para apoyar la toma de decisiones.
-- [ ] Documentación final de pruebas y funcionamiento.
 
 ## Reglas de acceso (ABAC)
 
@@ -239,6 +242,25 @@ Todas las rutas API (excepto `/api/login`) requieren autenticación mediante **J
 - `PENDIENTE`
 - `FACTURADO`
 - `COBRADO`
+
+## Tests
+
+### Ejecución
+
+```bash
+npm test
+```
+
+Muestra resultados por suite y por cada test individual.
+
+### Características
+
+- Cada suite crea su propia base de datos en memoria (`mongodb-memory-server`), sin depender de MongoDB externo.
+- Usa `supertest` para probar la aplicación Express sin levantar un servidor real.
+- Los tests web extraen la cookie de sesión para simular usuarios autenticados.
+- Los tests API obtienen un token JWT mediante `POST /api/login`.
+- Comparten helpers desde `tests/helpers.js` (`crearActor`, `loginComo`, `limpiarColecciones`).
+- Cubren happy paths, errores de validación, duplicados, dependencias, autorización ABAC y edge cases.
 
 ## Autor
 

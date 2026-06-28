@@ -31,8 +31,9 @@ const validarCrearPedidoBase = async (req, res, next, opciones) => {
         }
 
         // id actor (si no es PLANTA, debe ser igual a user.id)
-        if (!esPlanta(req.session.user)) {
-            id_actor = req.session.user.id
+        const userCrear = esWeb ? req.session.user : req.user
+        if (!esPlanta(userCrear)) {
+            id_actor = userCrear.id
         }
 
         // actor
@@ -83,7 +84,8 @@ const validarActualizarPedidoBase = async (req, res, next, opciones) => {
         }
 
         // si no es planta, mantener valores de atributos no editables
-        if (!esPlanta(req.session.user)) {
+        const userActualizar = esWeb ? req.session.user : req.user
+        if (!esPlanta(userActualizar)) {
             estado = resultadoPedido.valor.estado
             id_actor = resultadoPedido.valor.actor.id
         }

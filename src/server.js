@@ -1,10 +1,7 @@
-import dotenv from 'dotenv'
 import { createServer } from 'http'
 import app from './app.js'
 import conectarDB from './config/db.js'
 import configurarSocket from './config/socket.js'
-
-dotenv.config()
 
 const PUERTO = process.env.PUERTO || 3000
 

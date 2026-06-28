@@ -29,7 +29,7 @@ const calcularRoyalty = async (actorId, periodo) => {
     return await Royalty.findOneAndUpdate(
         { actor: actorId, periodo },
         { monto_calculado: monto, estado: 'PENDIENTE' },
-        { upsert: true, new: true, runValidators: true },
+        { upsert: true, returnDocument: 'after', runValidators: true },
     )
 }
 

@@ -2,16 +2,18 @@ import session from 'express-session'
 import MongoStore from 'connect-mongo'
 import dotenv from 'dotenv'
 
-dotenv.config()
+dotenv.config({ quiet: true })
+
+const store = MongoStore.create({
+	mongoUrl: process.env.MONGO_URI,
+	ttl: 14 * 24 * 60 * 60,
+})
 
 const configurarSesion = session({
 	secret: process.env.SESION_SECRETO,
 	resave: false,
 	saveUninitialized: false,
-	store: MongoStore.create({
-		mongoUrl: process.env.MONGO_URI,
-		ttl: 14 * 24 * 60 * 60,
-	}),
+	store,
 	cookie: {
 		secure: process.env.NODE_ENV === 'production',
 		httpOnly: true,
@@ -46,4 +48,4 @@ const iniciarSesion = (req, res, actor, opciones = {}) => {
 	})
 }
 
-export { configurarSesion, inyectarDatosUsuario, iniciarSesion }
+export { configurarSesion, inyectarDatosUsuario, iniciarSesion, store }
