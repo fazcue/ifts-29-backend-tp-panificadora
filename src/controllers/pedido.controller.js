@@ -37,7 +37,7 @@ const crearPedidoBase = async (req, res, opciones) => {
         const nuevo = await pedidoService.crearPedido(fecha_entrega_esperada, id_actor, productos)
 
         if (esWeb) {
-            emitirEventoPedidoNuevo(req, nuevo)
+            emitirEventoPedidoNuevo(req, nuevo, req.session.user)
             return res.redirect('/pedidos')
         }
 
@@ -66,7 +66,7 @@ const actualizarPedidoBase = async (req, res, opciones) => {
         }
 
         if (esWeb) {
-            emitirEventoPedidoActualizado(req, pedido)
+            emitirEventoPedidoActualizado(req, pedido, req.session.user)
             return res.redirect('/pedidos')
         }
 
@@ -94,7 +94,7 @@ const eliminarPedidoBase = async (req, res, opciones) => {
         }
 
         if (esWeb) {
-            emitirEventoPedidoEliminado(req, pedido)
+            emitirEventoPedidoEliminado(req, pedido, req.session.user)
             return res.redirect('/pedidos')
         }
 

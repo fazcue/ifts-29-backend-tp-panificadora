@@ -157,6 +157,9 @@ const actualizarPedido = async (id, fechaEntregaEsperada, estado, idActor, produ
         return null
     }
 
+    // Guardar referencia al actor anterior para notificaciones socket
+    pedido.idActorAntiguo = pedidoActual.actor
+
     if (productos) {
         await detallePedidoService.eliminarDetallesPorPedido(id)
         await detallePedidoService.crearDetallesPedido(id, productos)

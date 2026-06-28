@@ -45,6 +45,8 @@ Incluye interfaz web, API JSON, autenticación con sesiones, control de acceso p
 - [x] Validadores modulares por dominio (`actor.validator.js`, `insumo.validator.js`, etc.).
 - [x] Helper `fmtFecha` para formateo de fechas.
 - [x] Notificaciones en tiempo real con Socket.io (autenticación por sesión Express).
+- [x] Notificaciones filtradas por actor actuante: no se notifica al usuario que realizó la acción, y no se notifica a PLANTA si PLANTA fue quien ejecutó la operación.
+- [x] Notificación de reasignación de pedido al actor anterior cuando un pedido cambia de responsable.
 - [x] Actualización automática del listado de pedidos vía WebSocket (re-renderizado parcial con Pug).
 - [x] Toasts de notificación con Notyf al crear, actualizar o eliminar pedidos.
 - [x] Cliente Socket.io sin dependencia de query params (sesión compartida).
@@ -100,6 +102,9 @@ Esta separación permite importar `app` en entornos de prueba sin levantar un se
 - **socket.io** — Notificaciones en tiempo real y actualización automática del listado de pedidos.
 - **bcryptjs** — Hash de contraseñas.
 - **dotenv** — Variables de entorno.
+- **jest** — Framework de testing.
+- **supertest** — Pruebas HTTP para Express.
+- **mongodb-memory-server** — Base de datos MongoDB en memoria para tests aislados.
 
 ## Estructura del proyecto
 
@@ -117,7 +122,7 @@ src/
   routes/
     api/                  # Rutas de la API REST
     web/                  # Rutas de la interfaz web
-  services/               # Lógica de negocio y acceso a datos (actor.service.js, socket.service.js, etc.)
+  services/               # Lógica de negocio y acceso a datos (actor.service.js, pedido.service.js, socket.service.js, etc.)
   validators/             # Validaciones de dominio (actor.validator.js, insumo.validator.js, etc.)
   views/                  # Plantillas Pug (actores, insumos, pedidos, productos, reportes, comunes)
 public/
